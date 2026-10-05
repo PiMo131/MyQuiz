@@ -20,10 +20,12 @@ export interface GameEndProps {
   lost?: boolean
 }
 
-export function GameEnd({ setId, title, scoreLabel, score, bestLabel, best, isNewBest, onPlayAgain, children, lost }: GameEndProps) {
+export function GameEnd({ setId, title, scoreLabel, score, bestLabel, best, isNewBest: isNewBestRaw, onPlayAgain, children, lost }: GameEndProps) {
   const { t } = useTranslation(['games', 'common'])
   const play = useSfx()
   const fired = useRef(false)
+  // a first play with 0 points is technically a "best", but nothing to celebrate
+  const isNewBest = isNewBestRaw && !(typeof score === 'number' && score <= 0)
   useEffect(() => {
     if (fired.current) return
     fired.current = true
