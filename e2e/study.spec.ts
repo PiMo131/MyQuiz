@@ -14,6 +14,7 @@ test('flashcards: flip with Space, next with →, sorting mode to summary', asyn
   await page.goto(`/#/set/${id}/flashcards`)
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByText('Choose card sorting')).toBeVisible()
+  await dialog.getByRole('button', { name: /^Browsing/ }).click()
   await dialog.getByRole('button', { name: 'Start' }).click()
   const card = page.getByRole('button', { name: /Flashcard, press Space/ })
   await expect(card).toBeVisible()
@@ -26,6 +27,11 @@ test('flashcards: flip with Space, next with →, sorting mode to summary', asyn
   await expect(card).toHaveAttribute('aria-pressed', 'false')
   await page.keyboard.press('ArrowLeft')
   await expect(page.getByText('1 / 4').first()).toBeVisible()
+  // Clicking the card focuses it; Space must then flip exactly once (not twice).
+  await card.click()
+  await expect(card).toHaveAttribute('aria-pressed', 'true')
+  await page.keyboard.press('Space')
+  await expect(card).toHaveAttribute('aria-pressed', 'false')
 
   // Switch to basic sorting
   await page.getByRole('banner').getByRole('button', { name: 'Options' }).click()

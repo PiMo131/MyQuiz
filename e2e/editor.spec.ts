@@ -34,7 +34,7 @@ test('import tab-separated text via the editor Import modal', async ({ page }) =
   await expect(dialog.getByText('Import your data')).toBeVisible()
   await dialog.getByRole('textbox', { name: 'Paste text' }).fill('red\trood\ngreen\tgroen\nblue\tblauw')
   await expect(dialog.getByRole('heading', { name: /Preview.*3 cards/ })).toBeVisible()
-  await dialog.getByRole('button', { name: 'Import', exact: true }).click()
+  await dialog.getByRole('button', { name: /^Import \(3\)/ }).click()
   await expect(dialog).toBeHidden()
   await expect(page.getByRole('article', { name: 'Card 3' }).getByRole('textbox', { name: 'Term' })).toHaveValue('blue')
   await page.getByRole('button', { name: 'Create', exact: true }).last().click()

@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import i18n from 'i18next'
 import { cn } from './cn'
 
 export interface ModalProps {
@@ -37,7 +38,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md', cla
             <div className="text-xl font-bold">{title}</div>
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={i18n.t("common.close", { defaultValue: "Close" })}
               className="rounded-full p-1.5 text-muted hover:bg-surface-2 hover:text-text"
             >
               <X size={20} />

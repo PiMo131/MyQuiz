@@ -448,7 +448,8 @@ export default function EditorPage() {
       </DndContext>
 
       <div className="mt-6 flex justify-center">
-        <Button variant="secondary" size="lg" leftIcon={<Plus size={18} />} onClick={() => addCard()}>
+        {/* Keep focus in the textarea on mousedown: blurring collapses the formatting toolbar, which would shift this button away before mouseup and swallow the click. */}
+        <Button variant="secondary" size="lg" leftIcon={<Plus size={18} />} onMouseDown={(e) => e.preventDefault()} onClick={() => addCard()}>
           {t('addCard')}
         </Button>
       </div>

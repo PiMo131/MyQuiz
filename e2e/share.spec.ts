@@ -45,8 +45,7 @@ test('export JSON → import the file via /#/import', async ({ page }) => {
 
   await page.goto('/#/import')
   await expect(page.getByRole('heading', { name: 'Import set' })).toBeVisible()
-  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('button', { name: 'Choose file' }).click()])
-  await chooser.setFiles(path!)
+  await page.locator('input[type=file]').first().setInputFiles(path!)
   await expect(page.getByText('Preview')).toBeVisible()
   await page.getByRole('button', { name: /^(Import|Import as copy)$/ }).first().click()
   await page.waitForURL(/#\/set\/[^/]+$/)

@@ -24,6 +24,8 @@ export function useKeys(map: Record<string, KeyHandler>, opts: { enabled?: boole
     if (!enabled) return
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
+      // Already handled by a focused element (e.g. the flip card's own Space/Enter handler).
+      if (e.defaultPrevented) return
       if (!allow && isTyping(e)) return
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key
       const h = ref.current[key] ?? ref.current[e.key]
