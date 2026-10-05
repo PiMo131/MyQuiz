@@ -146,6 +146,7 @@ export default function MatchPage() {
                 <button
                   key={tile.id}
                   role="gridcell"
+                  data-card={tile.cardId}
                   aria-pressed={selected}
                   aria-hidden={matched}
                   tabIndex={matched ? -1 : 0}
