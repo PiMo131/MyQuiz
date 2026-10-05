@@ -32,7 +32,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md', cla
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-dark/60 backdrop-blur-[2px]" onClick={onClose} />
-      <div className={cn('card animate-pop relative flex w-full flex-col overflow-hidden p-0', sizes[size], className)}>
+      <div className={cn('card animate-pop relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden p-0', sizes[size], className)}>
         {(
           <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-2">
             <div className="text-xl font-bold">{title}</div>

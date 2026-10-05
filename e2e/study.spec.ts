@@ -33,16 +33,26 @@ test('flashcards: flip with Space, next with →, sorting mode to summary', asyn
   await page.keyboard.press('Space')
   await expect(card).toHaveAttribute('aria-pressed', 'false')
 
-  // Switch to basic sorting
+  // Options modal opens and closes
   await page.getByRole('banner').getByRole('button', { name: 'Options' }).click()
-  await page.getByRole('button', { name: /Basic sorting/ }).click()
+  await expect(page.getByRole('dialog').getByRole('switch', { name: 'Track progress' })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+
+  // Restart in basic sorting mode
+  await page.goto(`/#/set/${id}/flashcards`)
+  await page.getByRole('dialog').getByRole('button', { name: /^Basic sorting/ }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Start' }).click()
   const know = page.getByRole('button', { name: 'Know', exact: true })
   const learning = page.getByRole('button', { name: 'Still learning', exact: true })
   await expect(know).toBeVisible()
+  // each grade plays a short swipe animation before the next card appears
   await learning.click()
+  await expect(page.getByRole('banner')).toContainText('2 / 4')
   await know.click()
+  await expect(page.getByRole('banner')).toContainText('3 / 4')
   await know.click()
+  await expect(page.getByRole('banner')).toContainText('4 / 4')
   await know.click()
   await expect(page.getByRole('heading', { name: /Round 1 done/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Continue with 1 still learning/ })).toBeVisible()
@@ -61,6 +71,7 @@ test('learn: answer a multiple-choice question and continue', async ({ page }) =
   // Feedback: either correct or still-learning; the remaining options are disabled.
   await expect(page.getByText(/Correct!|No sweat/)).toBeVisible()
   expect(text.length).toBeGreaterThan(0)
+  await page.waitForTimeout(300) // "press any key" listener is armed after a short delay
   await page.keyboard.press('Enter')
   await expect(page.getByText(/Choose an answer|Type the answer/)).toBeVisible()
   assertNoErrors(log)
