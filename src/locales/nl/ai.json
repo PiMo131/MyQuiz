@@ -30,16 +30,43 @@
     "noSets": "Je hebt nog geen sets. Maak er eerst een.",
     "askHint": "Vraag AI vind je op de setpagina: open een set en tik op de knop “Vraag AI ✦”.",
     "tools": {
-      "generate": { "title": "Flashcards genereren", "desc": "Plak aantekeningen, upload een bestand of neem audio op en krijg een bewerkbare set." },
-      "studyGuide": { "title": "Studiegids", "desc": "Overzicht, kernbegrippen, samenvatting en oefenvragen uit je materiaal." },
-      "practiceTest": { "title": "Oefentoets", "desc": "Meerkeuze-, waar/niet waar- en schrijfvragen uit je sets." },
-      "listen": { "title": "Luistermodus", "desc": "Een gesproken podcast van je set met denkpauzes. Handsfree leren." },
-      "ask": { "title": "Vraag AI", "desc": "Een tutor die je set kent: overhoren, ezelsbruggetjes, kernbegrippen." }
+      "generate": {
+        "title": "Flashcards genereren",
+        "desc": "Plak aantekeningen, upload een bestand of neem audio op en krijg een bewerkbare set."
+      },
+      "studyGuide": {
+        "title": "Studiegids",
+        "desc": "Overzicht, kernbegrippen, samenvatting en oefenvragen uit je materiaal."
+      },
+      "practiceTest": {
+        "title": "Oefentoets",
+        "desc": "Meerkeuze-, waar/niet waar- en schrijfvragen uit je sets."
+      },
+      "listen": {
+        "title": "Luistermodus",
+        "desc": "Een gesproken podcast van je set met denkpauzes. Handsfree leren."
+      },
+      "ask": {
+        "title": "Vraag AI",
+        "desc": "Een tutor die je set kent: overhoren, ezelsbruggetjes, kernbegrippen."
+      }
     }
   },
-  "langs": { "auto": "Automatisch herkennen", "nl": "Nederlands", "en": "Engels", "de": "Duits", "fr": "Frans", "es": "Spaans" },
+  "langs": {
+    "auto": "Automatisch herkennen",
+    "nl": "Nederlands",
+    "en": "Engels",
+    "de": "Duits",
+    "fr": "Frans",
+    "es": "Spaans"
+  },
   "source": {
-    "tabs": { "paste": "Tekst plakken", "upload": "Bestand uploaden", "url": "Van URL", "record": "Audio opnemen" },
+    "tabs": {
+      "paste": "Tekst plakken",
+      "upload": "Bestand uploaden",
+      "url": "Van URL",
+      "record": "Audio opnemen"
+    },
     "pastePlaceholder": "Zet hier je aantekeningen neer. Wij doen de rest.",
     "dropHere": "Sleep bestanden hierheen of kies een bestand",
     "fileTypes": ".txt, .md, .csv, .tsv, .pdf — Word-bestanden: kopieer de tekst en plak die.",
@@ -122,7 +149,15 @@
     "useTemplate": "Terug naar standaardscript",
     "scriptReady": "Gesprekkig script klaar",
     "scriptFailed": "Het model gaf geen bruikbaar script terug.",
-    "kind": { "intro": "Intro", "term": "Term — wat is het?", "definition": "Definitie", "pause": "Pauze", "recap": "Herhaling", "outro": "Klaar", "line": "" },
+    "kind": {
+      "intro": "Intro",
+      "term": "Term — wat is het?",
+      "definition": "Definitie",
+      "pause": "Pauze",
+      "recap": "Herhaling",
+      "outro": "Klaar",
+      "line": ""
+    },
     "thinkPause": "Bedenk het antwoord…",
     "play": "Afspelen",
     "pause": "Pauzeren",
@@ -157,7 +192,13 @@
     "intro": "AI-functies werken altijd met ingebouwde regels. Voor rijkere resultaten kies je een model dat op je apparaat draait, of gebruik je je eigen API-sleutel.",
     "activeNow": "Nu actief:",
     "provider": "Aanbieder",
-    "providers": { "auto": "Automatisch (aanbevolen)", "heuristics": "Alleen basis (geen model)", "chrome-nano": "Ingebouwde AI van Chrome", "webllm": "Lokaal model (WebLLM)", "byok": "Eigen API-sleutel / proxy" },
+    "providers": {
+      "auto": "Automatisch (aanbevolen)",
+      "heuristics": "Alleen basis (geen model)",
+      "chrome-nano": "Ingebouwde AI van Chrome",
+      "webllm": "Lokaal model (WebLLM)",
+      "byok": "Eigen API-sleutel / proxy"
+    },
     "providerHint": {
       "auto": "Gebruikt je sleutel als die is ingesteld, anders Chrome AI, anders het lokale model zodra gedownload, anders Basis.",
       "heuristics": "Er wordt nooit een model gebruikt. Snelst en volledig privé.",
@@ -170,7 +211,13 @@
       "desc": "Gemini Nano in Chrome. Gratis, op het apparaat, geen instellingen behalve de eenmalige download door Chrome.",
       "unavailable": "Niet beschikbaar in deze browser. Chrome 138+ op desktop met 22 GB vrije schijfruimte is vereist.",
       "download": "Model downloaden",
-      "state": { "unknown": "Controleren…", "available": "Klaar", "downloadable": "Beschikbaar om te downloaden", "downloading": "Downloaden…", "unavailable": "Niet beschikbaar op dit apparaat" }
+      "state": {
+        "unknown": "Controleren…",
+        "available": "Klaar",
+        "downloadable": "Beschikbaar om te downloaden",
+        "downloading": "Downloaden…",
+        "unavailable": "Niet beschikbaar op dit apparaat"
+      }
     },
     "webllm": {
       "title": "Lokaal model (WebLLM)",
@@ -212,7 +259,13 @@
     "enable": "Voorlezen",
     "enableHint": "Luidsprekerknoppen op kaarten en de luistermodus gebruiken de stemmen van je browser.",
     "rate": "Snelheid: {{value}}×",
-    "voiceFor": { "nl": "Stem voor Nederlands", "en": "Stem voor Engels", "de": "Stem voor Duits", "fr": "Stem voor Frans", "es": "Stem voor Spaans" },
+    "voiceFor": {
+      "nl": "Stem voor Nederlands",
+      "en": "Stem voor Engels",
+      "de": "Stem voor Duits",
+      "fr": "Stem voor Frans",
+      "es": "Stem voor Spaans"
+    },
     "autoVoice": "Automatisch ({{name}})",
     "noVoices": "Geen stem geïnstalleerd voor deze taal. Voeg er een toe in je systeeminstellingen.",
     "test": "Testen"

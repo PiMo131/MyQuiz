@@ -32,7 +32,9 @@ describe('json parsing', () => {
     expect(extractJson('<think>hmm</think>{"a":[1,2]}')).toEqual({ a: [1, 2] })
   })
   it('parses cards with alternative keys', () => {
-    const cards = parseCards('{"cards":[{"term":"a","definition":"b"},{"front":"c","back":"d"},{"term":"","definition":"x"}]}')
+    const cards = parseCards(
+      '{"cards":[{"term":"a","definition":"b"},{"front":"c","back":"d"},{"term":"","definition":"x"}]}',
+    )
     expect(cards).toEqual([
       { term: 'a', definition: 'b', hint: undefined },
       { term: 'c', definition: 'd', hint: undefined },
@@ -43,10 +45,15 @@ describe('json parsing', () => {
     expect(parseGrade('No, that is wrong')).toEqual({ correct: false, confidence: 0.6 })
   })
   it('parses a study guide and a practice test', () => {
-    const g = parseStudyGuide('{"title":"T","outline":[{"heading":"H","points":["p"]}],"keyTerms":[{"term":"k"}],"summary":"s","questions":[{"question":"q","answer":"a"}]}', 'fb')
+    const g = parseStudyGuide(
+      '{"title":"T","outline":[{"heading":"H","points":["p"]}],"keyTerms":[{"term":"k"}],"summary":"s","questions":[{"question":"q","answer":"a"}]}',
+      'fb',
+    )
     expect(g.summary).toEqual(['s'])
     expect(g.outline[0].heading).toBe('H')
-    const qs = parsePracticeTest('{"questions":[{"type":"multipleChoice","prompt":"p","options":["x","y","z","a"],"answer":"a"},{"type":"trueFalse","prompt":"s","answer":"waar"}]}')
+    const qs = parsePracticeTest(
+      '{"questions":[{"type":"multipleChoice","prompt":"p","options":["x","y","z","a"],"answer":"a"},{"type":"trueFalse","prompt":"s","answer":"waar"}]}',
+    )
     expect(qs).toHaveLength(2)
     expect(qs[1].answer).toBe('true')
   })

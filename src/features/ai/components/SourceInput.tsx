@@ -26,12 +26,21 @@ interface RecognitionLike {
 }
 
 function recognitionCtor(): (new () => RecognitionLike) | undefined {
-  const g = globalThis as unknown as { SpeechRecognition?: new () => RecognitionLike; webkitSpeechRecognition?: new () => RecognitionLike }
+  const g = globalThis as unknown as {
+    SpeechRecognition?: new () => RecognitionLike
+    webkitSpeechRecognition?: new () => RecognitionLike
+  }
   return g.SpeechRecognition ?? g.webkitSpeechRecognition
 }
 
 /** Paste / upload / URL / record input used by Generate, Study guide and Practice test. */
-export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url', 'record'], maxChars = 100_000, className }: SourceInputProps) {
+export function SourceInput({
+  value,
+  onChange,
+  tabs = ['paste', 'upload', 'url', 'record'],
+  maxChars = 100_000,
+  className,
+}: SourceInputProps) {
   const { t, i18n } = useTranslation('ai')
   const [tab, setTab] = useState<SourceTab>(tabs[0])
   const [drag, setDrag] = useState(false)
@@ -56,7 +65,8 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
     for (const f of list) {
       const r = await extractText(f, (p) => setProgress(p))
       if (r.ok) parts.push(r.text)
-      else problems.push(`${f.name}: ${t(`source.fileError.${r.reason}`)}${r.message ? ` (${r.message})` : ''}`)
+      else
+        problems.push(`${f.name}: ${t(`source.fileError.${r.reason}`)}${r.message ? ` (${r.message})` : ''}`)
     }
     setProgress(null)
     if (parts.length) {
@@ -107,7 +117,8 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
     let acc = value
     rec.onresult = (e) => {
       let final = ''
-      for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) final += e.results[i][0].transcript + ' '
+      for (let i = e.resultIndex; i < e.results.length; i++)
+        if (e.results[i].isFinal) final += e.results[i][0].transcript + ' '
       if (final) {
         acc = (acc + ' ' + final).trim()
         onChange(acc.slice(0, maxChars))
@@ -127,7 +138,13 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
       <Tabs items={items} value={tab} onChange={setTab} variant="underline" />
       {tab === 'paste' && (
         <div>
-          <Textarea value={value} onChange={(e) => onChange(e.target.value.slice(0, maxChars))} placeholder={t('source.pastePlaceholder')} className="min-h-48 font-[inherit]" aria-label={t('source.tabs.paste')} />
+          <Textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value.slice(0, maxChars))}
+            placeholder={t('source.pastePlaceholder')}
+            className="min-h-48 font-[inherit]"
+            aria-label={t('source.tabs.paste')}
+          />
           <div className="mt-1 flex justify-between text-xs text-muted">
             <span>{fileMsg}</span>
             <span>
@@ -138,16 +155,38 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
       )}
       {tab === 'upload' && (
         <div
-          onDragOver={(e) => { e.preventDefault(); setDrag(true) }}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDrag(true)
+          }}
           onDragLeave={() => setDrag(false)}
-          onDrop={(e) => { e.preventDefault(); setDrag(false); void handleFiles(e.dataTransfer.files) }}
-          className={cn('flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors', drag ? 'border-primary bg-primary-soft' : 'border-border')}
+          onDrop={(e) => {
+            e.preventDefault()
+            setDrag(false)
+            void handleFiles(e.dataTransfer.files)
+          }}
+          className={cn(
+            'flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors',
+            drag ? 'border-primary bg-primary-soft' : 'border-border',
+          )}
         >
           <FileUp className="text-primary" />
           <div className="text-sm">{t('source.dropHere')}</div>
           <div className="text-xs text-muted">{t('source.fileTypes')}</div>
-          <input ref={fileRef} type="file" accept=".txt,.md,.markdown,.csv,.tsv,.pdf,.docx,.json,text/*,application/pdf" multiple className="hidden" onChange={(e) => e.target.files && void handleFiles(e.target.files)} />
-          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} loading={progress !== null}>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".txt,.md,.markdown,.csv,.tsv,.pdf,.docx,.json,text/*,application/pdf"
+            multiple
+            className="hidden"
+            onChange={(e) => e.target.files && void handleFiles(e.target.files)}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+            loading={progress !== null}
+          >
             {progress !== null ? `${Math.round(progress * 100)}%` : t('source.chooseFile')}
           </Button>
           {fileMsg && <p className="whitespace-pre-line text-xs text-muted">{fileMsg}</p>}
@@ -156,7 +195,13 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
       {tab === 'url' && (
         <div className="space-y-2">
           <div className="flex gap-2">
-            <Input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" aria-label={t('source.tabs.url')} />
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://…"
+              aria-label={t('source.tabs.url')}
+            />
             <Button onClick={() => void fetchUrl()} leftIcon={<Link2 size={16} />}>
               {t('source.fetch')}
             </Button>
@@ -169,7 +214,11 @@ export function SourceInput({ value, onChange, tabs = ['paste', 'upload', 'url',
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border px-6 py-8 text-center">
           {recSupported ? (
             <>
-              <Button variant={recording ? 'danger' : 'primary'} onClick={toggleRecord} leftIcon={recording ? <MicOff size={16} /> : <Mic size={16} />}>
+              <Button
+                variant={recording ? 'danger' : 'primary'}
+                onClick={toggleRecord}
+                leftIcon={recording ? <MicOff size={16} /> : <Mic size={16} />}
+              >
                 {recording ? t('source.stopRecording') : t('source.startRecording')}
               </Button>
               <p className="text-xs text-muted">{t('source.recordHint')}</p>

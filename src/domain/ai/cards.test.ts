@@ -37,7 +37,9 @@ describe('extractCards', () => {
     expect(terms.some((t) => /osmose/i.test(t))).toBe(true)
     const foto = cards.find((c) => c.term === 'Fotosynthese')!
     expect(foto.definition).toMatch(/^het proces/)
-    expect(cards.find((c) => c.term === 'Wat is een enzym?')!.definition).toBe('Een eiwit dat reacties versnelt.')
+    expect(cards.find((c) => c.term === 'Wat is een enzym?')!.definition).toBe(
+      'Een eiwit dat reacties versnelt.',
+    )
     // the heading should not become a card with a colon-less paragraph of itself
     expect(terms).not.toContain('Biologie hoofdstuk 3')
   })
@@ -82,7 +84,11 @@ describe('applyCardStyle', () => {
     expect(applyCardStyle(base, 'qa', 'en')[0].term).toBe('What is Osmose?')
   })
   it('builds cloze text', () => {
-    const c = applyCardStyle([{ term: 'water', definition: 'Osmose is verplaatsing van water door een membraan' }], 'cloze', 'nl')[0]
+    const c = applyCardStyle(
+      [{ term: 'water', definition: 'Osmose is verplaatsing van water door een membraan' }],
+      'cloze',
+      'nl',
+    )[0]
     expect(c.cloze).toBe('Osmose is verplaatsing van {{c1::water}} door een membraan')
     expect(applyCardStyle(base, 'cloze', 'nl')[0].cloze).toContain('{{c1::Osmose}}')
   })

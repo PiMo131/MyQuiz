@@ -30,14 +30,33 @@
     "noSets": "You don't have any sets yet. Create one first.",
     "askHint": "Ask AI lives on the set page: open a set and tap the “Ask AI ✦” button.",
     "tools": {
-      "generate": { "title": "Generate flashcards", "desc": "Paste notes, upload a file or record audio and get an editable set." },
-      "studyGuide": { "title": "Study guide", "desc": "Outline, key terms, summary and practice questions from your material." },
-      "practiceTest": { "title": "Practice test", "desc": "Multiple choice, true/false and written questions from your sets." },
-      "listen": { "title": "Listen mode", "desc": "A spoken podcast of your set with recall pauses. Learn hands-free." },
+      "generate": {
+        "title": "Generate flashcards",
+        "desc": "Paste notes, upload a file or record audio and get an editable set."
+      },
+      "studyGuide": {
+        "title": "Study guide",
+        "desc": "Outline, key terms, summary and practice questions from your material."
+      },
+      "practiceTest": {
+        "title": "Practice test",
+        "desc": "Multiple choice, true/false and written questions from your sets."
+      },
+      "listen": {
+        "title": "Listen mode",
+        "desc": "A spoken podcast of your set with recall pauses. Learn hands-free."
+      },
       "ask": { "title": "Ask AI", "desc": "A tutor that knows your set: quiz me, mnemonics, key concepts." }
     }
   },
-  "langs": { "auto": "Detect automatically", "nl": "Dutch", "en": "English", "de": "German", "fr": "French", "es": "Spanish" },
+  "langs": {
+    "auto": "Detect automatically",
+    "nl": "Dutch",
+    "en": "English",
+    "de": "German",
+    "fr": "French",
+    "es": "Spanish"
+  },
   "source": {
     "tabs": { "paste": "Paste text", "upload": "Upload file", "url": "From URL", "record": "Record audio" },
     "pastePlaceholder": "Put your notes here. We'll do the rest.",
@@ -67,7 +86,11 @@
     "language": "Language",
     "count": "Number of cards: {{count}}",
     "style": "Card style",
-    "styles": { "termDefinition": "Term → definition", "qa": "Question → answer", "cloze": "Fill in the blank" },
+    "styles": {
+      "termDefinition": "Term → definition",
+      "qa": "Question → answer",
+      "cloze": "Fill in the blank"
+    },
     "generate": "Generate",
     "none": "No cards found. Try notes with “term: definition” lines or definition sentences.",
     "preview": "Preview ({{count}})",
@@ -122,7 +145,15 @@
     "useTemplate": "Back to standard script",
     "scriptReady": "Conversational script ready",
     "scriptFailed": "The model did not return a usable script.",
-    "kind": { "intro": "Intro", "term": "Term — what is it?", "definition": "Definition", "pause": "Pause", "recap": "Recap", "outro": "Done", "line": "" },
+    "kind": {
+      "intro": "Intro",
+      "term": "Term — what is it?",
+      "definition": "Definition",
+      "pause": "Pause",
+      "recap": "Recap",
+      "outro": "Done",
+      "line": ""
+    },
     "thinkPause": "Think of the answer…",
     "play": "Play",
     "pause": "Pause",
@@ -157,7 +188,13 @@
     "intro": "AI features always work with built-in rules. For richer results pick a model that runs on your device, or bring your own API key.",
     "activeNow": "Active now:",
     "provider": "Provider",
-    "providers": { "auto": "Automatic (recommended)", "heuristics": "Basic only (no model)", "chrome-nano": "Chrome built-in AI", "webllm": "Local model (WebLLM)", "byok": "Own API key / proxy" },
+    "providers": {
+      "auto": "Automatic (recommended)",
+      "heuristics": "Basic only (no model)",
+      "chrome-nano": "Chrome built-in AI",
+      "webllm": "Local model (WebLLM)",
+      "byok": "Own API key / proxy"
+    },
     "providerHint": {
       "auto": "Uses your key if set, otherwise Chrome AI, otherwise the local model once downloaded, otherwise Basic.",
       "heuristics": "No model is ever used. Fastest and fully private.",
@@ -170,7 +207,13 @@
       "desc": "Gemini Nano inside Chrome. Free, on-device, no setup besides the one-time download by Chrome.",
       "unavailable": "Not available in this browser. Chrome 138+ on desktop with 22 GB free disk space is required.",
       "download": "Download model",
-      "state": { "unknown": "Checking…", "available": "Ready", "downloadable": "Available for download", "downloading": "Downloading…", "unavailable": "Unavailable on this device" }
+      "state": {
+        "unknown": "Checking…",
+        "available": "Ready",
+        "downloadable": "Available for download",
+        "downloading": "Downloading…",
+        "unavailable": "Unavailable on this device"
+      }
     },
     "webllm": {
       "title": "Local model (WebLLM)",
@@ -212,7 +255,13 @@
     "enable": "Read aloud",
     "enableHint": "Speaker buttons on cards and Listen mode use your browser's voices.",
     "rate": "Speed: {{value}}×",
-    "voiceFor": { "nl": "Voice for Dutch", "en": "Voice for English", "de": "Voice for German", "fr": "Voice for French", "es": "Voice for Spanish" },
+    "voiceFor": {
+      "nl": "Voice for Dutch",
+      "en": "Voice for English",
+      "de": "Voice for German",
+      "fr": "Voice for French",
+      "es": "Voice for Spanish"
+    },
     "autoVoice": "Automatic ({{name}})",
     "noVoices": "No voice installed for this language. Add one in your system settings.",
     "test": "Test"

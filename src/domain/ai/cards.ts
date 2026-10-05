@@ -3,7 +3,15 @@
  * Recognises "X: Y", "X — Y", "X - Y", tab/semicolon separated lines, bullet pairs,
  * Q/A lines, bold-term lines, heading + paragraph, and definition sentences ("X is Y").
  */
-import { capitalize, dedupeKey, headingText, isHeadingLine, splitSentences, stripBullet, stripTrailingPunct } from './textUtil'
+import {
+  capitalize,
+  dedupeKey,
+  headingText,
+  isHeadingLine,
+  splitSentences,
+  stripBullet,
+  stripTrailingPunct,
+} from './textUtil'
 import { isStopword } from './lang'
 
 export interface ExtractedCard {
@@ -111,7 +119,8 @@ export function extractCards(text: string, opts: ExtractOptions = {}): Extracted
   if (delim) {
     for (const raw of lines) {
       const cols = raw.split(delim).map((c) => c.trim().replace(/^"|"$/g, ''))
-      if (cols.length >= 2 && cols[0] && cols[1]) push({ term: cols[0], definition: cols[1], hint: cols[2] || undefined, source: 'csv' })
+      if (cols.length >= 2 && cols[0] && cols[1])
+        push({ term: cols[0], definition: cols[1], hint: cols[2] || undefined, source: 'csv' })
     }
     if (out.length >= 2) return out.slice(0, max)
   }
@@ -148,7 +157,12 @@ export function extractCards(text: string, opts: ExtractOptions = {}): Extracted
     const nextRaw = lines[i + 1] ?? ''
     const indentCur = raw.match(/^\s*/)![0].length
     const indentNext = nextRaw.match(/^\s*/)![0].length
-    if (isBullet && /^\s*(?:[-*•])\s+/.test(nextRaw) && indentNext > indentCur && line.split(/\s+/).length <= 8) {
+    if (
+      isBullet &&
+      /^\s*(?:[-*•])\s+/.test(nextRaw) &&
+      indentNext > indentCur &&
+      line.split(/\s+/).length <= 8
+    ) {
       const def = stripBullet(nextRaw)
       if (def && !SEP_RE.test(def)) {
         push({ term: line, definition: def, source: 'bulletPair' })
@@ -208,7 +222,9 @@ export function applyCardStyle(cards: ExtractedCard[], style: CardStyle, lang: s
   // cloze: blank the term inside the definition when possible, otherwise "definition → {{c1::term}}"
   return cards.map((c) => {
     const re = new RegExp(escapeRe(c.term), 'i')
-    const cloze = re.test(c.definition) ? c.definition.replace(re, `{{c1::${c.term}}}`) : `${c.definition} → {{c1::${c.term}}}`
+    const cloze = re.test(c.definition)
+      ? c.definition.replace(re, `{{c1::${c.term}}}`)
+      : `${c.definition} → {{c1::${c.term}}}`
     return { ...c, cloze }
   })
 }

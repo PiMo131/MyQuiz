@@ -3,7 +3,13 @@
  * import after the user consented, so the app start never pays for it.
  */
 import type { MLCEngine, ChatCompletionMessageParam, InitProgressReport } from '@mlc-ai/web-llm'
-import { type ChatMessage, type ChatOptions, type ChatProvider, throwIfAborted, withJsonInstruction } from './types'
+import {
+  type ChatMessage,
+  type ChatOptions,
+  type ChatProvider,
+  throwIfAborted,
+  withJsonInstruction,
+} from './types'
 import { useAiStatusStore } from './status'
 
 export interface WebllmModelInfo {
@@ -106,20 +112,26 @@ export async function loadWebllm(modelId: string = chooseDefaultModel()): Promis
   store.patchWebllm({ state: 'loading', progress: 0, text: '', model: modelId, error: undefined })
   enginePromise = (async () => {
     const mod = await loadModule()
-    const onProgress = (r: InitProgressReport) => useAiStatusStore.getState().patchWebllm({ progress: Math.min(1, r.progress), text: r.text })
-    const tryCreate = (id: string) => mod.CreateMLCEngine(id, { initProgressCallback: onProgress, logLevel: 'ERROR' })
+    const onProgress = (r: InitProgressReport) =>
+      useAiStatusStore.getState().patchWebllm({ progress: Math.min(1, r.progress), text: r.text })
+    const tryCreate = (id: string) =>
+      mod.CreateMLCEngine(id, { initProgressCallback: onProgress, logLevel: 'ERROR' })
     let e: MLCEngine
     try {
       e = await tryCreate(modelId)
     } catch (err) {
       if (modelId !== WEBLLM_FALLBACK_MODEL) {
-        useAiStatusStore.getState().patchWebllm({ text: `Fallback → ${WEBLLM_FALLBACK_MODEL}`, model: WEBLLM_FALLBACK_MODEL })
+        useAiStatusStore
+          .getState()
+          .patchWebllm({ text: `Fallback → ${WEBLLM_FALLBACK_MODEL}`, model: WEBLLM_FALLBACK_MODEL })
         engineModel = WEBLLM_FALLBACK_MODEL
         e = await tryCreate(WEBLLM_FALLBACK_MODEL)
       } else throw err
     }
     engine = e
-    useAiStatusStore.getState().patchWebllm({ state: 'ready', progress: 1, text: '', cached: true, model: engineModel ?? modelId })
+    useAiStatusStore
+      .getState()
+      .patchWebllm({ state: 'ready', progress: 1, text: '', cached: true, model: engineModel ?? modelId })
     touchIdle()
     return e
   })()
@@ -175,7 +187,8 @@ export const webllmProvider: ChatProvider = {
       e.chat.completions.create({
         ...base,
         stream: false,
-        response_format: opts.json && withSchema ? { type: 'json_object', schema: JSON.stringify(opts.json) } : undefined,
+        response_format:
+          opts.json && withSchema ? { type: 'json_object', schema: JSON.stringify(opts.json) } : undefined,
       })
     let res
     try {

@@ -2,14 +2,23 @@
  * Chrome built-in Prompt API (Gemini Nano). Feature-detected; never assumed.
  * https://developer.chrome.com/docs/ai/prompt-api
  */
-import { type ChatMessage, type ChatOptions, type ChatProvider, throwIfAborted, withJsonInstruction } from './types'
+import {
+  type ChatMessage,
+  type ChatOptions,
+  type ChatProvider,
+  throwIfAborted,
+  withJsonInstruction,
+} from './types'
 import { useAiStatusStore, type NanoAvailability } from './status'
 
 type Availability = 'unavailable' | 'downloadable' | 'downloading' | 'available'
 
 interface LmSession {
   prompt(input: string, opts?: { responseConstraint?: object; signal?: AbortSignal }): Promise<string>
-  promptStreaming(input: string, opts?: { responseConstraint?: object; signal?: AbortSignal }): ReadableStream<string>
+  promptStreaming(
+    input: string,
+    opts?: { responseConstraint?: object; signal?: AbortSignal },
+  ): ReadableStream<string>
   destroy(): void
 }
 interface LmCreateOptions {
@@ -22,7 +31,12 @@ interface LmCreateOptions {
 interface LmStatic {
   availability(opts?: object): Promise<Availability>
   create(opts?: LmCreateOptions): Promise<LmSession>
-  params(): Promise<{ defaultTemperature: number; maxTemperature: number; defaultTopK: number; maxTopK: number } | null>
+  params(): Promise<{
+    defaultTemperature: number
+    maxTemperature: number
+    defaultTopK: number
+    maxTopK: number
+  } | null>
 }
 
 function api(): LmStatic | undefined {
@@ -78,13 +92,19 @@ export async function chromeNanoDownload(onProgress?: (p: number) => void): Prom
 }
 
 function splitMessages(messages: ChatMessage[]): { system: string; history: ChatMessage[]; last: string } {
-  const system = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n')
+  const system = messages
+    .filter((m) => m.role === 'system')
+    .map((m) => m.content)
+    .join('\n\n')
   const rest = messages.filter((m) => m.role !== 'system')
   const last = rest.length && rest[rest.length - 1].role === 'user' ? rest.pop()!.content : ''
   return { system, history: rest, last }
 }
 
-async function createSession(messages: ChatMessage[], opts: ChatOptions): Promise<{ session: LmSession; input: string }> {
+async function createSession(
+  messages: ChatMessage[],
+  opts: ChatOptions,
+): Promise<{ session: LmSession; input: string }> {
   const lm = api()
   if (!lm) throw new Error('Prompt API unavailable')
   // Nano has no native JSON mode without responseConstraint; we add the instruction too for robustness.
@@ -92,7 +112,8 @@ async function createSession(messages: ChatMessage[], opts: ChatOptions): Promis
   const create: LmCreateOptions = { signal: opts.signal }
   const initial: NonNullable<LmCreateOptions['initialPrompts']> = []
   if (system) initial.push({ role: 'system', content: system })
-  for (const h of history) initial.push({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content })
+  for (const h of history)
+    initial.push({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content })
   if (initial.length) create.initialPrompts = initial
   if (opts.temperature !== undefined) {
     // temperature and topK must be given together

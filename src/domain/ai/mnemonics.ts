@@ -27,7 +27,9 @@ export function mnemonicCue(term: string, definition: string, lang: string): str
   const words = d.split(/\s+/).filter((w) => w.length > 3 && !isStopword(w))
   const keyWord = words.find((w) => w.charAt(0).toUpperCase() === first)
   if (keyWord) {
-    return nl ? `Beide beginnen met een ${first}: ${t} ↔ ${keyWord}.` : `Both start with ${first}: ${t} ↔ ${keyWord}.`
+    return nl
+      ? `Beide beginnen met een ${first}: ${t} ↔ ${keyWord}.`
+      : `Both start with ${first}: ${t} ↔ ${keyWord}.`
   }
   return nl
     ? `Onthoud: begint met "${first}", ${len} letters, ${t.split(/\s+/).length === 1 ? 'één woord' : `${t.split(/\s+/).length} woorden`}.`

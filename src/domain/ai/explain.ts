@@ -50,7 +50,10 @@ export function explainTemplate(input: ExplainInput): string {
 
   if (card.hint) lines.push((nl ? 'Hint: ' : 'Hint: ') + plainText(card.hint))
   if (card.example) lines.push((nl ? 'Voorbeeld: ' : 'Example: ') + plainText(card.example))
-  lines.push((nl ? 'Ezelsbruggetje: ' : 'Mnemonic: ') + (card.mnemonic ? plainText(card.mnemonic) : mnemonicCue(card.term, card.definition, lang)))
+  lines.push(
+    (nl ? 'Ezelsbruggetje: ' : 'Mnemonic: ') +
+      (card.mnemonic ? plainText(card.mnemonic) : mnemonicCue(card.term, card.definition, lang)),
+  )
 
   return lines.join('\n\n')
 }

@@ -1,6 +1,8 @@
 /** Text extraction from uploaded files. PDF goes through a lazily imported pdfjs-dist. */
 
-export type ExtractResult = { ok: true; text: string; pages?: number } | { ok: false; reason: 'unsupported' | 'docx' | 'empty' | 'error'; message?: string }
+export type ExtractResult =
+  | { ok: true; text: string; pages?: number }
+  | { ok: false; reason: 'unsupported' | 'docx' | 'empty' | 'error'; message?: string }
 
 const TEXT_EXT = /\.(txt|md|markdown|csv|tsv|json|srt|vtt)$/i
 
@@ -29,7 +31,10 @@ export async function extractText(file: File, onProgress?: (p: number) => void):
 
 async function extractPdf(file: File, onProgress?: (p: number) => void): Promise<ExtractResult> {
   const pdfjs = await import('pdfjs-dist')
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url,
+  ).toString()
   const data = new Uint8Array(await file.arrayBuffer())
   const task = pdfjs.getDocument({ data })
   const doc = await task.promise
@@ -55,6 +60,10 @@ async function extractPdf(file: File, onProgress?: (p: number) => void): Promise
   }
   const pages = doc.numPages
   await task.destroy()
-  const text = parts.join('\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
+  const text = parts
+    .join('\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
   return text ? { ok: true, text, pages } : { ok: false, reason: 'empty' }
 }

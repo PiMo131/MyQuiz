@@ -4,7 +4,16 @@
  */
 import { extractCards, type ExtractedCard } from './cards'
 import { isStopword } from './lang'
-import { capitalize, dedupeKey, headingText, isHeadingLine, splitParagraphs, splitSentences, stripBullet, wordCount } from './textUtil'
+import {
+  capitalize,
+  dedupeKey,
+  headingText,
+  isHeadingLine,
+  splitParagraphs,
+  splitSentences,
+  stripBullet,
+  wordCount,
+} from './textUtil'
 
 export interface OutlineSection {
   heading: string
@@ -124,7 +133,9 @@ export function extractKeyTerms(text: string, max = 20): KeyTerm[] {
 }
 
 export function buildSummary(text: string, max = 5): string[] {
-  const paras = splitParagraphs(text).filter((p) => !isHeadingLine(p) && wordCount(p) >= 6 && !/^\s*[-*•]/.test(p))
+  const paras = splitParagraphs(text).filter(
+    (p) => !isHeadingLine(p) && wordCount(p) >= 6 && !/^\s*[-*•]/.test(p),
+  )
   const sents = paras.map(firstSentence)
   if (sents.length >= 2) return sents.slice(0, max)
   // fallback: first sentences of the whole text
@@ -136,7 +147,8 @@ export function buildQuestions(keyTerms: KeyTerm[], text: string, lang: string, 
   const qs: GuideQuestion[] = []
   for (const k of keyTerms) {
     if (qs.length >= max) break
-    if (k.definition) qs.push({ question: nl ? `Wat is ${k.term}?` : `What is ${k.term}?`, answer: k.definition })
+    if (k.definition)
+      qs.push({ question: nl ? `Wat is ${k.term}?` : `What is ${k.term}?`, answer: k.definition })
   }
   if (qs.length < max) {
     const sents = splitSentences(text)
@@ -156,8 +168,14 @@ function escapeRe(s: string): string {
 
 export function buildStudyGuide(text: string, opts: StudyGuideOptions = {}): StudyGuide {
   const lang = opts.lang ?? 'nl'
-  const firstLine = text.split('\n').map((l) => l.trim()).find(Boolean) ?? ''
-  const title = isHeadingLine(firstLine) ? headingText(firstLine) : firstLine.split(/[.!?]/)[0].slice(0, 60) || (lang.startsWith('nl') ? 'Studiegids' : 'Study guide')
+  const firstLine =
+    text
+      .split('\n')
+      .map((l) => l.trim())
+      .find(Boolean) ?? ''
+  const title = isHeadingLine(firstLine)
+    ? headingText(firstLine)
+    : firstLine.split(/[.!?]/)[0].slice(0, 60) || (lang.startsWith('nl') ? 'Studiegids' : 'Study guide')
   const outline = buildOutline(text, title)
   const keyTerms = extractKeyTerms(text, opts.maxKeyTerms ?? 20)
   const summary = buildSummary(text, opts.maxSummary ?? 5)

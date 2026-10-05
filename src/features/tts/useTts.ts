@@ -14,7 +14,8 @@ export function useTts() {
   }, [])
   return useMemo(
     () => ({
-      speak: (text: string, lang?: string, opts?: SpeakOptions) => (enabled ? speak(text, lang, opts) : Promise.resolve()),
+      speak: (text: string, lang?: string, opts?: SpeakOptions) =>
+        enabled ? speak(text, lang, opts) : Promise.resolve(),
       stop,
       pause,
       resume,

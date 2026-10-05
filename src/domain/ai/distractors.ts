@@ -40,7 +40,18 @@ export function perturbNumber(answer: string, n: number, rng: () => number = Mat
   const out = new Set<string>()
   const candidates: number[] = []
   const mag = Math.max(1, Math.pow(10, Math.max(0, String(Math.abs(Math.trunc(value))).length - 1)))
-  candidates.push(value + 1, value - 1, value + 10, value - 10, value * 2, value / 2, value + mag, value - mag, value * 1.1, value * 0.9)
+  candidates.push(
+    value + 1,
+    value - 1,
+    value + 10,
+    value - 10,
+    value * 2,
+    value / 2,
+    value + mag,
+    value - mag,
+    value * 1.1,
+    value * 0.9,
+  )
   // digit swap
   if (intPart.length >= 2) {
     const d = intPart.replace('-', '').split('')
@@ -67,7 +78,12 @@ export function perturbNumber(answer: string, n: number, rng: () => number = Mat
 }
 
 /** Choose `n` wrong answers for `answer` from `candidates` (strings), best-matching shape first. */
-export function pickDistractorsFor(answer: string, candidates: readonly string[], n = 3, rng: () => number = Math.random): string[] {
+export function pickDistractorsFor(
+  answer: string,
+  candidates: readonly string[],
+  n = 3,
+  rng: () => number = Math.random,
+): string[] {
   const target = plainText(answer)
   const key = dedupeKey(target)
   const sh = shape(target)
@@ -105,12 +121,19 @@ export interface DistractorOptions {
 }
 
 /** Pick distractors for a card from the rest of its set. User-supplied `card.distractors` win. */
-export function pickDistractors(card: Card, pool: readonly Card[], n = 3, opts: DistractorOptions = {}): string[] {
+export function pickDistractors(
+  card: Card,
+  pool: readonly Card[],
+  n = 3,
+  opts: DistractorOptions = {},
+): string[] {
   const side = opts.side ?? 'definition'
   const answer = side === 'definition' ? card.definition : card.term
   const user = side === 'definition' ? (card.distractors ?? []).filter(Boolean) : []
   if (user.length >= n) return user.slice(0, n)
-  const candidates = pool.filter((c) => c.id !== card.id).map((c) => (side === 'definition' ? c.definition : c.term))
+  const candidates = pool
+    .filter((c) => c.id !== card.id)
+    .map((c) => (side === 'definition' ? c.definition : c.term))
   const picked = pickDistractorsFor(answer, [...user, ...candidates], n, opts.rng)
   return picked
 }

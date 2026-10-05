@@ -43,11 +43,29 @@ export const studyGuideSchema: JsonSchema = {
     title: { type: 'string' },
     outline: {
       type: 'array',
-      items: { type: 'object', properties: { heading: { type: 'string' }, points: { type: 'array', items: { type: 'string' } } }, required: ['heading', 'points'] },
+      items: {
+        type: 'object',
+        properties: { heading: { type: 'string' }, points: { type: 'array', items: { type: 'string' } } },
+        required: ['heading', 'points'],
+      },
     },
-    keyTerms: { type: 'array', items: { type: 'object', properties: { term: { type: 'string' }, definition: { type: 'string' } }, required: ['term'] } },
+    keyTerms: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { term: { type: 'string' }, definition: { type: 'string' } },
+        required: ['term'],
+      },
+    },
     summary: { type: 'array', items: { type: 'string' } },
-    questions: { type: 'array', items: { type: 'object', properties: { question: { type: 'string' }, answer: { type: 'string' } }, required: ['question', 'answer'] } },
+    questions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { question: { type: 'string' }, answer: { type: 'string' } },
+        required: ['question', 'answer'],
+      },
+    },
   },
   required: ['title', 'outline', 'keyTerms', 'summary', 'questions'],
 }
@@ -80,7 +98,11 @@ export const scriptSchema: JsonSchema = {
       type: 'array',
       items: {
         type: 'object',
-        properties: { kind: { type: 'string', enum: ['intro', 'term', 'definition', 'line', 'recap', 'outro'] }, text: { type: 'string' }, cardIndex: { type: 'integer' } },
+        properties: {
+          kind: { type: 'string', enum: ['intro', 'term', 'definition', 'line', 'recap', 'outro'] },
+          text: { type: 'string' },
+          cardIndex: { type: 'integer' },
+        },
         required: ['kind', 'text'],
       },
     },
@@ -151,14 +173,30 @@ export function parseStudyGuide(raw: string, fallbackTitle: string): Omit<StudyG
   const j = extractJson(raw)
   if (!isObj(j)) throw new Error('Invalid study guide')
   const outline = Array.isArray(j.outline)
-    ? j.outline.filter(isObj).map((s) => ({ heading: str(s.heading) ?? '', points: Array.isArray(s.points) ? s.points.map(str).filter((p): p is string => !!p) : [] })).filter((s) => s.heading)
+    ? j.outline
+        .filter(isObj)
+        .map((s) => ({
+          heading: str(s.heading) ?? '',
+          points: Array.isArray(s.points) ? s.points.map(str).filter((p): p is string => !!p) : [],
+        }))
+        .filter((s) => s.heading)
     : []
   const keyTerms = Array.isArray(j.keyTerms)
-    ? j.keyTerms.filter(isObj).map((k) => ({ term: str(k.term) ?? '', definition: str(k.definition) })).filter((k) => k.term)
+    ? j.keyTerms
+        .filter(isObj)
+        .map((k) => ({ term: str(k.term) ?? '', definition: str(k.definition) }))
+        .filter((k) => k.term)
     : []
-  const summary = Array.isArray(j.summary) ? j.summary.map(str).filter((s): s is string => !!s) : typeof j.summary === 'string' ? [j.summary] : []
+  const summary = Array.isArray(j.summary)
+    ? j.summary.map(str).filter((s): s is string => !!s)
+    : typeof j.summary === 'string'
+      ? [j.summary]
+      : []
   const questions = Array.isArray(j.questions)
-    ? j.questions.filter(isObj).map((q) => ({ question: str(q.question) ?? '', answer: str(q.answer) ?? '' })).filter((q) => q.question && q.answer)
+    ? j.questions
+        .filter(isObj)
+        .map((q) => ({ question: str(q.question) ?? '', answer: str(q.answer) ?? '' }))
+        .filter((q) => q.question && q.answer)
     : []
   return { title: str(j.title) ?? fallbackTitle, outline, keyTerms, summary, questions }
 }
@@ -169,7 +207,8 @@ export function parsePracticeTest(raw: string): PracticeQuestion[] {
   const out: PracticeQuestion[] = []
   arr.forEach((q: unknown, i: number) => {
     if (!isObj(q)) return
-    const type = q.type === 'multipleChoice' || q.type === 'written' || q.type === 'trueFalse' ? q.type : 'written'
+    const type =
+      q.type === 'multipleChoice' || q.type === 'written' || q.type === 'trueFalse' ? q.type : 'written'
     const prompt = str(q.prompt) ?? str(q.question)
     let answer = str(q.answer)
     if (!prompt || !answer) return
@@ -180,7 +219,14 @@ export function parsePracticeTest(raw: string): PracticeQuestion[] {
       const a = answer.toLowerCase()
       answer = a === 'true' || a === 'waar' || a === 'yes' || a === 'ja' ? 'true' : 'false'
     }
-    out.push({ id: `q${i + 1}`, type, prompt, answer, options: type === 'multipleChoice' ? options : undefined, statement: type === 'trueFalse' ? str(q.statement) ?? prompt : undefined })
+    out.push({
+      id: `q${i + 1}`,
+      type,
+      prompt,
+      answer,
+      options: type === 'multipleChoice' ? options : undefined,
+      statement: type === 'trueFalse' ? (str(q.statement) ?? prompt) : undefined,
+    })
   })
   return out
 }
@@ -193,9 +239,17 @@ export function parseScript(raw: string, lang: string, cardIds: readonly string[
     if (!isObj(s)) return
     const text = str(s.text)
     if (!text) return
-    const kind = (['intro', 'term', 'definition', 'line', 'recap', 'outro'] as const).find((k) => k === s.kind) ?? 'line'
+    const kind =
+      (['intro', 'term', 'definition', 'line', 'recap', 'outro'] as const).find((k) => k === s.kind) ?? 'line'
     const idx = typeof s.cardIndex === 'number' ? s.cardIndex : undefined
-    out.push({ id: `s${i}`, kind, text, lang, cardId: idx !== undefined ? cardIds[idx] : undefined, pauseMs: kind === 'term' ? 1500 : 400 })
+    out.push({
+      id: `s${i}`,
+      kind,
+      text,
+      lang,
+      cardId: idx !== undefined ? cardIds[idx] : undefined,
+      pauseMs: kind === 'term' ? 1500 : 400,
+    })
   })
   return out
 }

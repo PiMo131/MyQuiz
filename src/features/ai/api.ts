@@ -32,7 +32,10 @@ export interface GenerateResult {
 }
 
 /** Generate flashcards from free text. Returns cards plus which provider produced them. */
-export async function generateCardsDetailed(text: string, opts: GenerateOptions = {}): Promise<GenerateResult> {
+export async function generateCardsDetailed(
+  text: string,
+  opts: GenerateOptions = {},
+): Promise<GenerateResult> {
   const count = opts.count ?? 30
   const style = opts.style ?? 'termDefinition'
   const lang = opts.lang || detectLang(text) || useSettings.getState().settings.locale
@@ -43,17 +46,23 @@ export async function generateCardsDetailed(text: string, opts: GenerateOptions 
     (raw) => {
       const cards = parseCards(raw)
       const seen = new Set<string>()
-      return cards.filter((c) => {
-        const k = dedupeKey(c.term)
-        if (!k || seen.has(k)) return false
-        seen.add(k)
-        return true
-      }).slice(0, count)
+      return cards
+        .filter((c) => {
+          const k = dedupeKey(c.term)
+          if (!k || seen.has(k)) return false
+          seen.add(k)
+          return true
+        })
+        .slice(0, count)
     },
     heuristic,
     { signal: opts.signal, accept: (cards) => cards.length > 0 },
   )
-  return { cards: provider === 'heuristics' ? value : style === 'cloze' ? applyCardStyle(value, 'cloze', lang) : value, provider }
+  return {
+    cards:
+      provider === 'heuristics' ? value : style === 'cloze' ? applyCardStyle(value, 'cloze', lang) : value,
+    provider,
+  }
 }
 
 export async function generateCards(text: string, opts: GenerateOptions = {}): Promise<GeneratedCard[]> {
@@ -64,14 +73,24 @@ export async function generateCards(text: string, opts: GenerateOptions = {}): P
  * Distractors for a card. Heuristic first (instant); when the pool is too small (< n usable
  * alternatives) and a provider is available, ask the LLM for the missing ones.
  */
-export async function generateDistractors(card: Card, pool: Card[], n = 3, opts: { signal?: AbortSignal; side?: 'term' | 'definition' } = {}): Promise<string[]> {
+export async function generateDistractors(
+  card: Card,
+  pool: Card[],
+  n = 3,
+  opts: { signal?: AbortSignal; side?: 'term' | 'definition' } = {},
+): Promise<string[]> {
   const heuristic = pickDistractors(card, pool, n, { side: opts.side })
   if (heuristic.length >= n) return heuristic
   const provider = await resolveProvider().catch(() => null)
   if (!provider) return heuristic
   try {
     const lang = opts.side === 'term' ? useSettings.getState().settings.locale : undefined
-    const { value } = await runPromptOrFallback(distractorsPrompt(card, heuristic, n - heuristic.length, lang), (raw) => parseStrings(raw), () => [], { signal: opts.signal })
+    const { value } = await runPromptOrFallback(
+      distractorsPrompt(card, heuristic, n - heuristic.length, lang),
+      (raw) => parseStrings(raw),
+      () => [],
+      { signal: opts.signal },
+    )
     const seen = new Set([dedupeKey(card.definition), ...heuristic.map(dedupeKey)])
     const out = [...heuristic]
     for (const d of value) {
@@ -104,7 +123,11 @@ export async function* explainAnswerStream(input: ExplainInput): AsyncGenerator<
     const p = explainPrompt({ card: input.card, givenAnswer: input.givenAnswer, lang, side: input.side })
     let got = ''
     try {
-      for await (const chunk of chatStream(promptMessages(p), { maxTokens: p.maxTokens, temperature: p.temperature, signal: input.signal })) {
+      for await (const chunk of chatStream(promptMessages(p), {
+        maxTokens: p.maxTokens,
+        temperature: p.temperature,
+        signal: input.signal,
+      })) {
         got += chunk
         yield chunk
       }
@@ -114,7 +137,13 @@ export async function* explainAnswerStream(input: ExplainInput): AsyncGenerator<
       if (got.trim()) return provider.kind
     }
   }
-  yield explainTemplate({ card: input.card, givenAnswer: input.givenAnswer, questionType: input.questionType, lang, side: input.side })
+  yield explainTemplate({
+    card: input.card,
+    givenAnswer: input.givenAnswer,
+    questionType: input.questionType,
+    lang,
+    side: input.side,
+  })
   return 'heuristics'
 }
 
@@ -140,14 +169,21 @@ export interface SmartGradeResult {
  * Grade a free-text answer. Uses domain/grading first; only when that is uncertain
  * (near miss or long paraphrase) and an LLM is available, ask it for a yes/no.
  */
-export async function smartGrade(given: string, expected: string | string[], lang?: string, signal?: AbortSignal): Promise<SmartGradeResult> {
+export async function smartGrade(
+  given: string,
+  expected: string | string[],
+  lang?: string,
+  signal?: AbortSignal,
+): Promise<SmartGradeResult> {
   const grading = useSettings.getState().settings.grading
   const r = gradeAnswer(given, expected, grading)
   if (r.correct) return { correct: true, confidence: 1, provider: 'heuristics' }
-  const expectedStr = Array.isArray(expected) ? expected[0] ?? '' : expected
+  const expectedStr = Array.isArray(expected) ? (expected[0] ?? '') : expected
   const words = (s: string) => s.trim().split(/\s+/).length
-  const uncertain = (r.similarity >= 0.45 && r.similarity < 1) || (words(given) >= 3 && words(expectedStr) >= 3)
-  if (!uncertain || !given.trim()) return { correct: false, confidence: 1 - r.similarity, provider: 'heuristics' }
+  const uncertain =
+    (r.similarity >= 0.45 && r.similarity < 1) || (words(given) >= 3 && words(expectedStr) >= 3)
+  if (!uncertain || !given.trim())
+    return { correct: false, confidence: 1 - r.similarity, provider: 'heuristics' }
   const provider = await resolveProvider().catch(() => null)
   if (!provider) return { correct: false, confidence: 1 - r.similarity, provider: 'heuristics' }
   const { value, provider: used } = await runPromptOrFallback(

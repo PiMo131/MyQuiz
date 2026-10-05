@@ -50,7 +50,14 @@ export default function StudyGuidePage() {
         studyGuidePrompt(text, lang),
         (raw) => {
           const g = parseStudyGuide(raw, heuristic().title)
-          return { ...g, cards: g.keyTerms.filter((k) => k.definition).map((k) => ({ term: k.term, definition: k.definition! })).concat(extractCards(text, { max: 30 })).slice(0, 60) }
+          return {
+            ...g,
+            cards: g.keyTerms
+              .filter((k) => k.definition)
+              .map((k) => ({ term: k.term, definition: k.definition! }))
+              .concat(extractCards(text, { max: 30 }))
+              .slice(0, 60),
+          }
         },
         heuristic,
         { signal: ctl.signal, accept: (g) => g.outline.length + g.keyTerms.length + g.summary.length > 0 },
@@ -71,10 +78,15 @@ export default function StudyGuidePage() {
   }
 
   const makeCards = async (g: StudyGuide) => {
-    const cards: { term: string; definition: string; hint?: string }[] = g.cards.length ? g.cards : g.keyTerms.filter((k) => k.definition).map((k) => ({ term: k.term, definition: k.definition! }))
+    const cards: { term: string; definition: string; hint?: string }[] = g.cards.length
+      ? g.cards
+      : g.keyTerms.filter((k) => k.definition).map((k) => ({ term: k.term, definition: k.definition! }))
     if (!cards.length) return toast.info(t('guide.noCards'))
     const set = await createSet({ title: g.title, description: g.summary[0] ?? '' })
-    await addCards(set.id, cards.map((c) => ({ setId: set.id, term: c.term, definition: c.definition, hint: c.hint })))
+    await addCards(
+      set.id,
+      cards.map((c) => ({ setId: set.id, term: c.term, definition: c.definition, hint: c.hint })),
+    )
     toast.success(t('generate.saved', { count: cards.length }))
     navigate(`/set/${set.id}`)
   }
@@ -100,26 +112,53 @@ export default function StudyGuidePage() {
           </div>
           <BetterResultsHint />
           <div className="flex justify-end">
-            <Button variant="gradient" size="lg" disabled={text.trim().length < 40} loading={busy} onClick={() => void run()}>
+            <Button
+              variant="gradient"
+              size="lg"
+              disabled={text.trim().length < 40}
+              loading={busy}
+              onClick={() => void run()}
+            >
               {t('generate.generate')}
             </Button>
           </div>
         </section>
       )}
 
-      {current && <GuideView saved={current} onBack={() => setCurrent(null)} onMakeCards={() => void makeCards(current.guide)} />}
+      {current && (
+        <GuideView
+          saved={current}
+          onBack={() => setCurrent(null)}
+          onMakeCards={() => void makeCards(current.guide)}
+        />
+      )}
 
       {!!saved?.length && (
         <section className="space-y-2">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t('guide.saved')}</h2>
           <ul className="divide-y divide-border rounded-2xl border border-border">
             {saved.map((s) => (
-              <li key={s.id} className={cn('flex items-center gap-3 px-4 py-2.5', current?.id === s.id && 'bg-primary-soft/40')}>
-                <button type="button" onClick={() => setCurrent(s)} className="min-w-0 flex-1 truncate text-left text-sm font-medium hover:text-primary">
+              <li
+                key={s.id}
+                className={cn(
+                  'flex items-center gap-3 px-4 py-2.5',
+                  current?.id === s.id && 'bg-primary-soft/40',
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setCurrent(s)}
+                  className="min-w-0 flex-1 truncate text-left text-sm font-medium hover:text-primary"
+                >
                   {s.guide.title}
                 </button>
                 <span className="text-xs text-muted">{new Date(s.createdAt).toLocaleDateString()}</span>
-                <button type="button" onClick={() => void removeGuide(s.id)} className="rounded-full p-1.5 text-muted hover:bg-error-soft hover:text-error" aria-label={t('common.delete', { ns: 'common' })}>
+                <button
+                  type="button"
+                  onClick={() => void removeGuide(s.id)}
+                  className="rounded-full p-1.5 text-muted hover:bg-error-soft hover:text-error"
+                  aria-label={t('common.delete', { ns: 'common' })}
+                >
                   <Trash2 size={14} />
                 </button>
               </li>
@@ -132,7 +171,15 @@ export default function StudyGuidePage() {
   )
 }
 
-function GuideView({ saved, onBack, onMakeCards }: { saved: SavedGuide; onBack: () => void; onMakeCards: () => void }) {
+function GuideView({
+  saved,
+  onBack,
+  onMakeCards,
+}: {
+  saved: SavedGuide
+  onBack: () => void
+  onMakeCards: () => void
+}) {
   const { t } = useTranslation('ai')
   const g = saved.guide
   const [revealed, setRevealed] = useState<Set<number>>(new Set())
@@ -157,14 +204,18 @@ function GuideView({ saved, onBack, onMakeCards }: { saved: SavedGuide; onBack: 
 
       {g.summary.length > 0 && (
         <section>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{t('guide.summary')}</h3>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('guide.summary')}
+          </h3>
           <p className="leading-relaxed">{g.summary.join(' ')}</p>
         </section>
       )}
 
       {g.outline.length > 0 && (
         <section>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{t('guide.outline')}</h3>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('guide.outline')}
+          </h3>
           <div className="space-y-3">
             {g.outline.map((s, i) => (
               <div key={i}>
@@ -182,7 +233,9 @@ function GuideView({ saved, onBack, onMakeCards }: { saved: SavedGuide; onBack: 
 
       {g.keyTerms.length > 0 && (
         <section>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{t('guide.keyTerms')}</h3>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('guide.keyTerms')}
+          </h3>
           <dl className="grid gap-2 sm:grid-cols-2">
             {g.keyTerms.map((k, i) => (
               <div key={i} className="rounded-xl border border-border px-3 py-2 text-sm">
@@ -196,7 +249,9 @@ function GuideView({ saved, onBack, onMakeCards }: { saved: SavedGuide; onBack: 
 
       {g.questions.length > 0 && (
         <section>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{t('guide.questions')}</h3>
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">
+            {t('guide.questions')}
+          </h3>
           <ul className="space-y-2">
             {g.questions.map((q, i) => {
               const open = revealed.has(i)
@@ -206,12 +261,21 @@ function GuideView({ saved, onBack, onMakeCards }: { saved: SavedGuide; onBack: 
                     type="button"
                     className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium"
                     aria-expanded={open}
-                    onClick={() => setRevealed((r) => { const n = new Set(r); if (n.has(i)) n.delete(i); else n.add(i); return n })}
+                    onClick={() =>
+                      setRevealed((r) => {
+                        const n = new Set(r)
+                        if (n.has(i)) n.delete(i)
+                        else n.add(i)
+                        return n
+                      })
+                    }
                   >
                     {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     <Markdown src={q.question} />
                   </button>
-                  {open && <div className="border-t border-border px-3 py-2 text-sm text-muted">{q.answer}</div>}
+                  {open && (
+                    <div className="border-t border-border px-3 py-2 text-sm text-muted">{q.answer}</div>
+                  )}
                 </li>
               )
             })}

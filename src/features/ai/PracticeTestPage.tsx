@@ -6,7 +6,13 @@ import { db } from '@/db/db'
 import { finishSession, getCards, recordOutcome, startSession } from '@/db/repo'
 import type { Card, Session } from '@/domain/types'
 import { useSettings } from '@/app/settings-store'
-import { buildPracticeTest, cardsToSources, scoreTest, type PracticeQuestion, type PracticeQuestionType } from '@/domain/ai/practiceTest'
+import {
+  buildPracticeTest,
+  cardsToSources,
+  scoreTest,
+  type PracticeQuestion,
+  type PracticeQuestionType,
+} from '@/domain/ai/practiceTest'
 import { extractCards } from '@/domain/ai/cards'
 import { practiceTestPrompt } from '@/domain/ai/prompts'
 import { parsePracticeTest } from '@/domain/ai/schemas'
@@ -64,7 +70,11 @@ export default function PracticeTestPage() {
         for (const c of all) cardsRef.current.set(c.id, c)
         sources = cardsToSources(all)
         material = all.map((c) => `${plainText(c.term)}: ${plainText(c.definition)}`).join('\n')
-        if (selected.size === 1) sessionRef.current = await startSession([...selected][0], 'test', { source: 'ai-practice-test', count })
+        if (selected.size === 1)
+          sessionRef.current = await startSession([...selected][0], 'test', {
+            source: 'ai-practice-test',
+            count,
+          })
         else sessionRef.current = null
       } else {
         sources = extractCards(text, { max: 60 })
@@ -75,13 +85,20 @@ export default function PracticeTestPage() {
       const heuristic = () => buildPracticeTest(sources, { count, types: typeList })
       const { value, provider: p } = await runPromptOrFallback(
         practiceTestPrompt(material, { count, types: typeList, lang }),
-        (raw) => parsePracticeTest(raw).filter((q) => types.has(q.type)).slice(0, count),
+        (raw) =>
+          parsePracticeTest(raw)
+            .filter((q) => types.has(q.type))
+            .slice(0, count),
         heuristic,
         { signal: ctl.signal, accept: (qs) => qs.length >= Math.min(3, count) },
       )
       // link LLM questions back to cards by prompt text when possible (for progress recording)
-      const byTerm = new Map([...cardsRef.current.values()].map((c) => [plainText(c.term).toLowerCase(), c.id]))
-      const linked = value.map((q) => (q.cardId ? q : { ...q, cardId: byTerm.get(plainText(q.prompt).toLowerCase()) }))
+      const byTerm = new Map(
+        [...cardsRef.current.values()].map((c) => [plainText(c.term).toLowerCase(), c.id]),
+      )
+      const linked = value.map((q) =>
+        q.cardId ? q : { ...q, cardId: byTerm.get(plainText(q.prompt).toLowerCase()) },
+      )
       if (!linked.length) toast.info(t('test.none'))
       setQuestions(linked)
       setProvider(p)
@@ -101,10 +118,22 @@ export default function PracticeTestPage() {
       const g = r.results[q.id]
       const card = q.cardId ? cardsRef.current.get(q.cardId) : undefined
       if (card) await recordOutcome(card, g.correct, 'test')
-      sessionAnswers.push({ cardId: q.cardId ?? '', questionType: q.type, prompt: q.prompt, given: answers[q.id] ?? '', expected: g.expected, correct: g.correct, durationMs: 0 })
+      sessionAnswers.push({
+        cardId: q.cardId ?? '',
+        questionType: q.type,
+        prompt: q.prompt,
+        given: answers[q.id] ?? '',
+        expected: g.expected,
+        correct: g.correct,
+        durationMs: 0,
+      })
     }
     if (sessionRef.current) {
-      await finishSession(sessionRef.current, { score: r.total ? r.correct / r.total : 0, total: r.total, answers: sessionAnswers })
+      await finishSession(sessionRef.current, {
+        score: r.total ? r.correct / r.total : 0,
+        total: r.total,
+        answers: sessionAnswers,
+      })
       sessionRef.current = null
     }
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -131,7 +160,15 @@ export default function PracticeTestPage() {
 
       {!questions && (
         <section className="card space-y-4 p-5">
-          <Tabs items={[{ value: 'sets', label: t('test.fromSets'), count: selected.size || undefined }, { value: 'text', label: t('source.tabs.paste') }]} value={source} onChange={setSource} variant="underline" />
+          <Tabs
+            items={[
+              { value: 'sets', label: t('test.fromSets'), count: selected.size || undefined },
+              { value: 'text', label: t('source.tabs.paste') },
+            ]}
+            value={source}
+            onChange={setSource}
+            variant="underline"
+          />
           {source === 'sets' ? (
             sets?.length ? (
               <ul className="max-h-72 divide-y divide-border overflow-y-auto rounded-xl border border-border">
@@ -139,10 +176,29 @@ export default function PracticeTestPage() {
                   const on = selected.has(s.id)
                   return (
                     <li key={s.id}>
-                      <label className={cn('flex cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-surface-2', on && 'bg-primary-soft/40')}>
-                        <input type="checkbox" checked={on} onChange={() => setSelected((sel) => { const n = new Set(sel); if (n.has(s.id)) n.delete(s.id); else n.add(s.id); return n })} className="accent-primary" />
+                      <label
+                        className={cn(
+                          'flex cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-surface-2',
+                          on && 'bg-primary-soft/40',
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() =>
+                            setSelected((sel) => {
+                              const n = new Set(sel)
+                              if (n.has(s.id)) n.delete(s.id)
+                              else n.add(s.id)
+                              return n
+                            })
+                          }
+                          className="accent-primary"
+                        />
                         <span className="min-w-0 flex-1 truncate text-sm font-medium">{s.title}</span>
-                        <span className="text-xs text-muted">{t('common.terms', { ns: 'common', count: counts?.[s.id] ?? 0 })}</span>
+                        <span className="text-xs text-muted">
+                          {t('common.terms', { ns: 'common', count: counts?.[s.id] ?? 0 })}
+                        </span>
                       </label>
                     </li>
                   )
@@ -157,13 +213,38 @@ export default function PracticeTestPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="pt-count">{t('test.count', { count })}</Label>
-              <input id="pt-count" type="range" min={3} max={30} value={count} onChange={(e) => setCount(Number(e.target.value))} className="mt-2 w-full accent-primary" />
+              <input
+                id="pt-count"
+                type="range"
+                min={3}
+                max={30}
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                className="mt-2 w-full accent-primary"
+              />
             </div>
             <div>
               <Label>{t('test.types')}</Label>
               <div className="flex flex-wrap gap-2">
                 {TYPES.map((ty) => (
-                  <button key={ty} type="button" aria-pressed={types.has(ty)} onClick={() => setTypes((s) => { const n = new Set(s); if (n.has(ty)) { if (n.size > 1) n.delete(ty) } else n.add(ty); return n })} className={cn('rounded-full border px-3 py-1.5 text-sm', types.has(ty) ? 'border-primary bg-primary-soft text-primary' : 'border-border')}>
+                  <button
+                    key={ty}
+                    type="button"
+                    aria-pressed={types.has(ty)}
+                    onClick={() =>
+                      setTypes((s) => {
+                        const n = new Set(s)
+                        if (n.has(ty)) {
+                          if (n.size > 1) n.delete(ty)
+                        } else n.add(ty)
+                        return n
+                      })
+                    }
+                    className={cn(
+                      'rounded-full border px-3 py-1.5 text-sm',
+                      types.has(ty) ? 'border-primary bg-primary-soft text-primary' : 'border-border',
+                    )}
+                  >
                     {t(`test.type.${ty}`)}
                   </button>
                 ))}
@@ -172,7 +253,13 @@ export default function PracticeTestPage() {
           </div>
           <BetterResultsHint />
           <div className="flex justify-end">
-            <Button variant="gradient" size="lg" disabled={!canGenerate} loading={busy} onClick={() => void generate()}>
+            <Button
+              variant="gradient"
+              size="lg"
+              disabled={!canGenerate}
+              loading={busy}
+              onClick={() => void generate()}
+            >
               {t('generate.generate')}
             </Button>
           </div>
@@ -183,10 +270,18 @@ export default function PracticeTestPage() {
         <section className="space-y-4">
           {result && (
             <div className="card flex items-center gap-4 p-5">
-              <Ring value={result.total ? (result.correct / result.total) * 100 : 0} size={72} label={`${Math.round(result.total ? (result.correct / result.total) * 100 : 0)}%`} />
+              <Ring
+                value={result.total ? (result.correct / result.total) * 100 : 0}
+                size={72}
+                label={`${Math.round(result.total ? (result.correct / result.total) * 100 : 0)}%`}
+              />
               <div className="flex-1">
-                <div className="text-lg font-bold">{t('test.score', { correct: result.correct, total: result.total })}</div>
-                <p className="text-sm text-muted">{result.correct === result.total ? t('test.perfect') : t('test.keepGoing')}</p>
+                <div className="text-lg font-bold">
+                  {t('test.score', { correct: result.correct, total: result.total })}
+                </div>
+                <p className="text-sm text-muted">
+                  {result.correct === result.total ? t('test.perfect') : t('test.keepGoing')}
+                </p>
               </div>
               <Button variant="outline" onClick={reset} leftIcon={<RotateCcw size={16} />}>
                 {t('test.again')}
@@ -197,19 +292,40 @@ export default function PracticeTestPage() {
             const g = result?.results[q.id]
             const given = answers[q.id] ?? ''
             return (
-              <div key={q.id} className={cn('card space-y-3 p-5', g && (g.correct ? 'border-accent' : 'border-error'))}>
+              <div
+                key={q.id}
+                className={cn('card space-y-3 p-5', g && (g.correct ? 'border-accent' : 'border-error'))}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="text-xs font-semibold uppercase tracking-wide text-muted">
                     {i + 1}. {t(`test.type.${q.type}`)}
                   </div>
-                  {g && (g.correct ? <CheckCircle2 className="text-accent" size={20} /> : <XCircle className="text-error" size={20} />)}
+                  {g &&
+                    (g.correct ? (
+                      <CheckCircle2 className="text-accent" size={20} />
+                    ) : (
+                      <XCircle className="text-error" size={20} />
+                    ))}
                 </div>
                 <div className="text-lg font-medium">{q.prompt}</div>
-                {q.type === 'trueFalse' && <p className="rounded-xl bg-surface-2 px-3 py-2 text-sm">{q.statement}</p>}
+                {q.type === 'trueFalse' && (
+                  <p className="rounded-xl bg-surface-2 px-3 py-2 text-sm">{q.statement}</p>
+                )}
                 {q.type === 'multipleChoice' && (
                   <div className="grid gap-2 sm:grid-cols-2">
                     {q.options?.map((o, j) => (
-                      <button key={j} type="button" disabled={!!result} onClick={() => setAnswers((a) => ({ ...a, [q.id]: o }))} className={cn('rounded-xl border px-4 py-3 text-left text-sm transition', given === o ? 'border-primary bg-primary-soft' : 'border-border hover:bg-surface-2', result && o === q.answer && 'border-accent bg-accent-soft', result && given === o && o !== q.answer && 'border-error bg-error-soft')}>
+                      <button
+                        key={j}
+                        type="button"
+                        disabled={!!result}
+                        onClick={() => setAnswers((a) => ({ ...a, [q.id]: o }))}
+                        className={cn(
+                          'rounded-xl border px-4 py-3 text-left text-sm transition',
+                          given === o ? 'border-primary bg-primary-soft' : 'border-border hover:bg-surface-2',
+                          result && o === q.answer && 'border-accent bg-accent-soft',
+                          result && given === o && o !== q.answer && 'border-error bg-error-soft',
+                        )}
+                      >
                         <span className="mr-2 text-xs text-muted">{j + 1}</span>
                         {o}
                       </button>
@@ -219,16 +335,36 @@ export default function PracticeTestPage() {
                 {q.type === 'trueFalse' && (
                   <div className="flex gap-2">
                     {(['true', 'false'] as const).map((v) => (
-                      <button key={v} type="button" disabled={!!result} onClick={() => setAnswers((a) => ({ ...a, [q.id]: v }))} className={cn('flex-1 rounded-xl border px-4 py-3 text-sm font-medium', given === v ? 'border-primary bg-primary-soft' : 'border-border hover:bg-surface-2', result && v === q.answer && 'border-accent bg-accent-soft')}>
+                      <button
+                        key={v}
+                        type="button"
+                        disabled={!!result}
+                        onClick={() => setAnswers((a) => ({ ...a, [q.id]: v }))}
+                        className={cn(
+                          'flex-1 rounded-xl border px-4 py-3 text-sm font-medium',
+                          given === v ? 'border-primary bg-primary-soft' : 'border-border hover:bg-surface-2',
+                          result && v === q.answer && 'border-accent bg-accent-soft',
+                        )}
+                      >
                         {t(`test.${v}`)}
                       </button>
                     ))}
                   </div>
                 )}
-                {q.type === 'written' && <Input value={given} disabled={!!result} onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))} placeholder={t('test.typeAnswer')} />}
+                {q.type === 'written' && (
+                  <Input
+                    value={given}
+                    disabled={!!result}
+                    onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
+                    placeholder={t('test.typeAnswer')}
+                  />
+                )}
                 {g && !g.correct && (
                   <p className="text-sm">
-                    <span className="text-muted">{t('test.correctAnswer')}:</span> <span className="font-semibold">{q.type === 'trueFalse' ? t(`test.${q.answer as 'true' | 'false'}`) : g.expected}</span>
+                    <span className="text-muted">{t('test.correctAnswer')}:</span>{' '}
+                    <span className="font-semibold">
+                      {q.type === 'trueFalse' ? t(`test.${q.answer as 'true' | 'false'}`) : g.expected}
+                    </span>
                   </p>
                 )}
               </div>

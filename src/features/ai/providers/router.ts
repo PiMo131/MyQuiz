@@ -6,7 +6,13 @@
 import type { AiSettings } from '@/domain/types'
 import type { Prompt } from '@/domain/ai/prompts'
 import { useSettings } from '@/app/settings-store'
-import { AiUnavailableError, type ActiveProviderKind, type ChatMessage, type ChatOptions, type ChatProvider } from './types'
+import {
+  AiUnavailableError,
+  type ActiveProviderKind,
+  type ChatMessage,
+  type ChatOptions,
+  type ChatProvider,
+} from './types'
 import { beginBusy, useAiStatusStore } from './status'
 import { byokConfigured, createByokProvider } from './byok'
 import { chromeNanoAvailability, chromeNanoProvider, hasChromeNanoApi } from './chromeNano'
@@ -33,14 +39,16 @@ export async function resolveProvider(ai: AiSettings = settingsNow()): Promise<C
       picked = byokConfigured(ai) ? byok : null
       break
     case 'chrome-nano':
-      picked = hasChromeNanoApi() && (await chromeNanoAvailability()) === 'available' ? chromeNanoProvider : null
+      picked =
+        hasChromeNanoApi() && (await chromeNanoAvailability()) === 'available' ? chromeNanoProvider : null
       break
     case 'webllm':
       picked = ai.webllmConsent && hasWebGpu() ? webllmProvider : null
       break
     default: {
       if (byokConfigured(ai)) picked = byok
-      else if (hasChromeNanoApi() && (await chromeNanoAvailability()) === 'available') picked = chromeNanoProvider
+      else if (hasChromeNanoApi() && (await chromeNanoAvailability()) === 'available')
+        picked = chromeNanoProvider
       else if (await webllmUsable(ai)) picked = webllmProvider
       else picked = null
     }
@@ -88,7 +96,12 @@ export function promptMessages(p: Prompt): ChatMessage[] {
 
 /** Run a prompt built by domain/ai/prompts and parse its JSON. Throws AiUnavailableError without a provider. */
 export async function runPrompt<T>(p: Prompt, parse: (raw: string) => T, signal?: AbortSignal): Promise<T> {
-  const raw = await chat(promptMessages(p), { json: p.schema, maxTokens: p.maxTokens, temperature: p.temperature, signal })
+  const raw = await chat(promptMessages(p), {
+    json: p.schema,
+    maxTokens: p.maxTokens,
+    temperature: p.temperature,
+    signal,
+  })
   return parse(raw)
 }
 

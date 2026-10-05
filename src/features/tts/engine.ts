@@ -73,7 +73,10 @@ function score(v: SpeechSynthesisVoice, lang: string): number {
 }
 
 /** Pick the best voice for a language (settings override → regional preference → any match). */
-export function pickVoice(lang?: string, voices: SpeechSynthesisVoice[] = loadVoices()): SpeechSynthesisVoice | undefined {
+export function pickVoice(
+  lang?: string,
+  voices: SpeechSynthesisVoice[] = loadVoices(),
+): SpeechSynthesisVoice | undefined {
   if (!voices.length) return undefined
   const byLang = useSettings.getState().settings.tts.voiceByLang
   const l = (lang || useSettings.getState().settings.locale || 'en').toLowerCase()
@@ -95,9 +98,14 @@ export function pickVoice(lang?: string, voices: SpeechSynthesisVoice[] = loadVo
   return best
 }
 
-export function voicesFor(lang: string, voices: SpeechSynthesisVoice[] = loadVoices()): SpeechSynthesisVoice[] {
+export function voicesFor(
+  lang: string,
+  voices: SpeechSynthesisVoice[] = loadVoices(),
+): SpeechSynthesisVoice[] {
   const base = lang.split('-')[0].toLowerCase()
-  return voices.filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith(base)).sort((a, b) => score(b, lang) - score(a, lang))
+  return voices
+    .filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith(base))
+    .sort((a, b) => score(b, lang) - score(a, lang))
 }
 
 /** Split text into speakable chunks (~ <200 chars, on sentence/clause boundaries). */
@@ -143,7 +151,11 @@ let keepAlive: ReturnType<typeof setInterval> | null = null
 function startKeepAlive() {
   // Chrome bug: long utterances stop silently; pause/resume every 10 s keeps the engine awake.
   stopKeepAlive()
-  if (typeof navigator !== 'undefined' && /Chrome/.test(navigator.userAgent) && !/Edg|Mobile/.test(navigator.userAgent)) {
+  if (
+    typeof navigator !== 'undefined' &&
+    /Chrome/.test(navigator.userAgent) &&
+    !/Edg|Mobile/.test(navigator.userAgent)
+  ) {
     keepAlive = setInterval(() => {
       if (speechSynthesis.speaking && !speechSynthesis.paused) {
         speechSynthesis.pause()

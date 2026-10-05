@@ -20,14 +20,20 @@ export interface Env {
   MAX_TOKENS_CAP?: string
   CLIENT_TOKEN?: string
   RATE_LIMITER?: { limit(opts: { key: string }): Promise<{ success: boolean }> }
-  DAILY?: { get(key: string): Promise<string | null>; put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void> }
+  DAILY?: {
+    get(key: string): Promise<string | null>
+    put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void>
+  }
 }
 
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } })
 
 function corsHeaders(origin: string | null, env: Env): Record<string, string> | null {
-  const allowed = (env.ALLOWED_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+  const allowed = (env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   if (!origin) return allowed.length ? null : {}
   if (allowed.length && !allowed.includes(origin) && !allowed.includes('*')) return null
   return {
@@ -49,17 +55,24 @@ export default {
     if (request.method !== 'POST' || !/\/chat\/completions\/?$/.test(url.pathname)) {
       return json(404, { error: { message: 'Use POST /v1/chat/completions' } }, cors)
     }
-    if (!env.UPSTREAM_URL || !env.UPSTREAM_KEY) return json(500, { error: { message: 'Proxy not configured' } }, cors)
+    if (!env.UPSTREAM_URL || !env.UPSTREAM_KEY)
+      return json(500, { error: { message: 'Proxy not configured' } }, cors)
 
     if (env.CLIENT_TOKEN) {
       const auth = request.headers.get('authorization') ?? ''
-      if (auth !== `Bearer ${env.CLIENT_TOKEN}`) return json(401, { error: { message: 'Invalid client token' } }, cors)
+      if (auth !== `Bearer ${env.CLIENT_TOKEN}`)
+        return json(401, { error: { message: 'Invalid client token' } }, cors)
     }
 
     const ip = request.headers.get('cf-connecting-ip') ?? 'unknown'
     if (env.RATE_LIMITER) {
       const { success } = await env.RATE_LIMITER.limit({ key: ip })
-      if (!success) return json(429, { error: { message: 'Too many requests, try again in a few minutes' } }, { ...cors, 'retry-after': '60' })
+      if (!success)
+        return json(
+          429,
+          { error: { message: 'Too many requests, try again in a few minutes' } },
+          { ...cors, 'retry-after': '60' },
+        )
     }
 
     const dailyCap = Number(env.DAILY_CAP ?? '0')
@@ -67,7 +80,8 @@ export default {
       const day = new Date().toISOString().slice(0, 10)
       const key = `count:${day}`
       const n = Number((await env.DAILY.get(key)) ?? '0')
-      if (n >= dailyCap) return json(429, { error: { message: 'Daily quota reached, try again tomorrow' } }, cors)
+      if (n >= dailyCap)
+        return json(429, { error: { message: 'Daily quota reached, try again tomorrow' } }, cors)
       // Best-effort counter (KV is eventually consistent; good enough for a soft cap).
       await env.DAILY.put(key, String(n + 1), { expirationTtl: 60 * 60 * 48 })
     }
@@ -94,7 +108,11 @@ export default {
 
     const upstream = await fetch(env.UPSTREAM_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${env.UPSTREAM_KEY}`, accept: body.stream ? 'text/event-stream' : 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${env.UPSTREAM_KEY}`,
+        accept: body.stream ? 'text/event-stream' : 'application/json',
+      },
       body: JSON.stringify(body),
     })
     const headers = new Headers(cors)

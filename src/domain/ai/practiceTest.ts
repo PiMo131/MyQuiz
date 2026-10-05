@@ -35,9 +35,14 @@ export interface PracticeSource {
   altAnswers?: string[]
 }
 
-export function buildPracticeTest(sources: readonly PracticeSource[], opts: PracticeTestOptions = {}): PracticeQuestion[] {
+export function buildPracticeTest(
+  sources: readonly PracticeSource[],
+  opts: PracticeTestOptions = {},
+): PracticeQuestion[] {
   const rng = opts.rng ?? Math.random
-  const types = opts.types?.length ? opts.types : (['multipleChoice', 'written', 'trueFalse'] as PracticeQuestionType[])
+  const types = opts.types?.length
+    ? opts.types
+    : (['multipleChoice', 'written', 'trueFalse'] as PracticeQuestionType[])
   const side = opts.side ?? 'definition'
   const usable = sources.filter((s) => plainText(s.term) && plainText(s.definition))
   const count = Math.min(opts.count ?? 10, usable.length)
@@ -58,7 +63,8 @@ export function buildPracticeTest(sources: readonly PracticeSource[], opts: Prac
       if (!isTrue) {
         const others = answersPool.filter((a) => plainText(a) !== answer)
         statement = plainText(others[Math.floor(rng() * others.length)] ?? answer)
-        if (statement === answer) return out.push({ id, type: 'written', cardId: s.id, prompt, answer, altAnswers: s.altAnswers })
+        if (statement === answer)
+          return out.push({ id, type: 'written', cardId: s.id, prompt, answer, altAnswers: s.altAnswers })
       }
       out.push({ id, type, cardId: s.id, prompt, statement, answer: statement === answer ? 'true' : 'false' })
     } else {
@@ -69,7 +75,9 @@ export function buildPracticeTest(sources: readonly PracticeSource[], opts: Prac
 }
 
 export function cardsToSources(cards: readonly Card[]): PracticeSource[] {
-  return cards.filter((c) => !c.suspended).map((c) => ({ id: c.id, term: c.term, definition: c.definition, altAnswers: c.altAnswers }))
+  return cards
+    .filter((c) => !c.suspended)
+    .map((c) => ({ id: c.id, term: c.term, definition: c.definition, altAnswers: c.altAnswers }))
 }
 
 export interface PracticeGrade {
@@ -77,7 +85,11 @@ export interface PracticeGrade {
   expected: string
 }
 
-export function gradePracticeAnswer(q: PracticeQuestion, given: string, grading?: Partial<GradingOptions>): PracticeGrade {
+export function gradePracticeAnswer(
+  q: PracticeQuestion,
+  given: string,
+  grading?: Partial<GradingOptions>,
+): PracticeGrade {
   if (q.type === 'written') {
     const r = gradeAnswer(given, [q.answer, ...(q.altAnswers ?? [])], grading)
     return { correct: r.correct, expected: q.answer }
@@ -86,7 +98,11 @@ export function gradePracticeAnswer(q: PracticeQuestion, given: string, grading?
   return { correct: plainText(given) === plainText(q.answer), expected: q.answer }
 }
 
-export function scoreTest(qs: readonly PracticeQuestion[], answers: Readonly<Record<string, string>>, grading?: Partial<GradingOptions>): { correct: number; total: number; results: Record<string, PracticeGrade> } {
+export function scoreTest(
+  qs: readonly PracticeQuestion[],
+  answers: Readonly<Record<string, string>>,
+  grading?: Partial<GradingOptions>,
+): { correct: number; total: number; results: Record<string, PracticeGrade> } {
   const results: Record<string, PracticeGrade> = {}
   let correct = 0
   for (const q of qs) {

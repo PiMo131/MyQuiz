@@ -49,7 +49,14 @@ export function isHeadingLine(line: string): boolean {
   if (/^#{1,6}\s+/.test(l)) return true
   if (/^(?:hoofdstuk|chapter|deel|part|les|lesson|paragraaf|section)\s+\d+/i.test(l)) return true
   // Short line, no sentence punctuation, starts with capital, mostly words, not a bullet
-  if (l.length <= 60 && !/[.!?,;:]$/.test(l) && /^[A-ZÀ-Ý0-9]/.test(l) && wordCount(l) <= 8 && !/^[-*•]/.test(l) && !/[:—–]\s/.test(l)) {
+  if (
+    l.length <= 60 &&
+    !/[.!?,;:]$/.test(l) &&
+    /^[A-ZÀ-Ý0-9]/.test(l) &&
+    wordCount(l) <= 8 &&
+    !/^[-*•]/.test(l) &&
+    !/[:—–]\s/.test(l)
+  ) {
     // Must be followed/preceded by something; the caller decides using context. Treat ALL CAPS or Title Case as heading.
     const words = l.split(/\s+/)
     const titled = words.filter((w) => /^[A-ZÀ-Ý]/.test(w) || /^\d/.test(w)).length
@@ -59,5 +66,8 @@ export function isHeadingLine(line: string): boolean {
 }
 
 export function headingText(line: string): string {
-  return line.replace(/^#{1,6}\s+/, '').replace(/:$/, '').trim()
+  return line
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/:$/, '')
+    .trim()
 }

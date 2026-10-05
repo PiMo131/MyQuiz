@@ -5,7 +5,15 @@
 import type { Card } from '@/domain/types'
 import { plainText, truncate } from '@/domain/text'
 import { langName } from './lang'
-import { cardsSchema, distractorsSchema, gradeSchema, practiceTestSchema, scriptSchema, studyGuideSchema, type JsonSchema } from './schemas'
+import {
+  cardsSchema,
+  distractorsSchema,
+  gradeSchema,
+  practiceTestSchema,
+  scriptSchema,
+  studyGuideSchema,
+  type JsonSchema,
+} from './schemas'
 import type { CardStyle } from './cards'
 
 export interface Prompt {
@@ -35,7 +43,12 @@ export function cardsPrompt(text: string, opts: { lang?: string; count: number; 
   }
 }
 
-export function distractorsPrompt(card: Pick<Card, 'term' | 'definition'>, existing: readonly string[], n: number, lang?: string): Prompt {
+export function distractorsPrompt(
+  card: Pick<Card, 'term' | 'definition'>,
+  existing: readonly string[],
+  n: number,
+  lang?: string,
+): Prompt {
   return {
     system: `You write plausible but clearly wrong multiple-choice options for a flashcard quiz. Options must be the same kind of thing as the correct answer, similar length, never a synonym or partial match of the correct answer. Write in ${langName(lang)}. ${JSON_RULE} Schema: {"distractors":["", ""]}`,
     user: `Question: ${plainText(card.term)}\nCorrect answer: ${plainText(card.definition)}\nAlready used (avoid): ${existing.map(plainText).join(' | ') || '-'}\nGive ${n} distractors.`,
@@ -45,13 +58,24 @@ export function distractorsPrompt(card: Pick<Card, 'term' | 'definition'>, exist
   }
 }
 
-export function explainPrompt(input: { card: Card; givenAnswer?: string; lang: string; side?: 'term' | 'definition' }): Prompt {
+export function explainPrompt(input: {
+  card: Card
+  givenAnswer?: string
+  lang: string
+  side?: 'term' | 'definition'
+}): Prompt {
   const side = input.side ?? 'definition'
   const prompt = plainText(side === 'definition' ? input.card.term : input.card.definition)
   const answer = plainText(side === 'definition' ? input.card.definition : input.card.term)
-  const extras = [input.card.hint && `Hint on card: ${plainText(input.card.hint)}`, input.card.example && `Example on card: ${plainText(input.card.example)}`, input.card.mnemonic && `Mnemonic on card: ${plainText(input.card.mnemonic)}`].filter(Boolean).join('\n')
+  const extras = [
+    input.card.hint && `Hint on card: ${plainText(input.card.hint)}`,
+    input.card.example && `Example on card: ${plainText(input.card.example)}`,
+    input.card.mnemonic && `Mnemonic on card: ${plainText(input.card.mnemonic)}`,
+  ]
+    .filter(Boolean)
+    .join('\n')
   return {
-    system: `You are a friendly tutor. Explain in at most 3 short sentences why the correct answer is right${input.givenAnswer ? ' and why the student\'s answer is not' : ''}. Add one memorable cue (example or mnemonic). Write in ${langName(input.lang)}. Use plain text or light markdown (bold), no headings, no lists.`,
+    system: `You are a friendly tutor. Explain in at most 3 short sentences why the correct answer is right${input.givenAnswer ? " and why the student's answer is not" : ''}. Add one memorable cue (example or mnemonic). Write in ${langName(input.lang)}. Use plain text or light markdown (bold), no headings, no lists.`,
     user: `Prompt: ${prompt}\nCorrect answer: ${answer}\n${input.givenAnswer ? `Student answered: ${plainText(input.givenAnswer)}\n` : ''}${extras}`,
     maxTokens: 220,
     temperature: 0.5,
@@ -78,7 +102,10 @@ export function studyGuidePrompt(text: string, lang?: string): Prompt {
   }
 }
 
-export function practiceTestPrompt(source: string, opts: { count: number; types: string[]; lang?: string }): Prompt {
+export function practiceTestPrompt(
+  source: string,
+  opts: { count: number; types: string[]; lang?: string },
+): Prompt {
   return {
     system: `You write practice test questions from study material. Types allowed: ${opts.types.join(', ')}. For multipleChoice give exactly 4 "options" including the correct "answer". For trueFalse give a "statement" and "answer" "true" or "false". For written give "prompt" and a short "answer". Only use facts from the material. Write in ${langName(opts.lang)}. ${JSON_RULE} Schema: {"questions":[{"type":"multipleChoice","prompt":"","options":["","","",""],"answer":""}]}`,
     user: `Write ${opts.count} questions from:\n\n${truncate(source, MAX_INPUT)}`,
@@ -88,7 +115,11 @@ export function practiceTestPrompt(source: string, opts: { count: number; types:
   }
 }
 
-export function podcastPrompt(title: string, cards: readonly Pick<Card, 'term' | 'definition'>[], lang: string): Prompt {
+export function podcastPrompt(
+  title: string,
+  cards: readonly Pick<Card, 'term' | 'definition'>[],
+  lang: string,
+): Prompt {
   const list = cards.map((c, i) => `${i}. ${plainText(c.term)} — ${plainText(c.definition)}`).join('\n')
   return {
     system: `You write a short, friendly spoken script (like a mini podcast host) that teaches flashcards. Keep sentences short and speakable. Structure: an "intro" segment, then for each card a "term" segment (ask the listener to recall it, include the term) followed by a "definition" segment (explain it in one or two sentences), occasionally a "line" segment linking topics, then a "recap" and an "outro". Set "cardIndex" to the card number on term/definition segments. Write in ${langName(lang)}. ${JSON_RULE} Schema: {"segments":[{"kind":"intro","text":""},{"kind":"term","text":"","cardIndex":0}]}`,
@@ -99,7 +130,14 @@ export function podcastPrompt(title: string, cards: readonly Pick<Card, 'term' |
   }
 }
 
-export function tutorSystemPrompt(setTitle: string, cards: readonly Pick<Card, 'term' | 'definition'>[], lang: string): string {
-  const list = cards.slice(0, 80).map((c) => `- ${plainText(c.term)}: ${plainText(c.definition)}`).join('\n')
+export function tutorSystemPrompt(
+  setTitle: string,
+  cards: readonly Pick<Card, 'term' | 'definition'>[],
+  lang: string,
+): string {
+  const list = cards
+    .slice(0, 80)
+    .map((c) => `- ${plainText(c.term)}: ${plainText(c.definition)}`)
+    .join('\n')
   return `You are a patient study tutor inside a flashcard app. The student studies the set "${setTitle}". Use ONLY the cards below as source of truth; if asked something outside the set, say so briefly. Keep answers short (max 120 words), use plain text or light markdown. When quizzing ("stump me"), ask one question at a time and wait for the answer; then grade it and give the correct answer. Write in ${langName(lang)}.\n\nCards:\n${list}`
 }

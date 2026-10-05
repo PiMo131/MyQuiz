@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { BookOpenText, FileQuestion, Headphones, MessageCircleQuestion, Sparkles, WandSparkles, type LucideIcon } from 'lucide-react'
+import {
+  BookOpenText,
+  FileQuestion,
+  Headphones,
+  MessageCircleQuestion,
+  Sparkles,
+  WandSparkles,
+  type LucideIcon,
+} from 'lucide-react'
 import { db } from '@/db/db'
 import { Modal, cn } from '@/ui'
 import { ProviderBanner } from './components/ProviderBanner'
@@ -77,7 +85,11 @@ export default function AiHubPage() {
           <ul className="divide-y divide-border">
             {sets.map((s) => (
               <li key={s.id}>
-                <button type="button" onClick={() => pick && openWithSet(pick, s.id)} className="flex w-full items-center justify-between gap-3 py-2.5 text-left hover:text-primary">
+                <button
+                  type="button"
+                  onClick={() => pick && openWithSet(pick, s.id)}
+                  className="flex w-full items-center justify-between gap-3 py-2.5 text-left hover:text-primary"
+                >
                   <span className="truncate">{s.title || '…'}</span>
                 </button>
               </li>

@@ -1,12 +1,30 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, Download, Globe, KeyRound, Cpu, ShieldCheck, Trash2, TriangleAlert, Zap } from 'lucide-react'
+import {
+  CheckCircle2,
+  Download,
+  Globe,
+  KeyRound,
+  Cpu,
+  ShieldCheck,
+  Trash2,
+  TriangleAlert,
+  Zap,
+} from 'lucide-react'
 import type { AiProviderKind, AiSettings, ByokVendor } from '@/domain/types'
 import { useSettings } from '@/app/settings-store'
 import { Button, Input, Label, ProgressBar, Select, Toggle } from '@/ui'
 import { VENDORS, byokConfigured, testByok, vendorInfo } from '../providers/byok'
 import { chromeNanoAvailability, chromeNanoDownload, hasChromeNanoApi } from '../providers/chromeNano'
-import { WEBLLM_MODELS, chooseDefaultModel, hasWebGpu, isModelCached, loadWebllm, removeModelFromCache, unloadWebllm } from '../providers/webllm'
+import {
+  WEBLLM_MODELS,
+  chooseDefaultModel,
+  hasWebGpu,
+  isModelCached,
+  loadWebllm,
+  removeModelFromCache,
+  unloadWebllm,
+} from '../providers/webllm'
 import { useAiStatus } from '../useAiStatus'
 import { ProviderChip } from './ProviderChip'
 
@@ -23,11 +41,10 @@ export function AiSettingsPanel() {
   // --- WebLLM ---
   const model = ai.webllmModel ?? chooseDefaultModel()
   const modelInfo = WEBLLM_MODELS.find((m) => m.id === model)
-  const [cached, setCached] = useState<boolean | null>(null)
+  const [cached, setCached] = useState<boolean | null>(hasWebGpu() ? null : false)
   useEffect(() => {
     let alive = true
     if (hasWebGpu()) void isModelCached(model).then((c) => alive && setCached(c))
-    else setCached(false)
     return () => {
       alive = false
     }
@@ -43,7 +60,9 @@ export function AiSettingsPanel() {
   // --- BYOK ---
   const byok = ai.byok ?? { vendor: 'gemini' as ByokVendor, apiKey: '' }
   const info = vendorInfo(byok.vendor)
-  const [test, setTest] = useState<{ state: 'idle' | 'busy' | 'ok' | 'fail'; msg?: string }>({ state: 'idle' })
+  const [test, setTest] = useState<{ state: 'idle' | 'busy' | 'ok' | 'fail'; msg?: string }>({
+    state: 'idle',
+  })
   const runTest = async () => {
     setTest({ state: 'busy' })
     const r = await testByok(ai)
@@ -61,7 +80,11 @@ export function AiSettingsPanel() {
 
       <div>
         <Label htmlFor="ai-provider">{t('settings.provider')}</Label>
-        <Select id="ai-provider" value={ai.provider} onChange={(e) => void patch({ provider: e.target.value as AiProviderKind })}>
+        <Select
+          id="ai-provider"
+          value={ai.provider}
+          onChange={(e) => void patch({ provider: e.target.value as AiProviderKind })}
+        >
           {PROVIDERS.map((p) => (
             <option key={p} value={p}>
               {t(`settings.providers.${p}`)}
@@ -82,11 +105,21 @@ export function AiSettingsPanel() {
         ) : (
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="inline-flex items-center gap-1.5">
-              {status.chromeNano === 'available' ? <CheckCircle2 size={16} className="text-accent" /> : <TriangleAlert size={16} className="text-highlight" />}
+              {status.chromeNano === 'available' ? (
+                <CheckCircle2 size={16} className="text-accent" />
+              ) : (
+                <TriangleAlert size={16} className="text-highlight" />
+              )}
               {t(`settings.nano.state.${status.chromeNano}`)}
             </span>
             {(status.chromeNano === 'downloadable' || status.chromeNano === 'downloading') && (
-              <Button size="sm" variant="outline" loading={nanoProgress !== null && nanoProgress < 1} onClick={() => void chromeNanoDownload(setNanoProgress).finally(() => setNanoProgress(null))} leftIcon={<Download size={14} />}>
+              <Button
+                size="sm"
+                variant="outline"
+                loading={nanoProgress !== null && nanoProgress < 1}
+                onClick={() => void chromeNanoDownload(setNanoProgress).finally(() => setNanoProgress(null))}
+                leftIcon={<Download size={14} />}
+              >
                 {nanoProgress !== null ? `${Math.round(nanoProgress * 100)}%` : t('settings.nano.download')}
               </Button>
             )}
@@ -100,11 +133,26 @@ export function AiSettingsPanel() {
           <Cpu size={18} className="text-primary" /> {t('settings.webllm.title')}
         </div>
         <p className="text-sm text-muted">{t('settings.webllm.desc')}</p>
-        {!hasWebGpu() && <p className="rounded-lg bg-highlight-soft px-3 py-2 text-xs text-highlight">{t('settings.webllm.noWebgpu')}</p>}
-        <Toggle checked={!!ai.webllmConsent} disabled={!hasWebGpu()} onChange={(v) => void patch({ webllmConsent: v })} label={t('settings.webllm.consent')} description={t('settings.webllm.consentHint', { size: modelInfo?.sizeMb ?? 600 })} />
+        {!hasWebGpu() && (
+          <p className="rounded-lg bg-highlight-soft px-3 py-2 text-xs text-highlight">
+            {t('settings.webllm.noWebgpu')}
+          </p>
+        )}
+        <Toggle
+          checked={!!ai.webllmConsent}
+          disabled={!hasWebGpu()}
+          onChange={(v) => void patch({ webllmConsent: v })}
+          label={t('settings.webllm.consent')}
+          description={t('settings.webllm.consentHint', { size: modelInfo?.sizeMb ?? 600 })}
+        />
         <div>
           <Label htmlFor="webllm-model">{t('settings.webllm.model')}</Label>
-          <Select id="webllm-model" value={model} disabled={!ai.webllmConsent || webllmBusy} onChange={(e) => void patch({ webllmModel: e.target.value })}>
+          <Select
+            id="webllm-model"
+            value={model}
+            disabled={!ai.webllmConsent || webllmBusy}
+            onChange={(e) => void patch({ webllmModel: e.target.value })}
+          >
             {WEBLLM_MODELS.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.label} · ≈{m.sizeMb} MB
@@ -124,12 +172,24 @@ export function AiSettingsPanel() {
                 {t('settings.webllm.unload')}
               </Button>
             ) : (
-              <Button size="sm" disabled={!ai.webllmConsent || !hasWebGpu()} loading={webllmBusy} onClick={() => void loadWebllm(model).catch(() => undefined)} leftIcon={<Download size={14} />}>
+              <Button
+                size="sm"
+                disabled={!ai.webllmConsent || !hasWebGpu()}
+                loading={webllmBusy}
+                onClick={() => void loadWebllm(model).catch(() => undefined)}
+                leftIcon={<Download size={14} />}
+              >
                 {cached ? t('settings.webllm.load') : t('settings.webllm.download')}
               </Button>
             )}
             {cached && (
-              <Button size="sm" variant="ghost" onClick={() => void removeModelFromCache(model)} leftIcon={<Trash2 size={14} />} aria-label={t('settings.webllm.remove')}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => void removeModelFromCache(model)}
+                leftIcon={<Trash2 size={14} />}
+                aria-label={t('settings.webllm.remove')}
+              >
                 {t('settings.webllm.remove')}
               </Button>
             )}
@@ -153,7 +213,13 @@ export function AiSettingsPanel() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor="byok-vendor">{t('settings.byok.vendor')}</Label>
-            <Select id="byok-vendor" value={byok.vendor} onChange={(e) => void patch({ byok: { ...byok, vendor: e.target.value as ByokVendor, model: '' } })}>
+            <Select
+              id="byok-vendor"
+              value={byok.vendor}
+              onChange={(e) =>
+                void patch({ byok: { ...byok, vendor: e.target.value as ByokVendor, model: '' } })
+              }
+            >
               {VENDORS.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.label}
@@ -163,13 +229,30 @@ export function AiSettingsPanel() {
           </div>
           <div>
             <Label htmlFor="byok-model">{t('settings.byok.model')}</Label>
-            <Input id="byok-model" value={byok.model ?? ''} placeholder={info.defaultModel || 'model-id'} onChange={(e) => void patch({ byok: { ...byok, model: e.target.value } })} />
+            <Input
+              id="byok-model"
+              value={byok.model ?? ''}
+              placeholder={info.defaultModel || 'model-id'}
+              onChange={(e) => void patch({ byok: { ...byok, model: e.target.value } })}
+            />
           </div>
           <div className={byok.vendor === 'custom' ? '' : 'sm:col-span-2'}>
             <Label htmlFor="byok-key">{t('settings.byok.key')}</Label>
-            <Input id="byok-key" type="password" autoComplete="off" value={byok.apiKey} placeholder="sk-…" onChange={(e) => void patch({ byok: { ...byok, apiKey: e.target.value } })} />
+            <Input
+              id="byok-key"
+              type="password"
+              autoComplete="off"
+              value={byok.apiKey}
+              placeholder="sk-…"
+              onChange={(e) => void patch({ byok: { ...byok, apiKey: e.target.value } })}
+            />
             {info.keyUrl && (
-              <a href={info.keyUrl} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-primary underline">
+              <a
+                href={info.keyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-block text-xs text-primary underline"
+              >
                 {t('settings.byok.getKey', { vendor: info.label })}
               </a>
             )}
@@ -177,17 +260,35 @@ export function AiSettingsPanel() {
           {byok.vendor === 'custom' && (
             <div>
               <Label htmlFor="byok-base">{t('settings.byok.baseUrl')}</Label>
-              <Input id="byok-base" type="url" value={byok.baseUrl ?? ''} placeholder="https://host/v1" onChange={(e) => void patch({ byok: { ...byok, baseUrl: e.target.value } })} />
+              <Input
+                id="byok-base"
+                type="url"
+                value={byok.baseUrl ?? ''}
+                placeholder="https://host/v1"
+                onChange={(e) => void patch({ byok: { ...byok, baseUrl: e.target.value } })}
+              />
             </div>
           )}
         </div>
         <div>
           <Label htmlFor="ai-proxy">{t('settings.proxy.title')}</Label>
-          <Input id="ai-proxy" type="url" value={ai.proxyUrl ?? ''} placeholder="https://myquizz-ai-proxy.example.workers.dev" onChange={(e) => void patch({ proxyUrl: e.target.value })} />
+          <Input
+            id="ai-proxy"
+            type="url"
+            value={ai.proxyUrl ?? ''}
+            placeholder="https://myquizz-ai-proxy.example.workers.dev"
+            onChange={(e) => void patch({ proxyUrl: e.target.value })}
+          />
           <p className="mt-1 text-xs text-muted">{t('settings.proxy.hint')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button size="sm" variant="outline" disabled={!byokConfigured(ai)} loading={test.state === 'busy'} onClick={() => void runTest()}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!byokConfigured(ai)}
+            loading={test.state === 'busy'}
+            onClick={() => void runTest()}
+          >
             {t('settings.byok.test')}
           </Button>
           {test.state === 'ok' && (
@@ -201,7 +302,12 @@ export function AiSettingsPanel() {
             </span>
           )}
           {(byok.apiKey || ai.proxyUrl) && (
-            <Button size="sm" variant="ghost" onClick={() => void patch({ byok: null, proxyUrl: '' })} leftIcon={<Trash2 size={14} />}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => void patch({ byok: null, proxyUrl: '' })}
+              leftIcon={<Trash2 size={14} />}
+            >
               {t('settings.byok.clear')}
             </Button>
           )}

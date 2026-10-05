@@ -30,7 +30,16 @@ export default function GeneratePage() {
   const [existing, setExisting] = useState('')
   const abort = useRef<AbortController | null>(null)
   const sets = useLiveQuery(() => db.sets.orderBy('updatedAt').reverse().toArray(), [])
-  const firstLine = useMemo(() => text.split('\n').map((l) => l.trim()).find(Boolean)?.replace(/^#+\s*/, '').slice(0, 60) ?? '', [text])
+  const firstLine = useMemo(
+    () =>
+      text
+        .split('\n')
+        .map((l) => l.trim())
+        .find(Boolean)
+        ?.replace(/^#+\s*/, '')
+        .slice(0, 60) ?? '',
+    [text],
+  )
 
   const run = async () => {
     abort.current?.abort()
@@ -38,7 +47,12 @@ export default function GeneratePage() {
     abort.current = ctl
     setBusy(true)
     try {
-      const r = await generateCardsDetailed(text, { lang: lang === 'auto' ? undefined : lang, count, style, signal: ctl.signal })
+      const r = await generateCardsDetailed(text, {
+        lang: lang === 'auto' ? undefined : lang,
+        count,
+        style,
+        signal: ctl.signal,
+      })
       setCards(r.cards)
       setProvider(r.provider)
       if (!title) setTitle(firstLine)
@@ -50,21 +64,34 @@ export default function GeneratePage() {
     }
   }
 
-  const edit = (i: number, patch: Partial<GeneratedCard>) => setCards((cs) => (cs ? cs.map((c, j) => (j === i ? { ...c, ...patch } : c)) : cs))
+  const edit = (i: number, patch: Partial<GeneratedCard>) =>
+    setCards((cs) => (cs ? cs.map((c, j) => (j === i ? { ...c, ...patch } : c)) : cs))
   const remove = (i: number) => setCards((cs) => (cs ? cs.filter((_, j) => j !== i) : cs))
 
   const save = async () => {
     if (!cards?.length) return
     const valid = cards.filter((c) => c.term.trim() && c.definition.trim())
-    const inputs = valid.map((c) => ({ term: c.term.trim(), definition: c.definition.trim(), hint: c.hint?.trim() || undefined, cloze: c.cloze ?? null }))
+    const inputs = valid.map((c) => ({
+      term: c.term.trim(),
+      definition: c.definition.trim(),
+      hint: c.hint?.trim() || undefined,
+      cloze: c.cloze ?? null,
+    }))
     try {
       let setId = existing
       if (target === 'new' || !existing) {
         const l = lang === 'auto' ? '' : lang
-        const set = await createSet({ title: title.trim() || t('generate.untitled'), lang: { term: l, definition: l }, cardTypes: style === 'cloze' ? ['cloze'] : ['basic'] })
+        const set = await createSet({
+          title: title.trim() || t('generate.untitled'),
+          lang: { term: l, definition: l },
+          cardTypes: style === 'cloze' ? ['cloze'] : ['basic'],
+        })
         setId = set.id
       }
-      await addCards(setId, inputs.map((c) => ({ ...c, setId })))
+      await addCards(
+        setId,
+        inputs.map((c) => ({ ...c, setId })),
+      )
       toast.success(t('generate.saved', { count: inputs.length }))
       navigate(`/set/${setId}`)
     } catch (e) {
@@ -90,7 +117,11 @@ export default function GeneratePage() {
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
             <Label htmlFor="gen-lang">{t('generate.language')}</Label>
-            <Select id="gen-lang" value={lang} onChange={(e) => setLang(e.target.value as (typeof LANGS)[number])}>
+            <Select
+              id="gen-lang"
+              value={lang}
+              onChange={(e) => setLang(e.target.value as (typeof LANGS)[number])}
+            >
               {LANGS.map((l) => (
                 <option key={l} value={l}>
                   {t(`langs.${l}`)}
@@ -100,16 +131,36 @@ export default function GeneratePage() {
           </div>
           <div>
             <Label htmlFor="gen-count">{t('generate.count', { count })}</Label>
-            <input id="gen-count" type="range" min={5} max={60} step={5} value={count} onChange={(e) => setCount(Number(e.target.value))} className="mt-2 w-full accent-primary" />
+            <input
+              id="gen-count"
+              type="range"
+              min={5}
+              max={60}
+              step={5}
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+              className="mt-2 w-full accent-primary"
+            />
           </div>
           <div>
             <Label>{t('generate.style')}</Label>
-            <Tabs items={STYLES.map((s) => ({ value: s, label: t(`generate.styles.${s}`) }))} value={style} onChange={setStyle} />
+            <Tabs
+              items={STYLES.map((s) => ({ value: s, label: t(`generate.styles.${s}`) }))}
+              value={style}
+              onChange={setStyle}
+            />
           </div>
         </div>
         <BetterResultsHint />
         <div className="flex justify-end">
-          <Button variant="gradient" size="lg" disabled={text.trim().length < 20} loading={busy} onClick={() => void run()} leftIcon={<WandSparkles size={18} />}>
+          <Button
+            variant="gradient"
+            size="lg"
+            disabled={text.trim().length < 20}
+            loading={busy}
+            onClick={() => void run()}
+            leftIcon={<WandSparkles size={18} />}
+          >
             {t('generate.generate')}
           </Button>
         </div>
@@ -125,29 +176,62 @@ export default function GeneratePage() {
           </div>
           <ul className="space-y-2">
             {cards.map((c, i) => (
-              <li key={i} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_auto]">
-                <Input value={c.term} onChange={(e) => edit(i, { term: e.target.value })} aria-label={t('common.term', { ns: 'common' })} />
-                <Input value={c.definition} onChange={(e) => edit(i, { definition: e.target.value })} aria-label={t('common.definition', { ns: 'common' })} />
-                <button type="button" onClick={() => remove(i)} className="justify-self-end rounded-full p-2 text-muted hover:bg-error-soft hover:text-error" aria-label={t('common.delete', { ns: 'common' })}>
+              <li
+                key={i}
+                className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_auto]"
+              >
+                <Input
+                  value={c.term}
+                  onChange={(e) => edit(i, { term: e.target.value })}
+                  aria-label={t('common.term', { ns: 'common' })}
+                />
+                <Input
+                  value={c.definition}
+                  onChange={(e) => edit(i, { definition: e.target.value })}
+                  aria-label={t('common.definition', { ns: 'common' })}
+                />
+                <button
+                  type="button"
+                  onClick={() => remove(i)}
+                  className="justify-self-end rounded-full p-2 text-muted hover:bg-error-soft hover:text-error"
+                  aria-label={t('common.delete', { ns: 'common' })}
+                >
                   <Trash2 size={16} />
                 </button>
                 {c.cloze && <p className="text-xs text-muted sm:col-span-3">{c.cloze}</p>}
               </li>
             ))}
           </ul>
-          <Button variant="ghost" size="sm" onClick={() => setCards((cs) => [...(cs ?? []), { term: '', definition: '' }])} leftIcon={<Plus size={14} />}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCards((cs) => [...(cs ?? []), { term: '', definition: '' }])}
+            leftIcon={<Plus size={14} />}
+          >
             {t('generate.addRow')}
           </Button>
           <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-[auto_1fr_auto] sm:items-end">
             <div>
               <Label>{t('generate.target')}</Label>
-              <Tabs items={[{ value: 'new', label: t('generate.newSet') }, { value: 'existing', label: t('generate.existingSet') }]} value={target} onChange={setTarget} />
+              <Tabs
+                items={[
+                  { value: 'new', label: t('generate.newSet') },
+                  { value: 'existing', label: t('generate.existingSet') },
+                ]}
+                value={target}
+                onChange={setTarget}
+              />
             </div>
             <div>
               {target === 'new' ? (
                 <>
                   <Label htmlFor="gen-title">{t('generate.setTitle')}</Label>
-                  <Input id="gen-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={firstLine || t('generate.untitled')} />
+                  <Input
+                    id="gen-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder={firstLine || t('generate.untitled')}
+                  />
                 </>
               ) : (
                 <>
@@ -163,7 +247,11 @@ export default function GeneratePage() {
                 </>
               )}
             </div>
-            <Button size="lg" disabled={!cards.length || (target === 'existing' && !existing)} onClick={() => void save()}>
+            <Button
+              size="lg"
+              disabled={!cards.length || (target === 'existing' && !existing)}
+              onClick={() => void save()}
+            >
               {target === 'new' ? t('generate.createSet') : t('generate.addToSet')}
             </Button>
           </div>

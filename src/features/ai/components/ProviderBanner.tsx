@@ -8,7 +8,14 @@ import { useAiStatus } from '../useAiStatus'
 export function ProviderBanner() {
   const { t } = useTranslation('ai')
   const s = useAiStatus()
-  const Icon = s.provider === 'byok' ? KeyRound : s.provider === 'webllm' ? Cpu : s.provider === 'chrome-nano' ? Globe : Zap
+  const Icon =
+    s.provider === 'byok'
+      ? KeyRound
+      : s.provider === 'webllm'
+        ? Cpu
+        : s.provider === 'chrome-nano'
+          ? Globe
+          : Zap
   const loading = s.webllm.state === 'loading'
   return (
     <div className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
