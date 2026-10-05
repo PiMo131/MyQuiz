@@ -35,7 +35,7 @@ function QuickCard({ to, icon, title, blurb, tint }: { to: string; icon: ReactNo
       <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface/80 shadow-sm">{icon}</span>
       <div className="min-w-0 pr-8">
         <div className="truncate text-base font-bold text-text">{title}</div>
-        <div className="mt-0.5 truncate text-sm text-text/70">{blurb}</div>
+        <div className="mt-0.5 line-clamp-2 text-sm leading-snug text-text/70">{blurb}</div>
       </div>
       <ArrowRight size={18} className="absolute bottom-5 right-5 opacity-60 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
     </Link>
