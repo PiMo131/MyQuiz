@@ -1,6 +1,21 @@
 import { expect, test } from '@playwright/test'
 import { assertNoErrors, collectErrors, openApp } from './helpers'
 
+const DEMO_PAIRS: Array<[string, string]> = [
+  ['Pomodoro technique', 'Studying in 25-minute blocks'],
+  ['Active recall', 'Actively retrieving information'],
+  ['Spaced repetition', 'Reviewing at increasing intervals'],
+  ['Interleaving', 'Mixing different topics'],
+  ['Feynman technique', 'Explaining a concept in simple words'],
+  ['Elaboration', 'Connecting new knowledge'],
+  ['Retrieval practice', 'Practising recall'],
+  ['Dual coding', 'Combining words with images'],
+  ['Metacognition', 'Thinking about your own learning'],
+  ['Sleep', 'Memories consolidate during sleep'],
+  ['Testing effect', 'Testing yourself strengthens memory'],
+  ['Cognitive load', 'The amount of mental effort'],
+]
+
 test('match: start and match a correct pair', async ({ page }) => {
   const log = collectErrors(page)
   const id = await openApp(page)
@@ -11,8 +26,12 @@ test('match: start and match a correct pair', async ({ page }) => {
   await expect(grid).toBeVisible({ timeout: 10_000 })
   const tiles = grid.getByRole('gridcell')
   await expect(tiles).toHaveCount(12)
-  const term = tiles.filter({ hasText: 'Pomodoro technique' })
-  const def = tiles.filter({ hasText: 'Studying in 25-minute blocks' })
+  // The board shows a random subset of pairs; pick whichever demo pair is on it.
+  const texts = await tiles.allInnerTexts()
+  const pair = DEMO_PAIRS.find(([t, d]) => texts.some((x) => x.includes(t)) && texts.some((x) => x.includes(d)))
+  expect(pair, 'a known term/definition pair is on the board').toBeTruthy()
+  const term = tiles.filter({ hasText: pair![0] })
+  const def = tiles.filter({ hasText: pair![1] })
   await term.click()
   await def.click()
   // matched tiles disappear / are marked; both should no longer be selectable
