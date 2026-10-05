@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, ExternalLink, Shuffle } from 'lucide-react'
@@ -40,11 +40,15 @@ export default function EmbedPage() {
   const seq = order.length === cards.length ? order : cards.map((_, i) => i)
   const card = cards[seq[idx] ?? 0]
 
-  const go = (d: number) => {
-    if (!cards.length) return
-    setFlipped(false)
-    setIdx((i) => (i + d + cards.length) % cards.length)
-  }
+  const total = cards.length
+  const go = useCallback(
+    (d: number) => {
+      if (!total) return
+      setFlipped(false)
+      setIdx((i) => (i + d + total) % total)
+    },
+    [total],
+  )
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') go(1)
@@ -56,7 +60,7 @@ export default function EmbedPage() {
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [cards.length])
+  }, [go])
 
   const openLink = `${location.pathname}#/import?d=${encodeURIComponent(code)}`
 

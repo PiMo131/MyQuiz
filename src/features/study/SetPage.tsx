@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
-  ArrowRight, Bookmark, ChevronLeft, ChevronRight, ChevronUp, Code2, Copy, Eye, EyeOff, Headphones, Lightbulb, Maximize2, MoreHorizontal, Pause, Pencil, Play, Printer, Radio, RotateCcw, Settings, Share2, Shuffle, Sparkles, Star, Trash2, Upload, Users,
+  ArrowRight, Bookmark, ChevronLeft, ChevronRight, ChevronUp, Code2, Copy, Eye, EyeOff, Headphones, Lightbulb, Maximize2, MoreHorizontal, Pause, Pencil, Play, Printer, RotateCcw, Settings, Share2, Shuffle, Sparkles, Star, Trash2, Upload, Users,
 } from 'lucide-react'
 import { db } from '@/db/db'
 import { deleteSet, duplicateSet, resetSetProgress, toggleStar, updateCard } from '@/db/repo'
@@ -159,12 +159,7 @@ export default function SetPage() {
         <Link to={`/live/host/${setId}?mode=study`} className="card flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-surface-2">
           <Users size={18} className="text-primary" /> {t('set.studyWithFriends')} <Badge tone="secondary">{t('common:common.new')}</Badge>
         </Link>
-        <div className="card flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold">
-          <Link to={`/live/host/${setId}`} className="flex items-center gap-2 rounded-full px-3 py-1 hover:bg-surface-2">
-            <Radio size={18} className="text-primary" /> {t('set.playLive')}
-          </Link>
-          <LiveLobbyButton setId={setId} />
-        </div>
+        <LiveLobbyButton setId={setId} variant="outline" size="lg" full />
       </div>
 
       {/* Mode tiles */}

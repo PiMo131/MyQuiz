@@ -5,50 +5,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Download, FileUp, Import, Link2, Settings } from 'lucide-react'
 import { db } from '@/db/db'
 import { addCards, createSet, putMedia, replaceCards, updateSet, type NewCard } from '@/db/repo'
-import type { LangPair, SharedSet, StudySet } from '@/domain/types'
-import { decodeSet, decodeShared, isShareCode } from '@/domain/share-codec'
+import type { StudySet } from '@/domain/types'
 import { dataUrlToBlob } from '@/domain/import-export/exporters'
 import { parseImportFile } from '@/domain/import-export/parse-file'
-import type { ParsedCard } from '@/domain/import-export/parsers'
+import { decodeCode, extractCode, type Decoded } from './share-utils'
 import { Badge, Button, Card, EmptyState, Input, Label, Markdown, Select, cn, toast } from '@/ui'
-
-interface Decoded {
-  title: string
-  description: string
-  lang: LangPair
-  tags: string[]
-  cards: ParsedCard[]
-  externalId?: string
-  shared?: SharedSet
-  sourceLabel: string
-}
-
-function extractCode(input: string): string | undefined {
-  const s = input.trim()
-  if (!s) return undefined
-  if (isShareCode(s)) return s
-  const m = /[?&]d=([12]\.[A-Za-z0-9_-]+)/.exec(s) || /#\/embed\/([12]\.[A-Za-z0-9_-]+)/.exec(s)
-  if (m) return decodeURIComponent(m[1])
-  return undefined
-}
-
-function decodeCode(code: string): Decoded {
-  if (code.startsWith('2.')) {
-    const shared = decodeShared(code)
-    return {
-      title: shared.set.title,
-      description: shared.set.description,
-      lang: shared.set.lang,
-      tags: shared.set.tags ?? [],
-      cards: shared.cards.map((c) => ({ term: c.term, definition: c.definition, hint: c.hint, cloze: c.cloze ?? undefined, externalId: c.id })),
-      externalId: shared.set.externalId ?? shared.set.id,
-      shared,
-      sourceLabel: 'link',
-    }
-  }
-  const d = decodeSet(code)
-  return { title: d.title, description: d.description, lang: d.lang, tags: [], cards: d.cards, externalId: d.externalId, sourceLabel: 'link' }
-}
 
 export default function ImportPage() {
   const { t } = useTranslation('share')

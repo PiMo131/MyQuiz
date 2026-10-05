@@ -41,6 +41,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
+        // Heavy, rarely used chunks are fetched on demand instead of precached.
+        globIgnores: ['**/webllm-*.js', '**/pdf.worker*', '**/pdfjs-*.js', '**/sqljs-*.js', '**/sql-wasm*'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: `${BASE}index.html`,
         // Never try to precache model weights or external CDNs.
@@ -67,6 +69,8 @@ export default defineConfig({
         manualChunks: (id) => {
           if (id.includes('@mlc-ai/web-llm')) return 'webllm'
           if (id.includes('trystero')) return 'trystero'
+          if (id.includes('pdfjs-dist')) return 'pdfjs'
+          if (id.includes('sql.js')) return 'sqljs'
           if (id.includes('node_modules/react') || id.includes('react-router')) return 'react'
           if (id.includes('dexie')) return 'dexie'
           if (id.includes('i18next')) return 'i18n'
