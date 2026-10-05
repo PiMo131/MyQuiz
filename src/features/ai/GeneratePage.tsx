@@ -115,7 +115,7 @@ export default function GeneratePage() {
       <section className="card space-y-4 p-5">
         <SourceInput value={text} onChange={setText} />
         <div className="grid gap-3 sm:grid-cols-3">
-          <div>
+          <div className="min-w-0">
             <Label htmlFor="gen-lang">{t('generate.language')}</Label>
             <Select
               id="gen-lang"
@@ -129,7 +129,7 @@ export default function GeneratePage() {
               ))}
             </Select>
           </div>
-          <div>
+          <div className="min-w-0">
             <Label htmlFor="gen-count">{t('generate.count', { count })}</Label>
             <input
               id="gen-count"
@@ -142,7 +142,7 @@ export default function GeneratePage() {
               className="mt-2 w-full accent-primary"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <Label>{t('generate.style')}</Label>
             <Tabs
               items={STYLES.map((s) => ({ value: s, label: t(`generate.styles.${s}`) }))}
@@ -156,7 +156,7 @@ export default function GeneratePage() {
           <Button
             variant="gradient"
             size="lg"
-            disabled={text.trim().length < 20}
+            disabled={text.trim().length < 10}
             loading={busy}
             onClick={() => void run()}
             leftIcon={<WandSparkles size={18} />}

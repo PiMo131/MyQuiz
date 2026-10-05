@@ -40,17 +40,117 @@ export interface DecodedSet {
   externalId?: string
 }
 
+/** Hard cap on decompressed share payloads (zip-bomb / memory protection). */
+export const MAX_DECODED_BYTES = 5 * 1024 * 1024
+const MAX_CARDS = 5000
+const MAX_TEXT = 20_000
+
+/** Inflate into a bounded buffer; fflate truncates to the buffer, so an overflow is detected by size. */
+function inflateBounded(payload: string): string {
+  const out = inflateSync(fromB64Url(payload), { out: new Uint8Array(MAX_DECODED_BYTES + 1) })
+  if (out.length > MAX_DECODED_BYTES) throw new Error('Share code too large')
+  return strFromU8(out)
+}
+
+const str = (x: unknown, max = MAX_TEXT): string => (typeof x === 'string' ? x.slice(0, max) : '')
+const optStr = (x: unknown, max = MAX_TEXT): string | undefined => (typeof x === 'string' && x ? x.slice(0, max) : undefined)
+const strList = (x: unknown, max = 50): string[] | undefined => (Array.isArray(x) ? x.filter((s): s is string => typeof s === 'string').slice(0, max) : undefined)
+const idPair = (x: unknown): { term?: string; definition?: string } | undefined => {
+  if (!x || typeof x !== 'object') return undefined
+  const o = x as Record<string, unknown>
+  const out = { term: optStr(o.term, 200), definition: optStr(o.definition, 200) }
+  return out.term || out.definition ? out : undefined
+}
+const MEDIA_MIME = /^(image|audio)\/[a-z0-9.+-]+$/i
+
+/**
+ * Validate and coerce an untrusted SharedSet (from a link, file or peer) into a well-typed one.
+ * Unknown fields are dropped, strings are capped, media is limited to image/audio data URLs.
+ */
+export function sanitizeSharedSet(x: unknown): SharedSet {
+  if (!x || typeof x !== 'object') throw new Error('Invalid shared set')
+  const o = x as Record<string, unknown>
+  if (o.format !== 'myquizz-set' || !Array.isArray(o.cards) || !o.set || typeof o.set !== 'object') throw new Error('Invalid shared set')
+  const s = o.set as Record<string, unknown>
+  const lang = (s.lang && typeof s.lang === 'object' ? s.lang : {}) as Record<string, unknown>
+  const now = Date.now()
+  const num = (v: unknown, d: number) => (typeof v === 'number' && Number.isFinite(v) ? v : d)
+  const set: SharedSet['set'] = {
+    id: str(s.id, 64) || 'shared',
+    title: str(s.title, 500),
+    description: str(s.description, 5000),
+    tags: strList(s.tags) ?? [],
+    lang: { term: str(lang.term, 16), definition: str(lang.definition, 16) },
+    cardTypes: (strList(s.cardTypes) ?? ['basic']).filter((t): t is StudySet['cardTypes'][number] => ['basic', 'reverse', 'cloze', 'occlusion', 'typeIn'].includes(t)),
+    visibility: 'private',
+    author: optStr(s.author, 100),
+    externalId: optStr(s.externalId, 64),
+    createdAt: num(s.createdAt, now),
+    updatedAt: num(s.updatedAt, now),
+  }
+  const cards: Card[] = (o.cards as unknown[])
+    .slice(0, MAX_CARDS)
+    .filter((c): c is Record<string, unknown> => !!c && typeof c === 'object')
+    .map((c, i) => {
+      const flag = c.flag
+      return {
+        id: str(c.id, 64) || `${set.id}-${i}`,
+        setId: set.id,
+        position: i,
+        term: str(c.term),
+        definition: str(c.definition),
+        hint: optStr(c.hint),
+        mnemonic: optStr(c.mnemonic),
+        example: optStr(c.example),
+        altAnswers: strList(c.altAnswers),
+        distractors: strList(c.distractors, 3),
+        image: idPair(c.image),
+        audio: idPair(c.audio),
+        cloze: optStr(c.cloze) ?? null,
+        occlusion: null,
+        starred: c.starred === true,
+        suspended: c.suspended === true,
+        flag: flag === 'red' || flag === 'orange' || flag === 'green' || flag === 'blue' ? flag : null,
+        createdAt: num(c.createdAt, now),
+        updatedAt: num(c.updatedAt, now),
+      }
+    })
+  const media: NonNullable<SharedSet['media']> = []
+  if (Array.isArray(o.media)) {
+    for (const m of o.media as unknown[]) {
+      if (!m || typeof m !== 'object') continue
+      const r = m as Record<string, unknown>
+      const id = optStr(r.id, 200)
+      const mime = optStr(r.mime, 100)
+      const dataUrl = typeof r.dataUrl === 'string' ? r.dataUrl : ''
+      if (!id || !mime || !MEDIA_MIME.test(mime)) continue
+      if (!new RegExp(`^data:${mime.replace(/[.+]/g, '\\$&')}[;,]`, 'i').test(dataUrl)) continue
+      media.push({ id, mime, dataUrl })
+    }
+  }
+  return { format: 'myquizz-set', version: 1, set, cards, ...(media.length ? { media } : {}) }
+}
+
 export function decodeSet(code: string): DecodedSet {
   const [v, payload] = code.split('.', 2)
   if (v !== '1' || !payload) throw new Error('Unsupported share code')
-  const json = strFromU8(inflateSync(fromB64Url(payload)))
-  const w = JSON.parse(json) as Wire
+  const w = JSON.parse(inflateBounded(payload)) as unknown
+  if (!Array.isArray(w) || !Array.isArray(w[4])) throw new Error('Invalid share code')
+  const cards = (w[4] as unknown[])
+    .slice(0, MAX_CARDS)
+    .filter((c): c is unknown[] => Array.isArray(c))
+    .map((c) => {
+      const term = str(c[0])
+      const definition = str(c[1])
+      const hint = optStr(c[2])
+      return hint ? { term, definition, hint } : { term, definition }
+    })
   return {
-    title: w[0],
-    description: w[1],
-    lang: { term: w[2], definition: w[3] },
-    cards: w[4].map(([term, definition, hint]) => (hint ? { term, definition, hint } : { term, definition })),
-    externalId: w[5],
+    title: str(w[0], 500),
+    description: str(w[1], 5000),
+    lang: { term: str(w[2], 16), definition: str(w[3], 16) },
+    cards,
+    externalId: optStr(w[5], 64),
   }
 }
 
@@ -61,7 +161,7 @@ export function encodeShared(shared: SharedSet): string {
 export function decodeShared(code: string): SharedSet {
   const [v, payload] = code.split('.', 2)
   if (v !== '2' || !payload) throw new Error('Unsupported share code')
-  return JSON.parse(strFromU8(inflateSync(fromB64Url(payload)))) as SharedSet
+  return sanitizeSharedSet(JSON.parse(inflateBounded(payload)))
 }
 
 export function isShareCode(s: string): boolean {

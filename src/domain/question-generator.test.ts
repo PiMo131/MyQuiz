@@ -160,3 +160,22 @@ describe('question-generator', () => {
     expect(isAnswered(q, { type: 'written', text: 'x' })).toBe(true)
   })
 })
+
+describe('generateTest edge cases', () => {
+  it('returns no questions when no card is usable', () => {
+    expect(generateTest([], { count: 10, types: ['multipleChoice', 'written'], answerWith: 'definition', seed: 1 })).toEqual([])
+    const suspended = [card(1, { suspended: true }), card(2, { term: '', definition: '' })]
+    expect(generateTest(suspended, { count: 10, types: ['multipleChoice', 'matching'], answerWith: 'definition', seed: 1 })).toEqual([])
+  })
+  it('degrades gracefully with one to three cards', () => {
+    for (const n of [1, 2, 3]) {
+      const cards = Array.from({ length: n }, (_, i) => card(i))
+      const qs = generateTest(cards, { count: 10, types: ['trueFalse', 'multipleChoice', 'matching', 'written', 'ordering', 'multiSelect'], answerWith: 'definition', seed: 3 })
+      expect(qs.length).toBeGreaterThan(0)
+      for (const q of qs) {
+        if (q.type === 'multipleChoice') expect(q.options.length).toBeLessThanOrEqual(n)
+        if (q.type === 'matching') expect(q.pairs.length).toBeLessThanOrEqual(n)
+      }
+    }
+  })
+})

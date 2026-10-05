@@ -44,7 +44,7 @@ export default function NotificationsPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('notifications.title')}</h1>
           <p className="mt-1 text-sm text-muted">{unread > 0 ? t('notifications.unread', { count: unread }) : t('notifications.allRead')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {unread > 0 && <Button size="sm" variant="outline" leftIcon={<Check size={15} />} onClick={() => void markAllRead()}>{t('notifications.markAllRead')}</Button>}
           {!!items?.length && <Button size="sm" variant="ghost" leftIcon={<Trash2 size={15} />} onClick={() => void clearNotifications()}>{t('notifications.clearAll')}</Button>}
           <Link to="/settings#notifications"><Button size="sm" variant="ghost" leftIcon={<Settings size={15} />}>{t('common:common.settings')}</Button></Link>

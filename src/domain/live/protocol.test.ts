@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mulberry32 } from '@/domain/text'
-import { codeFromText, formatCode, generateCode, inviteUrl, isClientMessage, isHostMessage, isValidCode, normalizeCode, roomIdFor } from './protocol'
+import { MAX_NAME_LENGTH, codeFromText, formatCode, generateCode, inviteUrl, isClientMessage, isHostMessage, isValidCode, normalizeCode, roomIdFor, sanitizeName } from './protocol'
 
 describe('live protocol helpers', () => {
   it('generates valid 6-char codes without ambiguous glyphs', () => {
@@ -31,5 +31,37 @@ describe('live protocol helpers', () => {
     expect(isClientMessage(null)).toBe(false)
     expect(isHostMessage({ v: 1, t: 'view', view: {} })).toBe(true)
     expect(isHostMessage({ v: 1, t: 'answer' })).toBe(false)
+  })
+})
+
+describe('live protocol hardening', () => {
+  it('client guards require well-typed payloads', () => {
+    expect(isClientMessage({ v: 1, t: 'hello' })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'hello', player: null })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'hello', player: { id: 1, name: 'A', avatar: 'x' } })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'answer', questionId: 'q', choice: 1 })).toBe(true)
+    expect(isClientMessage({ v: 1, t: 'answer', questionId: 'q', choice: '1' })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'answer', questionId: 'q', choice: NaN })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'power', kind: 'nuke' })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'power', kind: 'saver' })).toBe(true)
+    expect(isClientMessage({ v: 1, t: 'match', matched: 3, done: false })).toBe(true)
+    expect(isClientMessage({ v: 1, t: 'match', matched: '3', done: false })).toBe(false)
+    expect(isClientMessage({ v: 1, t: 'bye' })).toBe(true)
+    expect(isClientMessage({ v: 1, t: 'evil' })).toBe(false)
+  })
+  it('host guards require a view object and a known end reason', () => {
+    expect(isHostMessage({ v: 1, t: 'welcome', set: '', title: 'T', view: {} })).toBe(true)
+    expect(isHostMessage({ v: 1, t: 'welcome', set: '', title: 'T' })).toBe(false)
+    expect(isHostMessage({ v: 1, t: 'view' })).toBe(false)
+    expect(isHostMessage({ v: 1, t: 'view', view: 'str' })).toBe(false)
+    expect(isHostMessage({ v: 1, t: 'end', reason: 'kicked' })).toBe(true)
+    expect(isHostMessage({ v: 1, t: 'end', reason: 'other' })).toBe(false)
+  })
+  it('sanitizes player names: control chars stripped, length capped, fallback on empty', () => {
+    expect(sanitizeName('  Ann\u0000\u200b\u202e  Lee\n')).toBe('Ann Lee')
+    expect(sanitizeName('x'.repeat(100))).toHaveLength(MAX_NAME_LENGTH)
+    expect(sanitizeName('\u0007\u0008')).toBe('Player')
+    expect(sanitizeName(42)).toBe('Player')
+    expect(sanitizeName('🦊', '🙂', 8)).toBe('🦊')
   })
 })

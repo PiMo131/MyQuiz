@@ -27,9 +27,22 @@ marked.use({
   ],
 })
 
+// Links in cards/AI output always open in a new tab without opener access; only http(s)/mailto are kept.
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.tagName !== 'A') return
+  const href = node.getAttribute('href') ?? ''
+  if (href && !/^(https?:|mailto:)/i.test(href.trim())) node.removeAttribute('href')
+  node.setAttribute('target', '_blank')
+  node.setAttribute('rel', 'noopener noreferrer')
+})
+
 export function renderMarkdown(src: string): string {
   const html = marked.parseInline(src ?? '') as string
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'mark', 'code', 'br', 'sub', 'sup', 'span', 'a', 'img', 'del'], ALLOWED_ATTR: ['class', 'href', 'src', 'alt', 'title', 'target', 'rel'] })
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'mark', 'code', 'br', 'sub', 'sup', 'span', 'a', 'img', 'del'],
+    ALLOWED_ATTR: ['class', 'href', 'src', 'alt', 'title', 'target', 'rel'],
+    ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|data:image\/(?:png|gif|jpeg|webp|svg\+xml);|blob:|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+  })
 }
 
 export function Markdown({ src, className, as: Tag = 'span' }: { src: string; className?: string; as?: 'span' | 'div' | 'p' }) {

@@ -415,6 +415,7 @@ export function generateTest(cards: Card[], config: TestConfig): Question[] {
   const rng = rngFrom(config)
   const opts: GeneratorOptions = { ...config, rng }
   const usable = cards.filter((c) => !c.suspended && (plainText(c.term) || plainText(c.definition)))
+  if (!usable.length) return []
   const cloze = clozeCards(usable)
   let types = TYPE_ORDER.filter((t) => config.types.includes(t) && t !== 'flashcard')
   if (!cloze.length) types = types.filter((t) => t !== 'fillBlank')

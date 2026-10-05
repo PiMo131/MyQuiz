@@ -7,6 +7,7 @@ import { unzipSync, strFromU8 } from 'fflate'
 import type { LangPair, SharedSet } from '@/domain/types'
 import { isCloze } from '@/domain/cloze'
 import { plainText } from '@/domain/text'
+import { sanitizeSharedSet } from '@/domain/share-codec'
 import { htmlToMarkdown, looksLikeHtml } from './markup'
 
 export interface ParsedCard {
@@ -325,8 +326,9 @@ export function isSharedSet(x: unknown): x is SharedSet {
 }
 
 export function parseSharedJson(text: string): ParseResult {
-  const data: unknown = JSON.parse(text)
-  if (!isSharedSet(data)) throw new Error('notMyQuizzSet')
+  const raw: unknown = JSON.parse(text)
+  if (!isSharedSet(raw)) throw new Error('notMyQuizzSet')
+  const data = sanitizeSharedSet(raw)
   const cards: ParsedCard[] = data.cards.map((c) => ({
     term: c.term,
     definition: c.definition,

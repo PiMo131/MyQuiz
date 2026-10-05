@@ -5,7 +5,7 @@
 import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate'
 import { db } from '@/db/db'
 import { getSettings, saveSettings } from '@/db/repo'
-import type { Backup, Card, Folder, MediaItem, Progress, RevlogEntry, Session, Streak, StudySet } from '@/domain/types'
+import type { Backup, Card, Folder, MediaItem, Progress, RevlogEntry, Session, Settings, Streak, StudySet } from '@/domain/types'
 import { APP_VERSION } from '@/domain/types'
 import { dataUrlToBlob } from './exporters'
 import { decryptBytes, encryptBytes, isEncrypted } from './crypto'
@@ -31,8 +31,19 @@ export function isBackup(x: unknown): x is Backup {
   return o.format === 'myquizz-backup' && Array.isArray(o.sets) && Array.isArray(o.cards)
 }
 
-/** Read every table into a Backup object. Media is returned separately (as blobs) so the caller chooses the container. */
-export async function collectBackup(onProgress?: ProgressFn): Promise<BackupBundle> {
+/** Settings without the BYOK API key / proxy URL (secrets never leave the device unless explicitly asked). */
+export function stripSecrets(settings: Settings): Settings {
+  const { byok: _byok, proxyUrl: _proxy, ...ai } = settings.ai
+  void _byok
+  void _proxy
+  return { ...settings, ai }
+}
+
+/**
+ * Read every table into a Backup object. Media is returned separately (as blobs) so the caller chooses the container.
+ * `includeSecrets` keeps the BYOK key/proxy URL in the settings (off by default).
+ */
+export async function collectBackup(onProgress?: ProgressFn, opts: { includeSecrets?: boolean } = {}): Promise<BackupBundle> {
   onProgress?.({ phase: 'collect', done: 0, total: 1 })
   const [settings, folders, sets, cards, progress, revlog, sessions, achievements, streak, mediaItems] = await Promise.all([
     getSettings(),
@@ -59,7 +70,7 @@ export async function collectBackup(onProgress?: ProgressFn): Promise<BackupBund
     version: 1,
     exportedAt: new Date().toISOString(),
     app: { version: APP_VERSION },
-    settings,
+    settings: opts.includeSecrets ? settings : stripSecrets(settings),
     folders,
     sets,
     cards,

@@ -25,7 +25,7 @@ export const toast = {
 export function Toaster() {
   const { items, remove } = useToast()
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4 safe-bottom">
+    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-[60] flex flex-col items-center gap-2 px-4 safe-bottom sm:bottom-6">
       {items.map((t) => (
         <div key={t.id} className={cn('pointer-events-auto animate-pop flex max-w-md items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm shadow-pop')}>
           {t.tone === 'success' ? <CheckCircle2 className="text-accent" size={18} /> : t.tone === 'error' ? <TriangleAlert className="text-error" size={18} /> : <Info className="text-primary" size={18} />}

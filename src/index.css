@@ -101,6 +101,7 @@
   :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 6px; }
   ::selection { background: color-mix(in srgb, var(--color-primary) 30%, transparent); }
   h1, h2, h3 { letter-spacing: -0.01em; }
+  h1 { letter-spacing: -0.02em; }
   input, textarea, select { font: inherit; color: inherit; }
 }
 
@@ -111,7 +112,7 @@
   .bg-gradient-orange { background: var(--gradient-orange); }
   .text-gradient-indigo { background: var(--gradient-indigo); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .text-gradient-teal { background: var(--gradient-teal); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+  .card { background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
   .scrollbar-thin { scrollbar-width: thin; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -130,6 +131,11 @@
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .animate-pop { animation: pop 0.16s ease-out; }
 .animate-shake { animation: shake 0.3s ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .animate-pop, .animate-shake, .animate-bounce, .animate-ping, .animate-pulse, .animate-spin { animation: none !important; }
+}
 
 @media print {
   .no-print { display: none !important; }

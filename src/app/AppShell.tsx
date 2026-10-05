@@ -58,7 +58,7 @@ export function AppShell() {
                 to={to}
                 end={'end' in rest ? rest.end : false}
                 className={({ isActive }) =>
-                  cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-hover hover:text-white', isActive && 'bg-sidebar-hover text-white')
+                  cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-hover hover:text-white', isActive && 'bg-primary/20 text-white')
                 }
               >
                 <Icon size={18} />
@@ -73,7 +73,7 @@ export function AppShell() {
             <ul className="space-y-0.5">
               {recent.map((s) => (
                 <li key={s.id}>
-                  <NavLink to={`/set/${s.id}`} className={({ isActive }) => cn('flex items-center gap-3 truncate rounded-lg px-3 py-1.5 text-sm hover:bg-sidebar-hover hover:text-white', isActive && 'bg-sidebar-hover text-white')}>
+                  <NavLink to={`/set/${s.id}`} className={({ isActive }) => cn('flex items-center gap-3 truncate rounded-lg px-3 py-1.5 text-sm hover:bg-sidebar-hover hover:text-white', isActive && 'bg-primary/20 text-white')}>
                     <Bookmark size={15} className="shrink-0" />
                     <span className="truncate">{s.title || '…'}</span>
                   </NavLink>
@@ -86,7 +86,7 @@ export function AppShell() {
         <ul className="space-y-0.5">
           {folders?.map((f) => (
             <li key={f.id}>
-              <NavLink to={`/folders/${f.id}`} className={({ isActive }) => cn('flex items-center gap-3 truncate rounded-lg px-3 py-1.5 text-sm hover:bg-sidebar-hover hover:text-white', isActive && 'bg-sidebar-hover text-white')}>
+              <NavLink to={`/folders/${f.id}`} className={({ isActive }) => cn('flex items-center gap-3 truncate rounded-lg px-3 py-1.5 text-sm hover:bg-sidebar-hover hover:text-white', isActive && 'bg-primary/20 text-white')}>
                 <LayoutGrid size={15} className="shrink-0" style={{ color: f.color }} />
                 <span className="truncate">{f.name}</span>
               </NavLink>
@@ -101,7 +101,7 @@ export function AppShell() {
         </ul>
       </nav>
       <div className="border-t border-white/10 p-3">
-        <NavLink to="/settings" className={({ isActive }) => cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-white', isActive && 'bg-sidebar-hover text-white')}>
+        <NavLink to="/settings" className={({ isActive }) => cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-white', isActive && 'bg-primary/20 text-white')}>
           <Settings size={18} />
           {t('nav.settings')}
         </NavLink>

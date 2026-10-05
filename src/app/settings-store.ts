@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import type { Settings } from '@/domain/types'
 import { DEFAULT_SETTINGS } from '@/domain/types'
+import { db } from '@/db/db'
 import { getSettings, saveSettings } from '@/db/repo'
-import { setLanguage } from './i18n'
+import i18n, { setLanguage } from './i18n'
 import { useTheme } from './theme'
 
 interface SettingsState {
@@ -18,6 +19,12 @@ export const useSettings = create<SettingsState>((set, get) => ({
   loaded: false,
   load: async () => {
     const s = await getSettings()
+    // First visit (no stored locale yet): follow the browser language instead of the hard-coded default.
+    const stored = (await db.kv.get('settings'))?.value as Partial<Settings> | undefined
+    if (!stored?.locale) {
+      s.locale = i18n.language.startsWith('nl') ? 'nl' : 'en'
+      await saveSettings({ locale: s.locale })
+    }
     set({ settings: s, loaded: true })
     setLanguage(s.locale)
     useTheme.getState().setTheme(s.theme)

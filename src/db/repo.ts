@@ -258,7 +258,7 @@ export async function recordOutcome(card: Card, correct: boolean, mode: RevlogEn
   }
   if (next.bucket === 'new') next.bucket = 'learning'
   if (next.bucket === 'learning' && correct && next.correct >= 2 && next.correct > next.incorrect) next.bucket = 'known'
-  if (!correct && next.bucket === 'known') next.bucket = 'learning'
+  if (!correct && (next.bucket === 'known' || next.bucket === 'mastered')) next.bucket = 'learning'
   if (correct && next.correct >= 5 && next.incorrect === 0) next.bucket = 'mastered'
   await saveProgress(next)
   await logReview({

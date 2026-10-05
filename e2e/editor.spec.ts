@@ -1,0 +1,45 @@
+import { expect, test } from '@playwright/test'
+import { assertNoErrors, collectErrors, createSetViaEditor, openApp } from './helpers'
+
+test.describe.configure({ mode: 'serial' })
+
+test('create a set with 4 cards, then edit and add a card', async ({ page }) => {
+  const log = collectErrors(page)
+  await openApp(page)
+  const id = await createSetViaEditor(page, 'Animals', [['dog', 'hond'], ['cat', 'kat'], ['horse', 'paard'], ['cow', 'koe']])
+  await expect(page.getByText('4 terms')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Terms in this set (4)' })).toBeVisible()
+
+  await page.goto(`/#/set/${id}/edit`)
+  await expect(page.getByRole('heading', { name: 'Edit set' })).toBeVisible()
+  await expect(page.getByRole('article', { name: 'Card 4' })).toBeVisible()
+  await page.getByRole('button', { name: 'Add a card' }).click()
+  const row = page.getByRole('article', { name: 'Card 5' })
+  await row.getByRole('textbox', { name: 'Term' }).fill('sheep')
+  await row.getByRole('textbox', { name: 'Definition' }).fill('schaap')
+  await page.getByRole('button', { name: 'Save', exact: true }).last().click()
+  await page.waitForURL(new RegExp(`#/set/${id}$`))
+  await expect(page.getByText('5 terms')).toBeVisible()
+  await expect(page.getByText('sheep', { exact: true }).first()).toBeVisible()
+  assertNoErrors(log)
+})
+
+test('import tab-separated text via the editor Import modal', async ({ page }) => {
+  const log = collectErrors(page)
+  await openApp(page)
+  await page.goto('/#/create')
+  await page.getByRole('textbox', { name: 'Title' }).fill('Imported colours')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByText('Import your data')).toBeVisible()
+  await dialog.getByRole('textbox', { name: 'Paste text' }).fill('red\trood\ngreen\tgroen\nblue\tblauw')
+  await expect(dialog.getByRole('heading', { name: /Preview.*3 cards/ })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('article', { name: 'Card 3' }).getByRole('textbox', { name: 'Term' })).toHaveValue('blue')
+  await page.getByRole('button', { name: 'Create', exact: true }).last().click()
+  await page.waitForURL(/#\/set\/[^/]+$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Imported colours' })).toBeVisible()
+  await expect(page.getByText('3 terms')).toBeVisible()
+  assertNoErrors(log)
+})

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from '@/db/db'
-import { addCards, createFolder, createSet, getCards, putMedia, recordOutcome, wipeAll } from '@/db/repo'
+import { addCards, createFolder, createSet, getCards, putMedia, recordOutcome, saveSettings, wipeAll } from '@/db/repo'
 import { backupFileName, collectBackup, bundleToZip, createBackupZip, readBackup, restoreBackup } from './backup'
 import { decryptBytes, decryptText, encryptBytes, encryptText, isEncrypted } from './crypto'
 import { blobToBytes } from './files'
@@ -104,5 +104,21 @@ describe('crypto', () => {
     await expect(decryptBytes(enc, 'other')).rejects.toThrow('wrongPassphrase')
     const t = await encryptText('héllo ☕', 'pw')
     expect(await decryptText(t, 'pw')).toBe('héllo ☕')
+  })
+})
+
+describe('backup secrets', () => {
+  beforeEach(async () => {
+    await wipeAll()
+  })
+  it('strips the BYOK key and proxy URL unless explicitly included', async () => {
+    await saveSettings({ ai: { provider: 'byok', byok: { vendor: 'openai', apiKey: 'sk-secret' }, proxyUrl: 'https://proxy.example' } })
+    const { backup } = await collectBackup()
+    expect(backup.settings?.ai?.byok).toBeUndefined()
+    expect(backup.settings?.ai?.proxyUrl).toBeUndefined()
+    expect(backup.settings?.ai?.provider).toBe('byok')
+    expect(JSON.stringify(backup)).not.toContain('sk-secret')
+    const withSecrets = await collectBackup(undefined, { includeSecrets: true })
+    expect(withSecrets.backup.settings?.ai?.byok?.apiKey).toBe('sk-secret')
   })
 })

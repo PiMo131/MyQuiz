@@ -31,13 +31,13 @@ const TINTS = {
 
 function QuickCard({ to, icon, title, blurb, tint }: { to: string; icon: ReactNode; title: string; blurb: string; tint: keyof typeof TINTS }) {
   return (
-    <Link to={to} className={cn('group relative flex flex-col gap-3 rounded-2xl p-5 transition hover:-translate-y-0.5 hover:shadow-card', TINTS[tint])}>
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface/70 shadow-sm">{icon}</span>
-      <div>
-        <div className="text-base font-bold text-text">{title}</div>
-        <div className="mt-0.5 text-sm text-text/70">{blurb}</div>
+    <Link to={to} className={cn('group relative flex min-w-0 flex-col gap-4 rounded-2xl border border-transparent p-5 transition hover:-translate-y-0.5 hover:border-border hover:shadow-card active:translate-y-0', TINTS[tint])}>
+      <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface/80 shadow-sm">{icon}</span>
+      <div className="min-w-0 pr-8">
+        <div className="truncate text-base font-bold text-text">{title}</div>
+        <div className="mt-0.5 truncate text-sm text-text/70">{blurb}</div>
       </div>
-      <ArrowRight size={18} className="absolute right-4 top-5 opacity-60 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
+      <ArrowRight size={18} className="absolute bottom-5 right-5 opacity-60 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
     </Link>
   )
 }
@@ -161,7 +161,7 @@ export default function HomePage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="card p-5 lg:col-span-2" aria-label={t('home.today')}>
+        <section className="card min-w-0 p-5 lg:col-span-2" aria-label={t('home.today')}>
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-lg font-bold">{t('home.today')}</h2>
@@ -198,7 +198,7 @@ export default function HomePage() {
           )}
         </section>
 
-        <section className="lg:col-span-3" aria-label={t('home.recent')}>
+        <section className="min-w-0 lg:col-span-3" aria-label={t('home.recent')}>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold">{t('home.recent')}</h2>
             <Link to="/library" className="text-sm font-semibold text-primary hover:underline">{t('home.viewAll')}</Link>

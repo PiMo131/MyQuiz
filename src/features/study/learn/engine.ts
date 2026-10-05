@@ -142,8 +142,11 @@ export function nextQuestion(state: LearnState, cards: Card[], rng: () => number
   const opts = { answerWith: s.config.answerWith, images: s.config.images, rng }
   const pool = eligibleCards(cards, { ...s.config, starredOnly: false })
   let q: Question
-  if (type === 'multipleChoice' && pool.length >= 2) q = makeMultipleChoice(card, pool, opts)
-  else if (type === 'flashcard') q = makeFlashcard(card, opts)
+  if (type === 'multipleChoice' && pool.length >= 2) {
+    const mc = makeMultipleChoice(card, pool, opts)
+    // Tiny sets / empty answers may yield no distractor at all: a one-option MC is pointless.
+    q = mc.options.length >= 2 ? mc : makeWritten(card, opts, mc.promptSide)
+  } else if (type === 'flashcard') q = makeFlashcard(card, opts)
   else q = makeWritten(card, opts)
   return { ...s, current: q }
 }

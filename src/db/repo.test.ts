@@ -55,3 +55,26 @@ describe('repo', () => {
     expect(s.srs.requestRetention).toBe(0.9)
   })
 })
+
+describe('repo bucket transitions', () => {
+  beforeEach(async () => {
+    await wipeAll()
+  })
+  it('a wrong answer demotes known and mastered cards back to learning', async () => {
+    const s = await createSet({ title: 'T' })
+    const [a] = await addCards(s.id, [{ setId: s.id, term: 'a', definition: '1' }])
+    let p = await recordOutcome(a, true, 'learn')
+    for (let i = 0; i < 4; i++) p = await recordOutcome(a, true, 'learn')
+    expect(p.bucket).toBe('mastered')
+    p = await recordOutcome(a, false, 'learn')
+    expect(p.bucket).toBe('learning')
+    p = await recordOutcome(a, true, 'learn')
+    expect(p.bucket).toBe('known')
+  })
+  it('replaceCards keeps createdAt of existing cards', async () => {
+    const s = await createSet({ title: 'T' })
+    const [a] = await addCards(s.id, [{ setId: s.id, term: 'a', definition: '1' }])
+    const [again] = await replaceCards(s.id, [{ id: a.id, setId: s.id, term: 'a2', definition: '1', createdAt: a.createdAt }])
+    expect(again.createdAt).toBe(a.createdAt)
+  })
+})

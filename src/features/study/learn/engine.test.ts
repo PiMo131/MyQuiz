@@ -68,3 +68,30 @@ describe('learn engine', () => {
     expect(s.current).toBeNull()
   })
 })
+
+describe('learn engine tiny sets', () => {
+  it('a single card never gets a one-option multiple choice and the session terminates', () => {
+    const one = [card(0)]
+    let s = nextQuestion(createLearn(one, { ...DEFAULT_LEARN_CONFIG, shuffle: false }, 1), one, mulberry32(1))
+    expect(s.current?.type).toBe('written')
+    s = answerCurrent(s, true)
+    s = nextQuestion(s, one, mulberry32(1))
+    expect(s.current?.type).toBe('written')
+    s = answerCurrent(s, true)
+    expect(s.done).toBe(true)
+    expect(masteredCount(s)).toBe(1)
+    expect(nextQuestion(s, one, mulberry32(1)).current).toBeNull()
+  })
+  it('all cards suspended → done immediately, no question', () => {
+    const all = cards.map((c) => ({ ...c, suspended: true }))
+    const s = nextQuestion(createLearn(all, DEFAULT_LEARN_CONFIG, 1), all, mulberry32(1))
+    expect(s.done).toBe(true)
+    expect(s.current).toBeNull()
+    expect(roundFinished(s)).toBe(false)
+  })
+  it('falls back to written when other cards have empty answers (no distractors)', () => {
+    const list = [card(0), { ...card(1), definition: '' }, { ...card(2), definition: '' }]
+    const s = nextQuestion(createLearn(list, { ...DEFAULT_LEARN_CONFIG, shuffle: false }, 1), list, mulberry32(1))
+    expect(s.current?.type).toBe('written')
+  })
+})

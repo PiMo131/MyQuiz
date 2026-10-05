@@ -17,13 +17,11 @@ export function decodeEntities(s: string): string {
   return s.replace(/&(#x?[0-9a-f]+|[a-z]+\d*);/gi, (m, code: string) => {
     const lower = code.toLowerCase()
     if (lower in ENTITIES) return ENTITIES[lower]
-    if (lower.startsWith('#x')) {
-      const n = parseInt(lower.slice(2), 16)
-      return Number.isFinite(n) ? String.fromCodePoint(n) : m
-    }
-    if (lower.startsWith('#')) {
-      const n = parseInt(lower.slice(1), 10)
-      return Number.isFinite(n) ? String.fromCodePoint(n) : m
+    const cp = lower.startsWith('#x') ? parseInt(lower.slice(2), 16) : lower.startsWith('#') ? parseInt(lower.slice(1), 10) : NaN
+    if (Number.isFinite(cp)) {
+      // Out-of-range or surrogate code points would make fromCodePoint throw.
+      if (cp < 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff) || cp === 0) return ''
+      return String.fromCodePoint(cp)
     }
     return m
   })

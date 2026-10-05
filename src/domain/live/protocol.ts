@@ -200,16 +200,49 @@ export type HostMessage =
   | { v: 1; t: 'view'; view: PlayerView }
   | { v: 1; t: 'end'; reason: 'hostLeft' | 'kicked' | 'full' | 'version' }
 
+export const MAX_NAME_LENGTH = 24
+export const MAX_AVATAR_LENGTH = 8
+
+/** Trim, strip control/format characters and cap the length of a player-supplied name. */
+export function sanitizeName(raw: unknown, fallback = 'Player', max = MAX_NAME_LENGTH): string {
+  if (typeof raw !== 'string') return fallback
+  // eslint-disable-next-line no-control-regex
+  const clean = raw.replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2066-\u2069\ufeff]/g, '').replace(/\s+/g, ' ').trim()
+  return clean.slice(0, max).trim() || fallback
+}
+
+const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object'
+
 export function isClientMessage(x: unknown): x is ClientMessage {
-  if (!x || typeof x !== 'object') return false
-  const m = x as Record<string, unknown>
-  return m.v === 1 && typeof m.t === 'string' && ['hello', 'answer', 'power', 'match', 'bye'].includes(m.t)
+  if (!isObj(x) || x.v !== 1) return false
+  switch (x.t) {
+    case 'hello':
+      return isObj(x.player) && typeof x.player.id === 'string' && typeof x.player.name === 'string' && typeof x.player.avatar === 'string'
+    case 'answer':
+      return typeof x.questionId === 'string' && typeof x.choice === 'number' && Number.isFinite(x.choice)
+    case 'power':
+      return x.kind === 'double' || x.kind === 'saver'
+    case 'match':
+      return typeof x.matched === 'number' && Number.isFinite(x.matched) && typeof x.done === 'boolean'
+    case 'bye':
+      return true
+    default:
+      return false
+  }
 }
 
 export function isHostMessage(x: unknown): x is HostMessage {
-  if (!x || typeof x !== 'object') return false
-  const m = x as Record<string, unknown>
-  return m.v === 1 && typeof m.t === 'string' && ['welcome', 'view', 'end'].includes(m.t)
+  if (!isObj(x) || x.v !== 1) return false
+  switch (x.t) {
+    case 'welcome':
+      return isObj(x.view) && typeof x.set === 'string' && typeof x.title === 'string'
+    case 'view':
+      return isObj(x.view)
+    case 'end':
+      return x.reason === 'hostLeft' || x.reason === 'kicked' || x.reason === 'full' || x.reason === 'version'
+    default:
+      return false
+  }
 }
 
 // ---------- room codes ----------

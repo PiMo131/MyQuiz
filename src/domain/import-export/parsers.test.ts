@@ -14,7 +14,7 @@ import {
   parseQuizlet,
   parseSharedJson,
 } from './parsers'
-import { htmlToMarkdown, markdownToHtml } from './markup'
+import { decodeEntities, htmlToMarkdown, markdownToHtml } from './markup'
 
 describe('parsePaste', () => {
   it('tab + newline', () => {
@@ -169,6 +169,15 @@ describe('markup', () => {
   })
   it('markdown → html', () => {
     expect(markdownToHtml('**b** *i* __u__ ==y:h== a<b')).toBe('<b>b</b> <i>i</i> <u>u</u> <mark>h</mark> a&lt;b')
+  })
+  it('invalid numeric entities never throw', () => {
+    expect(decodeEntities('a&#xFFFFFFFF;b&#55296;c&#0;d&#x41;')).toBe('abcdA')
+    expect(() => htmlToMarkdown('<b>x&#x110000;</b>')).not.toThrow()
+  })
+  it('strips scripts and event handlers from Anki HTML', () => {
+    const r = htmlToMarkdown('<script>alert(1)</script><img src="x" onerror="alert(1)"><b onclick="x()">ok</b>')
+    expect(r.text).toBe('alert(1)**ok**')
+    expect(r.images).toEqual(['x'])
   })
 })
 

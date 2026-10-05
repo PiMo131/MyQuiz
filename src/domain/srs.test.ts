@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyRating, dailyPlan, emptyFsrsState, makeScheduler, previewRatings } from './srs'
+import { applyRating, bucketFor, dailyPlan, emptyFsrsState, makeScheduler, previewRatings } from './srs'
 import type { Progress } from './types'
 
 describe('srs', () => {
@@ -54,5 +54,21 @@ describe('srs', () => {
     const plan = dailyPlan(all, { newPerDay: 5 }, now)
     expect(plan.fresh).toHaveLength(5)
     expect(plan.due).toHaveLength(0)
+  })
+})
+
+describe('bucketFor', () => {
+  const base = emptyFsrsState(0)
+  it('new → new, review → known, long review → mastered', () => {
+    expect(bucketFor(base)).toBe('new')
+    expect(bucketFor({ ...base, state: 2, reps: 3, stability: 5, scheduled_days: 5 })).toBe('known')
+    expect(bucketFor({ ...base, state: 2, reps: 9, stability: 30, scheduled_days: 25 })).toBe('mastered')
+  })
+  it('learning state is known only with ≥2 correct and no mistakes', () => {
+    const learning = { ...base, state: 1 as const, reps: 2 }
+    expect(bucketFor(learning)).toBe('learning')
+    expect(bucketFor(learning, 2, 0)).toBe('known')
+    expect(bucketFor(learning, 2, 1)).toBe('learning')
+    expect(bucketFor(learning, 1, 0)).toBe('learning')
   })
 })

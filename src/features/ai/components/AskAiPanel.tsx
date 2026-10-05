@@ -175,7 +175,7 @@ export function AskAiPanel({ setId }: { setId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 left-1/2 z-40 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-indigo px-5 py-3 text-sm font-semibold text-white shadow-pop transition hover:brightness-105 safe-bottom"
+        className="fixed bottom-4 left-4 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-indigo px-4 py-2.5 text-sm font-semibold text-white shadow-pop transition hover:brightness-105 safe-bottom sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 sm:px-5 sm:py-3"
         aria-label={t('ask.open')}
       >
         <Sparkles size={16} />

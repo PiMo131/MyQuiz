@@ -66,7 +66,7 @@ export function toFsrsCard(s: FsrsState): FsrsCard {
 export function bucketFor(s: FsrsState, correct?: number, incorrect?: number): Bucket {
   if (s.state === State.New && !s.reps) return 'new'
   if (s.state === State.Review && s.stability >= 21 && s.scheduled_days >= 21) return 'mastered'
-  if (s.state === State.Review || (correct ?? 0) >= 2 && (incorrect ?? 0) === 0) return 'known'
+  if (s.state === State.Review || ((correct ?? 0) >= 2 && (incorrect ?? 0) === 0)) return 'known'
   return 'learning'
 }
 

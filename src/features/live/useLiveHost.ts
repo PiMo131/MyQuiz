@@ -14,6 +14,8 @@ import { createState, playerView, publicState, reduce, resultsExport, type LiveE
 import {
   generateCode,
   isClientMessage,
+  MAX_AVATAR_LENGTH,
+  sanitizeName,
   type HostMessage,
   type LiveCard,
   type LiveConfig,
@@ -162,9 +164,9 @@ export function useLiveHost(setId: string): UseLiveHost {
       switch (raw.t) {
         case 'hello': {
           const p: PlayerIdentity = {
-            id: String(raw.player.id).slice(0, 40) || peerId,
-            name: String(raw.player.name).slice(0, 24).trim() || 'Player',
-            avatar: String(raw.player.avatar).slice(0, 8) || '🙂',
+            id: raw.player.id.slice(0, 40) || peerId,
+            name: sanitizeName(raw.player.name),
+            avatar: sanitizeName(raw.player.avatar, '🙂', MAX_AVATAR_LENGTH),
           }
           // One player per peer; a player id reused from another peer takes over that identity.
           for (const [otherPeer, pid] of peerToPlayer.current) if (pid === p.id && otherPeer !== peerId) peerToPlayer.current.delete(otherPeer)

@@ -178,7 +178,7 @@ export default function HangmanPage() {
               <div className="text-xs font-semibold text-muted">{t('games:hangman.wrongGuesses', { count: state.wrong, max: HANGMAN_MAX_WRONG })}</div>
               <div className="flex flex-wrap justify-center gap-x-5 gap-y-3" aria-label={t('common:common.term')} aria-live="polite">
                 {words.map((w, wi) => (
-                  <div key={wi} className="flex gap-1.5">
+                  <div key={wi} className="flex max-w-full flex-wrap justify-center gap-1.5">
                     {w.map((ch, i) => (
                       <span
                         key={i}
