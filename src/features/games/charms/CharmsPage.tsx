@@ -195,7 +195,7 @@ export default function CharmsPage() {
                   role="gridcell"
                   aria-label={`${t('games:common.moves')} ${r + 1},${c + 1}`}
                   onClick={(e) => tap(r, c, e)}
-                  className={cn('absolute p-[6%] transition-transform duration-300 ease-out', shake === `${r},${c}` && 'animate-shake')}
+                  className={cn('absolute transition-transform duration-300 ease-out', shake === `${r},${c}` && 'animate-shake')}
                   style={{ width: `${cellPct}%`, height: `${rowPct}%`, left: 0, top: 0, transform: `translate(${c * 100}%, ${r * 100}%)` }}
                 >
                   <CharmShape type={ch.type} bonus={ch.bonus} />
@@ -235,7 +235,7 @@ function CharmShape({ type, bonus }: { type: number; bonus?: number }) {
     <polygon key="tri" points="50,10 92,84 8,84" />,
   ]
   return (
-    <svg viewBox="0 0 100 100" className="h-full w-full drop-shadow-sm" aria-hidden>
+    <svg viewBox="0 0 100 100" className="absolute inset-[7%] h-[86%] w-[86%] drop-shadow-sm" aria-hidden>
       <g fill={color} stroke="rgba(0,0,0,0.15)" strokeWidth="3">
         {shapes[type % shapes.length]}
       </g>

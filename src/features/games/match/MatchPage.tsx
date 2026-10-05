@@ -152,7 +152,7 @@ export default function MatchPage() {
                   onClick={() => onSelect(tile.id)}
                   disabled={matched}
                   className={cn(
-                    'card flex min-h-20 items-center justify-center p-2 text-center text-sm font-medium leading-snug transition-all duration-300 sm:p-4 sm:text-base',
+                    'card relative flex min-h-20 items-center justify-center p-2 text-center text-sm font-medium leading-snug transition-all duration-300 sm:p-4 sm:text-base',
                     'hover:border-primary/60 focus-visible:border-primary',
                     selected && 'border-primary bg-primary-soft ring-2 ring-primary/40',
                     shake && 'animate-shake border-error bg-error-soft',

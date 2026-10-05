@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import QRCode from 'qrcode'
 import { db } from '@/db/db'
 import { getCards } from '@/db/repo'
-import { APP_NAME } from '@/domain/types'
+import { APP_NAME, type Card, type StudySet } from '@/domain/types'
 import { encodeSet, shareUrl, URL_WARN_BYTES } from '@/domain/share-codec'
 import { fileNameFor, toJson, toSharedSet, type MediaLoader } from '@/domain/import-export/exporters'
 import { encryptText } from '@/domain/import-export/crypto'
@@ -24,8 +24,8 @@ export function appBase(): string {
 }
 
 export interface ShareSetApi {
-  set: Awaited<ReturnType<typeof db.sets.get>>
-  cards: Awaited<ReturnType<typeof getCards>> | undefined
+  set: StudySet | undefined
+  cards: Card[] | undefined
   code: string | undefined
   url: string | undefined
   /** URL is longer than URL_WARN_BYTES: suggest a file instead. */
@@ -42,8 +42,8 @@ export interface ShareSetApi {
 
 export function useShareSet(setId: string): ShareSetApi {
   const { t } = useTranslation('share')
-  const set = useLiveQuery(() => db.sets.get(setId), [setId])
-  const cards = useLiveQuery(() => getCards(setId), [setId])
+  const set = useLiveQuery((): Promise<StudySet | undefined> => db.sets.get(setId), [setId])
+  const cards = useLiveQuery((): Promise<Card[]> => getCards(setId), [setId])
   const code = useMemo(() => (set && cards ? encodeSet(set, cards) : undefined), [set, cards])
   const url = code ? shareUrl(code, appBase()) : undefined
   const tooLong = !!url && url.length > URL_WARN_BYTES

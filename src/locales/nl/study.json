@@ -1,5 +1,7 @@
 {
-  "study": { "backToSet": "Terug naar set" },
+  "study": {
+    "backToSet": "Terug naar set"
+  },
   "set": {
     "notFound": "Set niet gevonden",
     "notFoundHint": "Deze set is misschien verwijderd. Kijk in je bibliotheek.",
@@ -34,7 +36,11 @@
     "gamesTitle": "Speel je weg naar beheersing met leuke spellen",
     "related": "Gerelateerde sets",
     "termsTitle": "Termen in deze set ({{count}})",
-    "sort": { "original": "Origineel", "alphabetical": "Alfabetisch", "stats": "Jouw statistieken" },
+    "sort": {
+      "original": "Origineel",
+      "alphabetical": "Alfabetisch",
+      "stats": "Jouw statistieken"
+    },
     "bucketHint": {
       "new": "Deze termen heb je nog niet gestudeerd!",
       "learning": "Je bent begonnen met deze termen. Ga zo door!",
@@ -47,14 +53,24 @@
     "star": "Ster",
     "hideDefinitions": "Definities verbergen",
     "showDefinitions": "Definities tonen",
-    "reviewWith": "Herhalen met een activiteit"
+    "reviewWith": "Herhalen met een activiteit",
+    "reviewWithShort": "Herhalen"
   },
   "flashcards": {
     "chooseSorting": "Kies hoe je sorteert",
     "sorting": {
-      "browse": { "title": "Bladeren", "body": "Gewoon kaarten omdraaien. Ideaal om de termen te leren kennen." },
-      "sort": { "title": "Basis sorteren", "body": "Klassiek flashcards sorteren. Ideaal voor nieuwe termen en blokken." },
-      "srs": { "title": "Spaced repetition", "body": "Wetenschappelijk onderbouwd. Geoptimaliseerd voor lange termijn en tijdsefficiëntie." }
+      "browse": {
+        "title": "Bladeren",
+        "body": "Gewoon kaarten omdraaien. Ideaal om de termen te leren kennen."
+      },
+      "sort": {
+        "title": "Basis sorteren",
+        "body": "Klassiek flashcards sorteren. Ideaal voor nieuwe termen en blokken."
+      },
+      "srs": {
+        "title": "Spaced repetition",
+        "body": "Wetenschappelijk onderbouwd. Geoptimaliseerd voor lange termijn en tijdsefficiëntie."
+      }
     },
     "flipHint": "Flashcard, druk op spatie of klik om om te draaien",
     "getHint": "Hint",
@@ -68,9 +84,18 @@
     "view": "Tonen",
     "hide": "Verbergen",
     "keys": {
-      "previous": "Vorige", "next": "Volgende", "play": "Afspelen", "flip": "Omdraaien", "star": "Ster", "edit": "Bewerken",
-      "shuffle": "Schudden", "audio": "Voorlezen", "answerTerm": "Antwoord met term", "answerDefinition": "Antwoord met definitie",
-      "stillLearning": "Nog aan het leren", "know": "Ken ik"
+      "previous": "Vorige",
+      "next": "Volgende",
+      "play": "Afspelen",
+      "flip": "Omdraaien",
+      "star": "Ster",
+      "edit": "Bewerken",
+      "shuffle": "Schudden",
+      "audio": "Voorlezen",
+      "answerTerm": "Antwoord met term",
+      "answerDefinition": "Antwoord met definitie",
+      "stillLearning": "Nog aan het leren",
+      "know": "Ken ik"
     },
     "ttsHint": "Lees elke kaart automatisch voor.",
     "restart": "Flashcards opnieuw",
@@ -97,7 +122,11 @@
     "nothingDue": "Er staat nu niets gepland.",
     "nextDue": "Volgende kaart {{when}}.",
     "flip": "Omdraaien",
-    "state": { "new": "Nieuw", "learning": "Aan het leren", "review": "Herhaling" },
+    "state": {
+      "new": "Nieuw",
+      "learning": "Aan het leren",
+      "review": "Herhaling"
+    },
     "confidence": "Hoe zeker wist je het?",
     "confidenceHint": "1 = geen idee · 5 = perfect gekend",
     "confidenceMode": "Zekerheidsscore (1–5)",
@@ -112,8 +141,14 @@
   "learn": {
     "goalTitle": "Kies een doel voor deze sessie",
     "goal": {
-      "cram": { "title": "Blokken voor een toets", "body": "Eén goed antwoord per term, zo snel mogelijk." },
-      "memorize": { "title": "Alles onthouden", "body": "Eerst meerkeuze, dan schrijven. Twee goede antwoorden per term." }
+      "cram": {
+        "title": "Blokken voor een toets",
+        "body": "Eén goed antwoord per term, zo snel mogelijk."
+      },
+      "memorize": {
+        "title": "Alles onthouden",
+        "body": "Eerst meerkeuze, dan schrijven. Twee goede antwoorden per term."
+      }
     },
     "start": "Start Leren",
     "restart": "Leren opnieuw",
@@ -126,10 +161,17 @@
     "clickCorrect": "Klik op het juiste antwoord of druk op een toets om verder te gaan",
     "retypeHint": "Typ het juiste antwoord om verder te gaan",
     "questionTypes": "Vraagtypen",
-    "types": { "multipleChoice": "Meerkeuze", "written": "Schrijven", "flashcard": "Flashcards" },
+    "types": {
+      "multipleChoice": "Meerkeuze",
+      "written": "Schrijven",
+      "flashcard": "Flashcards"
+    },
     "answerWith": "Antwoord met",
     "seeImagesWith": "Afbeeldingen tonen bij",
-    "images": { "questions": "Vragen", "choices": "Antwoordopties" },
+    "images": {
+      "questions": "Vragen",
+      "choices": "Antwoordopties"
+    },
     "imagesHint": "Geldt alleen voor kaarten met een afbeelding.",
     "gradingOptions": "Beoordelingsopties",
     "studyStarred": "Alleen sterren",
@@ -146,9 +188,18 @@
     "takeTest": "Maak een toets"
   },
   "grading": {
-    "relaxed": { "title": "Soepel", "body": "De algemene betekenis telt als goed. Herformuleringen en typfouten worden ook geaccepteerd." },
-    "moderate": { "title": "Gemiddeld", "body": "Exacte overeenkomst vereist, maar spelfouten worden geaccepteerd (bijv. accenten, ontbrekende letters)." },
-    "strict": { "title": "Streng", "body": "Exacte overeenkomst vereist. Alleen kleine stijlfouten worden geaccepteerd (hoofdletters, leestekens of tekst tussen haakjes)." },
+    "relaxed": {
+      "title": "Soepel",
+      "body": "De algemene betekenis telt als goed. Herformuleringen en typfouten worden ook geaccepteerd."
+    },
+    "moderate": {
+      "title": "Gemiddeld",
+      "body": "Exacte overeenkomst vereist, maar spelfouten worden geaccepteerd (bijv. accenten, ontbrekende letters)."
+    },
+    "strict": {
+      "title": "Streng",
+      "body": "Exacte overeenkomst vereist. Alleen kleine stijlfouten worden geaccepteerd (hoofdletters, leestekens of tekst tussen haakjes)."
+    },
     "retype": "Juiste antwoorden overtypen",
     "retypeHint": "Bij een fout schrijfantwoord zie je het juiste antwoord en typ je het over voordat je verdergaat."
   },
@@ -187,8 +238,14 @@
     "questions": "Vragen",
     "max": "max {{count}}",
     "types": {
-      "trueFalse": "Waar/Niet waar", "multipleChoice": "Meerkeuze", "matching": "Matchen", "written": "Schrijven",
-      "ordering": "Volgorde", "multiSelect": "Meerdere antwoorden", "fillBlank": "Invullen", "flashcard": "Flashcards"
+      "trueFalse": "Waar/Niet waar",
+      "multipleChoice": "Meerkeuze",
+      "matching": "Matchen",
+      "written": "Schrijven",
+      "ordering": "Volgorde",
+      "multiSelect": "Meerdere antwoorden",
+      "fillBlank": "Invullen",
+      "flashcard": "Flashcards"
     },
     "moreTypes": "Meer vraagtypen",
     "fillBlankHint": "Gebruikt de cloze-kaarten in deze set.",

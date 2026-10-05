@@ -247,10 +247,11 @@ export default function SetPage() {
 
       {/* Sticky bottom bar */}
       {cards.length > 0 && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-center px-4 safe-bottom">
-          <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-surface/95 p-1.5 shadow-pop backdrop-blur">
-            <Button variant="outline" size="sm" leftIcon={hideDefs ? <Eye size={16} /> : <EyeOff size={16} />} onClick={() => setHideDefs((v) => !v)}>
-              {hideDefs ? t('set.showDefinitions') : t('set.hideDefinitions')}
+        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-end px-4 safe-bottom sm:px-6 lg:px-8">
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-border bg-surface/95 p-1.5 shadow-pop backdrop-blur">
+            <Button variant="outline" size="sm" aria-label={hideDefs ? t('set.showDefinitions') : t('set.hideDefinitions')} title={hideDefs ? t('set.showDefinitions') : t('set.hideDefinitions')} onClick={() => setHideDefs((v) => !v)} className="px-3">
+              {hideDefs ? <Eye size={16} /> : <EyeOff size={16} />}
+              <span className="hidden md:inline">{hideDefs ? t('set.showDefinitions') : t('set.hideDefinitions')}</span>
             </Button>
             <ActivityMenu setId={setId} />
           </div>
@@ -529,8 +530,9 @@ function ActivityMenu({ setId }: { setId: string }) {
   const modes = [...STUDY_MODES, 'match', 'blocks', 'blast'] as const
   return (
     <div ref={ref} className="relative">
-      <Button size="sm" rightIcon={<ChevronUp size={14} />} onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}>
-        {t('set.reviewWith')}
+      <Button size="sm" rightIcon={<ChevronUp size={14} />} onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} aria-label={t('set.reviewWith')}>
+        <span className="md:hidden">{t('set.reviewWithShort')}</span>
+        <span className="hidden md:inline">{t('set.reviewWith')}</span>
       </Button>
       {open && (
         <div role="menu" className="animate-pop absolute bottom-full right-0 mb-2 min-w-48 rounded-xl border border-border bg-surface p-1 shadow-pop">

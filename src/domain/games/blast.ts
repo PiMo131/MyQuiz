@@ -64,8 +64,8 @@ export interface Asteroid {
   alive: boolean
 }
 
-/** Spread asteroids across the width, staggered above the top edge. */
-export function spawnAsteroids(options: readonly string[], correct: string, width: number, rng: () => number, startId: number, level = 1): Asteroid[] {
+/** Spread asteroids across the width, staggered just below `startY` (the prompt band). */
+export function spawnAsteroids(options: readonly string[], correct: string, width: number, rng: () => number, startId: number, level = 1, startY = 0): Asteroid[] {
   const n = options.length
   const colW = width / n
   const order = options.map((_, i) => i)
@@ -74,7 +74,7 @@ export function spawnAsteroids(options: readonly string[], correct: string, widt
     ;[order[i], order[j]] = [order[j], order[i]]
   }
   const r = Math.max(34, Math.min(60, colW * 0.36))
-  const speed = 28 + level * 6
+  const speed = 30 + level * 6
   return options.map((text, i) => {
     const slot = order[i]
     return {
@@ -82,7 +82,7 @@ export function spawnAsteroids(options: readonly string[], correct: string, widt
       text,
       correct: text === correct,
       x: colW * slot + colW / 2 + (rng() - 0.5) * Math.max(0, colW - 2 * r) * 0.6,
-      y: -r - rng() * 120,
+      y: startY + r + rng() * 90,
       vx: (rng() - 0.5) * 18,
       vy: speed * (0.85 + rng() * 0.3),
       r,

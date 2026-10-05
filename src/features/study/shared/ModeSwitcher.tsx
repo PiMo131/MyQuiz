@@ -58,7 +58,7 @@ export function ModeSwitcher({ mode, setId, className }: ModeSwitcherProps) {
       trigger={
         <button className={cn('flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold hover:bg-surface-2')} aria-label={t('modes.' + mode)}>
           <Icon size={18} className="text-primary" />
-          <span className="max-w-32 truncate">{t(`modes.${mode}`)}</span>
+          <span className="max-w-28 truncate sm:max-w-44">{t(`modes.${mode}`)}</span>
           <ChevronDown size={16} className="text-muted" />
         </button>
       }

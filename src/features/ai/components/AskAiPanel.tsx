@@ -49,6 +49,12 @@ function saveChats(setId: string, chats: Chat[]) {
   }
 }
 const uid = () => Math.random().toString(36).slice(2, 10)
+const createChat = (title: string): Chat => ({
+  id: uid(),
+  title: title.slice(0, 48),
+  createdAt: Date.now(),
+  messages: [],
+})
 
 /** Floating "Ask AI ✦" pill that opens a tutor chat sheet using the set as context. */
 export function AskAiPanel({ setId }: { setId: string }) {
@@ -90,8 +96,8 @@ export function AskAiPanel({ setId }: { setId: string }) {
     if (!trimmed || busy) return
     let chatId = activeId
     if (!chatId) {
-      chatId = uid()
-      const chat: Chat = { id: chatId, title: trimmed.slice(0, 48), createdAt: Date.now(), messages: [] }
+      const chat = createChat(trimmed)
+      chatId = chat.id
       setChats((cs) => [chat, ...cs])
       setActiveId(chatId)
       tutor.current = initialTutorState()

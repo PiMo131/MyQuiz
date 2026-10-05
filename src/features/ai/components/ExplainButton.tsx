@@ -35,9 +35,6 @@ export function ExplainButton({
   const abort = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    setText('')
-    setVote(null)
-    abort.current?.abort()
     if (!open) return
     const ctl = new AbortController()
     abort.current = ctl

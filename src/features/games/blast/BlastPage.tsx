@@ -74,6 +74,7 @@ interface Game {
 }
 
 const PALETTE = ['#7c3aed', '#6d28d9', '#8b5cf6']
+const BAND_H = 96
 
 function killAll(list: Asteroid[]) {
   for (const a of list) a.alive = false
@@ -110,7 +111,7 @@ export default function BlastPage() {
     (g: Game) => {
       const card = nextCard.current()
       g.round = makeBlastRound(cards, card, rng.current, opts.promptSide, g.level)
-      g.asteroids = spawnAsteroids(g.round.options, g.round.correct, sizeRef.current.w, rng.current, g.nextId, g.level)
+      g.asteroids = spawnAsteroids(g.round.options, g.round.correct, sizeRef.current.w, rng.current, g.nextId, g.level, BAND_H + 6)
       g.nextId += g.asteroids.length
       g.promptLeft = BLAST_PROMPT_MS
       g.askedAt = performance.now()
@@ -421,7 +422,7 @@ function draw(canvas: HTMLCanvasElement, g: Game, size: { w: number; h: number; 
     ctx.fill()
   }
   // prompt band
-  const bandH = 96
+  const bandH = BAND_H
   ctx.fillStyle = '#312e81'
   ctx.fillRect(0, 0, w, bandH)
   ctx.fillStyle = '#fff'
@@ -430,7 +431,8 @@ function draw(canvas: HTMLCanvasElement, g: Game, size: { w: number; h: number; 
   ctx.font = `600 ${w < 480 ? 15 : 18}px Inter, system-ui, sans-serif`
   const lines = wrapText(ctx, prompt, w - 32, 3)
   const lh = w < 480 ? 19 : 23
-  lines.forEach((l, i) => ctx.fillText(l, w / 2, 32 + bandH / 2 - ((lines.length - 1) * lh) / 2 + i * lh - 16))
+  const textTop = 14 + (bandH - 14) / 2 - ((lines.length - 1) * lh) / 2
+  lines.forEach((l, i) => ctx.fillText(l, w / 2, textTop + i * lh))
   // prompt timer bar
   ctx.fillStyle = 'rgba(255,255,255,0.15)'
   ctx.fillRect(0, bandH, w, 6)

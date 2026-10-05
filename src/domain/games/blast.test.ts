@@ -32,8 +32,10 @@ describe('blast engine', () => {
     for (const a of list) {
       expect(a.x - a.r).toBeGreaterThanOrEqual(-1)
       expect(a.x + a.r).toBeLessThanOrEqual(801)
-      expect(a.y).toBeLessThan(0)
+      expect(a.y).toBeGreaterThanOrEqual(a.r)
     }
+    const below = spawnAsteroids(['a', 'b'], 'a', 800, mulberry32(3), 1, 1, 100)
+    for (const a of below) expect(a.y).toBeGreaterThanOrEqual(100 + a.r)
     const before = list.map((a) => a.y)
     stepAsteroids(list, 1, 800)
     list.forEach((a, i) => expect(a.y).toBeGreaterThan(before[i]))

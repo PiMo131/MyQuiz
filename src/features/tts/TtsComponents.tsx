@@ -1,10 +1,10 @@
 /** TTS React components. */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Volume2, Square } from 'lucide-react'
 import { useSettings } from '@/app/settings-store'
 import { Button, Label, Select, Toggle, cn } from '@/ui'
-import { pickVoice, speak, stop, voicesFor } from './engine'
+import { pickVoice, speak, stop, useTtsStore, voicesFor } from './engine'
 import { useTts } from './useTts'
 
 export function TtsButton({
@@ -22,12 +22,10 @@ export function TtsButton({
 }) {
   const { t } = useTranslation('ai')
   const { speaking, supported, enabled } = useTts()
-  const [mine, setMine] = useState(false)
-  useEffect(() => {
-    if (!speaking) setMine(false)
-  }, [speaking])
+  const current = useTtsStore((s) => s.current)
+  const [mine, setMine] = useState<number | null>(null)
   if (!supported || !enabled) return null
-  const active = speaking && mine
+  const active = speaking && mine === current
   const px = size === 'sm' ? 'h-7 w-7' : 'h-9 w-9'
   return (
     <button
@@ -44,10 +42,10 @@ export function TtsButton({
         e.stopPropagation()
         if (active) {
           stop()
-          setMine(false)
+          setMine(null)
         } else {
-          setMine(true)
-          void speak(text, lang, { onEnd: () => setMine(false) })
+          void speak(text, lang)
+          setMine(useTtsStore.getState().current)
         }
       }}
     >
