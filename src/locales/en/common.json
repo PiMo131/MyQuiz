@@ -1,0 +1,27 @@
+{
+  "app": { "name": "MyQuizz", "tagline": "Your knowledge, cards and games in one place." },
+  "nav": {
+    "home": "Home", "search": "Search", "library": "Library", "folders": "Folders", "games": "Games", "live": "Live", "ai": "AI tools",
+    "achievements": "Achievements", "stats": "Statistics", "settings": "Settings", "notifications": "Notifications", "recent": "Recent", "newFolder": "New folder",
+    "create": "Create", "createSet": "Flashcard set", "createFolder": "Folder", "practiceTest": "Practice test", "studyGuide": "Study guide", "listen": "Listening set",
+    "profile": "Profile", "lightMode": "Light mode", "darkMode": "Dark mode", "privacy": "Privacy", "help": "Help and feedback", "install": "Install app"
+  },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit", "close": "Close", "back": "Back", "next": "Next", "previous": "Previous",
+    "start": "Start", "continue": "Continue", "done": "Done", "retry": "Retry", "loading": "Loading…", "search": "Search", "all": "All", "none": "None",
+    "yes": "Yes", "no": "No", "ok": "OK", "copy": "Copy", "copied": "Copied", "share": "Share", "export": "Export", "import": "Import",
+    "terms_one": "{{count}} term", "terms_other": "{{count}} terms", "cards_one": "{{count}} card", "cards_other": "{{count}} cards",
+    "term": "Term", "definition": "Definition", "both": "Both", "options": "Options", "settings": "Settings", "restart": "Restart",
+    "shuffle": "Shuffle", "starred": "Study starred", "sound": "Sound", "textToSpeech": "Text to speech", "dontKnow": "Don't know", "hint": "Hint",
+    "correct": "Correct", "incorrect": "Incorrect", "score": "Score", "best": "Best", "time": "Time", "level": "Level", "streak": "Streak", "moves": "Moves",
+    "new": "New", "beta": "Beta", "offline": "You are offline. Everything keeps working.", "updateAvailable": "New version available", "reload": "Reload",
+    "comingSoon": "This part is being built right now.", "notFound": "Page not found", "goHome": "Go home"
+  },
+  "bucket": { "new": "Not studied", "learning": "Still learning", "known": "Known", "mastered": "Mastered" },
+  "modes": {
+    "flashcards": "Flashcards", "srs": "Spaced repetition", "learn": "Learn", "write": "Write", "spell": "Spell", "test": "Test",
+    "match": "Match", "blocks": "Blocks", "blast": "Blast", "charms": "Charms", "hangman": "Hangman", "wordsearch": "Word Search", "speedreview": "Speed Review", "live": "Live"
+  },
+  "rating": { "again": "Again", "hard": "Hard", "good": "Okay", "easy": "Easy" },
+  "greeting": { "morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening", "night": "Good night" }
+}

@@ -1,0 +1,27 @@
+{
+  "app": { "name": "MyQuizz", "tagline": "Jouw kennis, kaarten en spellen op één plek." },
+  "nav": {
+    "home": "Home", "search": "Zoeken", "library": "Bibliotheek", "folders": "Mappen", "games": "Spellen", "live": "Live", "ai": "AI-tools",
+    "achievements": "Prestaties", "stats": "Statistieken", "settings": "Instellingen", "notifications": "Meldingen", "recent": "Recent", "newFolder": "Nieuwe map",
+    "create": "Maken", "createSet": "Flashcardset", "createFolder": "Map", "practiceTest": "Oefentoets", "studyGuide": "Studiegids", "listen": "Luisterset",
+    "profile": "Profiel", "lightMode": "Lichte modus", "darkMode": "Donkere modus", "privacy": "Privacy", "help": "Help en feedback", "install": "App installeren"
+  },
+  "common": {
+    "save": "Opslaan", "cancel": "Annuleren", "delete": "Verwijderen", "edit": "Bewerken", "close": "Sluiten", "back": "Terug", "next": "Volgende", "previous": "Vorige",
+    "start": "Start", "continue": "Doorgaan", "done": "Klaar", "retry": "Opnieuw", "loading": "Laden…", "search": "Zoeken", "all": "Alles", "none": "Geen",
+    "yes": "Ja", "no": "Nee", "ok": "OK", "copy": "Kopiëren", "copied": "Gekopieerd", "share": "Delen", "export": "Exporteren", "import": "Importeren",
+    "terms_one": "{{count}} term", "terms_other": "{{count}} termen", "cards_one": "{{count}} kaart", "cards_other": "{{count}} kaarten",
+    "term": "Term", "definition": "Definitie", "both": "Beide", "options": "Opties", "settings": "Instellingen", "restart": "Opnieuw beginnen",
+    "shuffle": "Schudden", "starred": "Alleen sterren", "sound": "Geluid", "textToSpeech": "Voorlezen", "dontKnow": "Weet ik niet", "hint": "Hint",
+    "correct": "Goed", "incorrect": "Fout", "score": "Score", "best": "Beste", "time": "Tijd", "level": "Level", "streak": "Reeks", "moves": "Zetten",
+    "new": "Nieuw", "beta": "Bèta", "offline": "Je bent offline. Alles blijft werken.", "updateAvailable": "Nieuwe versie beschikbaar", "reload": "Herladen",
+    "comingSoon": "Dit onderdeel wordt nu gebouwd.", "notFound": "Pagina niet gevonden", "goHome": "Naar home"
+  },
+  "bucket": { "new": "Nog niet gestudeerd", "learning": "Nog aan het leren", "known": "Gekend", "mastered": "Beheerst" },
+  "modes": {
+    "flashcards": "Flashcards", "srs": "Spaced repetition", "learn": "Leren", "write": "Schrijven", "spell": "Spellen", "test": "Toets",
+    "match": "Match", "blocks": "Blocks", "blast": "Blast", "charms": "Charms", "hangman": "Galgje", "wordsearch": "Woordzoeker", "speedreview": "Speed Review", "live": "Live"
+  },
+  "rating": { "again": "Opnieuw", "hard": "Moeilijk", "good": "Oké", "easy": "Makkelijk" },
+  "greeting": { "morning": "Goedemorgen", "afternoon": "Goedemiddag", "evening": "Goedenavond", "night": "Goedenacht" }
+}
