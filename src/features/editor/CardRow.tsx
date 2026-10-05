@@ -187,9 +187,8 @@ export function CardRow(p: CardRowProps) {
       </button>
       {p.card.expanded && <ExtrasPanel card={p.card} onChange={p.onChange} onOcclusion={() => setOcclusionOpen(true)} />}
 
-      {occlusionImage && (
+      {occlusionImage && occlusionOpen && (
         <OcclusionEditor
-          open={occlusionOpen}
           onClose={() => setOcclusionOpen(false)}
           imageId={occlusionImage}
           rects={p.card.occlusion?.imageId === occlusionImage ? p.card.occlusion.rects : []}

@@ -15,15 +15,15 @@ interface Props {
 /** Dashed "Image" button or a thumbnail with remove control. */
 export function ImageSlot({ mediaId, active, onToggle, onRemove, label }: Props) {
   const { t } = useTranslation('editor')
-  const [url, setUrl] = useState<string>()
+  const [loaded, setLoaded] = useState<{ id: string; url?: string }>()
   useEffect(() => {
     let alive = true
-    if (mediaId) void mediaUrl(mediaId).then((u) => alive && setUrl(u))
-    else setUrl(undefined)
+    if (mediaId) void mediaUrl(mediaId).then((u) => alive && setLoaded({ id: mediaId, url: u }))
     return () => {
       alive = false
     }
   }, [mediaId])
+  const url = mediaId && loaded?.id === mediaId ? loaded.url : undefined
 
   if (mediaId && url) {
     return (

@@ -105,40 +105,36 @@ export function useDocumentVisible(): boolean {
   return visible
 }
 
-/** Elapsed-time ticker (ms) that pauses when `running` is false or the tab is hidden. Resolution ~100 ms. */
+/** Elapsed-time ticker (ms) that pauses when `running` is false or the tab is hidden. Resolution ~100 ms. Changing `resetKey` restarts from 0. */
 export function useStopwatch(running: boolean, resetKey: unknown): number {
-  const [elapsed, setElapsed] = useState(0)
+  const [tick, setTick] = useState<{ key: unknown; value: number }>({ key: resetKey, value: 0 })
   const visible = useDocumentVisible()
-  const acc = useRef(0)
-  const startedAt = useRef<number | null>(null)
+  const acc = useRef<{ key: unknown; ms: number }>({ key: resetKey, ms: 0 })
   useEffect(() => {
-    acc.current = 0
-    startedAt.current = null
-    setElapsed(0)
-  }, [resetKey])
-  useEffect(() => {
+    if (acc.current.key !== resetKey) acc.current = { key: resetKey, ms: 0 }
     const active = running && visible
-    if (!active) {
-      if (startedAt.current !== null) {
-        acc.current += performance.now() - startedAt.current
-        startedAt.current = null
-        setElapsed(acc.current)
-      }
-      return
-    }
-    startedAt.current = performance.now()
+    if (!active) return
+    const startedAt = performance.now()
+    const base = acc.current.ms
     const id = window.setInterval(() => {
-      if (startedAt.current !== null) setElapsed(acc.current + performance.now() - startedAt.current)
+      const ms = base + performance.now() - startedAt
+      acc.current = { key: resetKey, ms }
+      setTick({ key: resetKey, value: ms })
     }, 100)
-    return () => window.clearInterval(id)
-  }, [running, visible])
-  return elapsed
+    return () => {
+      window.clearInterval(id)
+      acc.current = { key: resetKey, ms: base + performance.now() - startedAt }
+    }
+  }, [running, visible, resetKey])
+  return tick.key === resetKey ? tick.value : 0
 }
 
 /** Window keydown listener helper. */
 export function useKeydown(handler: (e: KeyboardEvent) => void, active = true) {
   const ref = useRef(handler)
-  ref.current = handler
+  useEffect(() => {
+    ref.current = handler
+  }, [handler])
   useEffect(() => {
     if (!active) return
     const on = (e: KeyboardEvent) => {

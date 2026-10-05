@@ -8,18 +8,13 @@ import type { Side } from '@/domain/types'
  * - definition side: definitions of cards whose term equals the current term, else prefix match on definition
  */
 export function useSuggestions(enabled: boolean, side: Side, text: string, counterpart: string, excludeSetId: string | undefined, focused: boolean): string[] {
-  const [items, setItems] = useState<string[]>([])
+  const key = `${enabled}|${focused}|${side}|${text}|${counterpart}|${excludeSetId ?? ''}`
+  const [state, setState] = useState<{ key: string; items: string[] }>({ key, items: [] })
   useEffect(() => {
-    if (!enabled || !focused) {
-      setItems([])
-      return
-    }
+    if (!enabled || !focused) return
     const q = text.trim().toLowerCase()
     const cp = counterpart.trim().toLowerCase()
-    if (q.length < 2 && !(side === 'definition' && cp.length >= 2)) {
-      setItems([])
-      return
-    }
+    if (q.length < 2 && !(side === 'definition' && cp.length >= 2)) return
     let cancelled = false
     const handle = setTimeout(async () => {
       const out = new Set<string>()
@@ -32,12 +27,12 @@ export function useSuggestions(enabled: boolean, side: Side, text: string, count
           else if (q && c.definition.toLowerCase().startsWith(q) && c.definition.toLowerCase() !== q) out.add(c.definition)
         }
       })
-      if (!cancelled) setItems([...out].slice(0, 3))
+      if (!cancelled) setState({ key, items: [...out].slice(0, 3) })
     }, 180)
     return () => {
       cancelled = true
       clearTimeout(handle)
     }
-  }, [enabled, side, text, counterpart, excludeSetId, focused])
-  return items
+  }, [enabled, side, text, counterpart, excludeSetId, focused, key])
+  return state.key === key ? state.items : []
 }

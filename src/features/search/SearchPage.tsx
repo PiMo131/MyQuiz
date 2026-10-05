@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -8,7 +8,7 @@ import { getCards } from '@/db/repo'
 import type { Card, StudySet } from '@/domain/types'
 import { Badge, Button, EmptyState, Markdown, Modal, Tabs, cn } from '@/ui'
 import { useSetMeta } from '@/features/library'
-import { addRecentSearch, clearRecentSearches, getRecentSearches, highlightSegments, searchCards, searchFolders, searchSets, type CardHit, type SetHit } from './search'
+import { addRecentSearch, clearRecentSearches, getRecentSearches, highlightSegments, searchCards, searchFolders, searchSets, subscribeRecentSearches, type CardHit, type SetHit } from './search'
 
 type Tab = 'all' | 'sets' | 'cards' | 'folders'
 
@@ -29,11 +29,15 @@ export default function SearchPage() {
   const [input, setInput] = useState(q)
   const [tab, setTab] = useState<Tab>('all')
   const [preview, setPreview] = useState<StudySet | null>(null)
-  const [recent, setRecent] = useState<string[]>(() => getRecentSearches())
-  useEffect(() => setInput(q), [q])
+  const [prevQ, setPrevQ] = useState(q)
+  if (q !== prevQ) {
+    setPrevQ(q)
+    setInput(q)
+  }
   useEffect(() => {
-    if (q.trim()) setRecent(addRecentSearch(q))
+    if (q.trim()) addRecentSearch(q)
   }, [q])
+  const recent = useSyncExternalStore(subscribeRecentSearches, getRecentSearches)
 
   const sets = useLiveQuery(() => db.sets.toArray(), [])
   const folders = useLiveQuery(() => db.folders.toArray(), [])
@@ -83,7 +87,7 @@ export default function SearchPage() {
             <section aria-label={t('search.recent')}>
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-muted">{t('search.recent')}</h2>
-                <button onClick={() => { clearRecentSearches(); setRecent([]) }} className="text-sm text-muted hover:text-text">{t('search.clearRecent')}</button>
+                <button onClick={() => clearRecentSearches()} className="text-sm text-muted hover:text-text">{t('search.clearRecent')}</button>
               </div>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {recent.map((r) => (

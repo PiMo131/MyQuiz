@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check } from 'lucide-react'
 import { createFolder } from '@/db/repo'
@@ -38,17 +38,17 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (c: 
   )
 }
 
-export function NewFolderDialog({ open, onClose, folder, onCreated }: NewFolderDialogProps) {
+export function NewFolderDialog(props: NewFolderDialogProps) {
+  // Mounted only while open so the form state starts fresh every time.
+  if (!props.open) return null
+  return <FolderDialogInner {...props} />
+}
+
+function FolderDialogInner({ open, onClose, folder, onCreated }: NewFolderDialogProps) {
   const { t } = useTranslation('library')
-  const [name, setName] = useState('')
-  const [color, setColor] = useState(FOLDER_COLORS[0])
+  const [name, setName] = useState(folder?.name ?? '')
+  const [color, setColor] = useState(folder?.color ?? FOLDER_COLORS[0])
   const [busy, setBusy] = useState(false)
-  useEffect(() => {
-    if (open) {
-      setName(folder?.name ?? '')
-      setColor(folder?.color ?? FOLDER_COLORS[0])
-    }
-  }, [open, folder])
   const submit = async () => {
     const n = name.trim()
     if (!n) return

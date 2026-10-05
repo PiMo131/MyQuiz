@@ -38,6 +38,7 @@ import {
   useGameSession,
   useKeydown,
   useSfx,
+  type BaseGameOptions,
 } from '../shared'
 
 type Phase = 'intro' | 'play' | 'end'
@@ -46,7 +47,7 @@ const WORDS_PER_ROUND = 10
 export default function HangmanPage() {
   const { setId = '' } = useParams()
   const { t } = useTranslation(['games', 'common'])
-  const [opts, setOpts] = useGameOptions('hangman', { ...DEFAULT_GAME_OPTIONS, promptSide: 'definition' })
+  const [opts, setOpts] = useGameOptions<BaseGameOptions>('hangman', { ...DEFAULT_GAME_OPTIONS, promptSide: 'definition' })
   const { set, cards: allPlayable, loading } = useGameCards(setId, opts.starredOnly)
   const cards = useMemo(() => allPlayable.filter((c) => { const a = answerOf(c, opts.promptSide); return isGuessable(a) && a.length <= 40 }), [allPlayable, opts.promptSide])
   const best = useBestScore(setId, 'hangman')

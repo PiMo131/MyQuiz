@@ -20,7 +20,6 @@ export async function dueSummary(): Promise<DueSummary> {
   const all = await db.progress.toArray()
   const bySet = new Map<string, typeof all>()
   for (const p of all) {
-    if (p.variant !== 'forward' && !p.variant.startsWith('cloze') && !p.variant.startsWith('occ')) continue
     const arr = bySet.get(p.setId) ?? []
     arr.push(p)
     bySet.set(p.setId, arr)

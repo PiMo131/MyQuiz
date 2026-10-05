@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Search } from 'lucide-react'
 import { cn } from '@/ui'
@@ -20,7 +20,7 @@ export function LanguagePicker({ value, detected, onChange, recent = [], align =
   const [q, setQ] = useState('')
   const ref = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const label = (code: string) => t(`languages.${code}`, { defaultValue: LANGUAGES.find((l) => l.code === code)?.name ?? code })
+  const label = useCallback((code: string) => t(`languages.${code}`, { defaultValue: LANGUAGES.find((l) => l.code === code)?.name ?? code }), [t])
 
   useEffect(() => {
     if (!open) return

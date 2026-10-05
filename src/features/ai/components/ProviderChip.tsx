@@ -1,13 +1,13 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Cpu, Chrome, KeyRound, Sparkles, Zap } from 'lucide-react'
+import { Cpu, Globe, KeyRound, Sparkles, Zap } from 'lucide-react'
 import { Badge, cn } from '@/ui'
 import type { ActiveProviderKind } from '../providers/types'
 import { useAiStatus } from '../useAiStatus'
 
-const ICONS: Record<ActiveProviderKind, typeof Cpu> = { heuristics: Zap, 'chrome-nano': Chrome, webllm: Cpu, byok: KeyRound }
+const ICONS: Record<ActiveProviderKind, typeof Cpu> = { heuristics: Zap, 'chrome-nano': Globe, webllm: Cpu, byok: KeyRound }
 
-/** Small chip showing which provider answers: Basic / Chrome AI / Local model / Your key. */
+/** Small chip showing which provider answers: Basic / Globe AI / Local model / Your key. */
 export function ProviderChip({ provider, className, link = true }: { provider?: ActiveProviderKind; className?: string; link?: boolean }) {
   const { t } = useTranslation('ai')
   const status = useAiStatus()

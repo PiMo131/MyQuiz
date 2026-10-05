@@ -59,7 +59,7 @@ export function searchSets(sets: StudySet[], q: string): SetHit[] {
     const desc = scoreText(set.description, toks)
     const tag = Math.max(0, ...set.tags.map((t) => scoreText(t, toks))) * 1.5
     const best = Math.max(title, desc, tag)
-    if (best > 0) out.push({ kind: 'set', set, score: best, field: best === title ? 'title' : best === tag ? 'tag' : 'description' })
+    if (best > 0) out.push({ kind: 'set', set, score: best, field: title > 0 ? 'title' : tag > 0 ? 'tag' : 'description' })
   }
   return out.sort((a, b) => b.score - a.score || a.set.title.localeCompare(b.set.title))
 }
@@ -131,23 +131,53 @@ export function highlightSegments(text: string, q: string): Segment[] {
   return out
 }
 
-// ---------- Recent searches (localStorage) ----------
+// ---------- Recent searches (localStorage, with a tiny store for React) ----------
 const RECENT_KEY = 'myquizz.recentSearches'
-export function getRecentSearches(): string[] {
+const recentListeners = new Set<() => void>()
+let recentRaw = ''
+let recentCache: string[] = []
+
+function readRaw(): string {
   try {
-    const v = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]') as unknown
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string').slice(0, 8) : []
+    return localStorage.getItem(RECENT_KEY) ?? '[]'
   } catch {
-    return []
+    return '[]'
   }
 }
+
+export function getRecentSearches(): string[] {
+  const raw = readRaw()
+  if (raw !== recentRaw) {
+    recentRaw = raw
+    try {
+      const v = JSON.parse(raw) as unknown
+      recentCache = Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string').slice(0, 8) : []
+    } catch {
+      recentCache = []
+    }
+  }
+  return recentCache
+}
+
+function writeRecent(next: string[]): void {
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+  recentListeners.forEach((l) => l())
+}
+
 export function addRecentSearch(q: string): string[] {
   const v = q.trim()
   if (!v) return getRecentSearches()
   const next = [v, ...getRecentSearches().filter((x) => x.toLowerCase() !== v.toLowerCase())].slice(0, 8)
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+  writeRecent(next)
   return next
 }
+
 export function clearRecentSearches(): void {
   try { localStorage.removeItem(RECENT_KEY) } catch { /* ignore */ }
+  recentListeners.forEach((l) => l())
+}
+
+export function subscribeRecentSearches(l: () => void): () => void {
+  recentListeners.add(l)
+  return () => recentListeners.delete(l)
 }

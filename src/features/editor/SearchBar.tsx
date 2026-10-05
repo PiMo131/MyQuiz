@@ -24,8 +24,11 @@ export function SearchBar({ open, onClose, query, onQuery, options, onOptions, m
   const inputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (open) inputRef.current?.focus()
-    else setOpts(false)
   }, [open])
+  const close = () => {
+    setOpts(false)
+    onClose()
+  }
   if (!open) return null
   return (
     <div className="fixed bottom-4 left-4 z-40 w-[min(26rem,calc(100vw-2rem))] safe-bottom" role="search">
@@ -49,7 +52,7 @@ export function SearchBar({ open, onClose, query, onQuery, options, onOptions, m
           onChange={(e) => onQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') (e.shiftKey ? onPrev : onNext)()
-            if (e.key === 'Escape') onClose()
+            if (e.key === 'Escape') close()
           }}
           placeholder={t('search.placeholder')}
           aria-label={t('search.placeholder')}
@@ -69,7 +72,7 @@ export function SearchBar({ open, onClose, query, onQuery, options, onOptions, m
         <button type="button" onClick={() => setOpts((o) => !o)} className={cn('rounded-full p-1.5 text-muted hover:bg-surface-2', opts && 'bg-primary-soft text-primary')} aria-label={t('search.options')} aria-expanded={opts}>
           <SlidersHorizontal size={16} />
         </button>
-        <button type="button" onClick={onClose} className="rounded-full p-1.5 text-muted hover:bg-surface-2" aria-label={t('common:common.close')}>
+        <button type="button" onClick={close} className="rounded-full p-1.5 text-muted hover:bg-surface-2" aria-label={t('common:common.close')}>
           <X size={16} />
         </button>
       </div>

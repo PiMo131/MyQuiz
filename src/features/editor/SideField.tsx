@@ -77,10 +77,14 @@ export function SideField(p: SideFieldProps) {
     el.style.height = `${Math.max(44, el.scrollHeight)}px`
   }, [p.value])
 
+  const registerRef = useRef(p.registerEl)
   useEffect(() => {
-    p.registerEl(ref.current)
-    return () => p.registerEl(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    registerRef.current = p.registerEl
+  })
+  useEffect(() => {
+    const reg = registerRef.current
+    reg(ref.current)
+    return () => reg(null)
   }, [])
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

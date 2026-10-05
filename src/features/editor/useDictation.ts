@@ -33,7 +33,9 @@ export function useDictation(onText: (text: string) => void) {
   const [listening, setListening] = useState(false)
   const recRef = useRef<RecognitionLike | null>(null)
   const cbRef = useRef(onText)
-  cbRef.current = onText
+  useEffect(() => {
+    cbRef.current = onText
+  })
 
   const stop = useCallback(() => {
     recRef.current?.stop()

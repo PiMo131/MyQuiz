@@ -1,11 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, Bot, Brain, Database, Github, HardDrive, Info, Palette, Shield, Trash2, User, Volume2, Mic } from 'lucide-react'
+import { Bell, Bot, Brain, Database, ExternalLink, HardDrive, Info, Palette, Shield, Trash2, User, Volume2, Mic } from 'lucide-react'
 import { useSettings } from '@/app/settings-store'
 import { requestPersistentStorage, storageEstimate } from '@/db/db'
 import { wipeAll } from '@/db/repo'
 import { APP_NAME, APP_VERSION, DEFAULT_GRADING, DEFAULT_SRS, type GradingStrictness, type Settings } from '@/domain/types'
-import { Button, Input, Label, Modal, ProgressBar, Select, Toggle, cn, toast } from '@/ui'
+import { Button, Input, Modal, ProgressBar, Select, Toggle, cn, toast } from '@/ui'
 import { AvatarPicker, LangChoice, ThemeChoice } from '@/features/home/OnboardingCard'
 import { notificationPermission, requestNotificationPermission, showSystemNotification } from '@/features/notifications'
 import { formatBytes } from '@/features/library'
@@ -55,8 +55,13 @@ function NumberField({ id, value, min, max, step = 1, onChange, suffix }: { id: 
 }
 
 function StepsField({ id, value, onChange }: { id: string; value: string[]; onChange: (v: string[]) => void }) {
-  const [text, setText] = useState(value.join(', '))
-  useEffect(() => setText(value.join(', ')), [value])
+  const joined = value.join(', ')
+  const [text, setText] = useState(joined)
+  const [prevJoined, setPrevJoined] = useState(joined)
+  if (joined !== prevJoined) {
+    setPrevJoined(joined)
+    setText(joined)
+  }
   const commit = () => {
     const steps = text.split(/[,\s]+/).map((s) => s.trim()).filter((s) => /^\d+(m|h|d)$/.test(s))
     onChange(steps)
@@ -70,8 +75,6 @@ export default function SettingsPage() {
   const settings = useSettings((s) => s.settings)
   const update = useSettings((s) => s.update)
   const [active, setActive] = useState<SectionId>('profile')
-  const [name, setName] = useState(settings.displayName)
-  useEffect(() => setName(settings.displayName), [settings.displayName])
 
   const srs = (patch: Partial<Settings['srs']>) => void update({ srs: { ...settings.srs, ...patch } })
   const grading = (patch: Partial<Settings['grading']>) => void update({ grading: { ...settings.grading, ...patch } })
@@ -134,7 +137,15 @@ export default function SettingsPage() {
         <div className="min-w-0 flex-1 space-y-6">
           <Section id="profile" title={t('settings.sections.profile')} description={t('settings.profileHint')}>
             <Row label={t('settings.displayName')} htmlFor="s-name">
-              <Input id="s-name" value={name} maxLength={40} placeholder={t('settings.displayNamePlaceholder')} onChange={(e) => setName(e.target.value)} onBlur={() => name !== settings.displayName && void update({ displayName: name.trim() })} />
+              <Input
+                id="s-name"
+                key={settings.displayName}
+                defaultValue={settings.displayName}
+                maxLength={40}
+                placeholder={t('settings.displayNamePlaceholder')}
+                onBlur={(e) => { const v = e.target.value.trim(); if (v !== settings.displayName) void update({ displayName: v }) }}
+                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+              />
             </Row>
             <Row label={t('settings.avatar')}>
               <AvatarPicker value={settings.avatar} onChange={(a) => void update({ avatar: a })} />
@@ -241,7 +252,7 @@ export default function SettingsPage() {
           <Section id="about" title={t('settings.sections.about')}>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <span><span className="text-muted">{t('settings.version')}:</span> <span className="font-semibold">{APP_NAME} {APP_VERSION}</span></span>
-              <a href="https://github.com/PiMo131/MyQuiz" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline"><Github size={16} />GitHub</a>
+              <a href="https://github.com/PiMo131/MyQuiz" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline"><ExternalLink size={16} />GitHub</a>
             </div>
             <p className="mt-3 flex items-start gap-2 rounded-xl bg-accent-soft/60 p-3 text-sm"><Shield size={16} className="mt-0.5 shrink-0 text-accent" />{t('settings.privacy')}</p>
             <p className="mt-2 text-xs text-faint">{t('settings.locale')}: {i18n.language}</p>

@@ -98,7 +98,7 @@ export default function StatsPage() {
     heat.forEach((col, i) => {
       const m = col[0].day.slice(0, 7)
       if (m !== prev) {
-        out.push({ col: i, label: new Intl.DateTimeFormat(i18n.language, { month: 'short' }).format(new Date(col[0].day)) })
+        out.push({ col: i, label: new Intl.DateTimeFormat(i18n.language, { month: 'short' }).format(new Date(col[0].day + 'T12:00')) })
         prev = m
       }
     })

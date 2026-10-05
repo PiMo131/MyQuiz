@@ -128,8 +128,6 @@ function ClassicLanes({ view }: { view: PublicState }) {
 function MatchBars({ view }: { view: PublicState }) {
   const { t } = useTranslation('live')
   const total = view.config.matchPairs
-  const elapsed = useCountdown(null) // no-op; keeps hook order stable
-  void elapsed
   return (
     <div className="flex flex-1 flex-col gap-3">
       <h2 className="text-xl font-bold sm:text-3xl">{t('modes.match.name')}</h2>

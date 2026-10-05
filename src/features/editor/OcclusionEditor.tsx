@@ -7,7 +7,6 @@ import { newId } from '@/domain/id'
 import type { OcclusionRect } from '@/domain/types'
 
 interface Props {
-  open: boolean
   onClose: () => void
   imageId: string
   rects: OcclusionRect[]
@@ -22,7 +21,8 @@ interface Drag {
 }
 
 /** Draw rectangles over an image to create image-occlusion cards. Coordinates are stored relative (0..1). */
-export function OcclusionEditor({ open, onClose, imageId, rects: initial, onSave }: Props) {
+/** Mount this component only while open; its state initialises from props. */
+export function OcclusionEditor({ onClose, imageId, rects: initial, onSave }: Props) {
   const { t } = useTranslation('editor')
   const [url, setUrl] = useState<string>()
   const [rects, setRects] = useState<OcclusionRect[]>(initial)
@@ -31,11 +31,12 @@ export function OcclusionEditor({ open, onClose, imageId, rects: initial, onSave
   const box = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (open) {
-      setRects(initial)
-      void mediaUrl(imageId).then(setUrl)
+    let alive = true
+    void mediaUrl(imageId).then((u) => alive && setUrl(u))
+    return () => {
+      alive = false
     }
-  }, [open, imageId, initial])
+  }, [imageId])
 
   const rel = (e: React.PointerEvent): { x: number; y: number } => {
     const r = box.current!.getBoundingClientRect()
@@ -77,7 +78,7 @@ export function OcclusionEditor({ open, onClose, imageId, rects: initial, onSave
 
   return (
     <Modal
-      open={open}
+      open
       onClose={onClose}
       size="lg"
       title={t('occlusion.title')}

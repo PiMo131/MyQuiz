@@ -24,7 +24,7 @@ export function StreakCalendar({ days }: { days: string[] }) {
     })
   }, [cursor, studied, today])
   const monthLabel = new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' }).format(new Date(cursor.y, cursor.m, 1))
-  const isCurrent = cursor.y === new Date().getFullYear() && cursor.m === new Date().getMonth()
+  const isCurrent = cursor.y === Number(today.slice(0, 4)) && cursor.m === Number(today.slice(5, 7)) - 1
   const weekdays = useMemo(() => {
     const fmt = new Intl.DateTimeFormat(i18n.language, { weekday: 'narrow' })
     return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2024, 0, 1 + i, 12))) // 2024-01-01 is a Monday

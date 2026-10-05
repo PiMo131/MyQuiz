@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Trophy } from 'lucide-react'
@@ -23,10 +23,13 @@ export interface GameEndProps {
 export function GameEnd({ setId, title, scoreLabel, score, bestLabel, best, isNewBest, onPlayAgain, children, lost }: GameEndProps) {
   const { t } = useTranslation(['games', 'common'])
   const play = useSfx()
+  const fired = useRef(false)
   useEffect(() => {
+    if (fired.current) return
+    fired.current = true
     if (isNewBest) fireConfetti()
     play(lost && !isNewBest ? 'lose' : 'win')
-  }, [])
+  }, [isNewBest, lost, play])
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 text-center">
       <h1 className="text-2xl font-extrabold sm:text-3xl">{title ?? (isNewBest ? t('games:common.newBest') : t('games:common.gameOver'))}</h1>

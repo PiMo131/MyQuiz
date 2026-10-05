@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Check, Folder as FolderIcon, Plus } from 'lucide-react'
@@ -21,12 +21,16 @@ export function SaveToFolderModal({ open, onClose, setId }: SaveToFolderModalPro
   const ids = Array.isArray(setId) ? setId : [setId]
   const folders = useFolders()
   const current = useLiveQuery(async () => (ids.length === 1 ? (await db.sets.get(ids[0]))?.folderId ?? null : null), [ids.join(',')])
-  const [choice, setChoice] = useState<string | null>(null)
+  const [choice, setChoice] = useState<string | null>(current ?? null)
   const [creating, setCreating] = useState(false)
   const [busy, setBusy] = useState(false)
-  useEffect(() => {
-    if (open) setChoice(current ?? null)
-  }, [open, current])
+  // Re-sync the selection when the dialog opens or the set's folder changes underneath us.
+  const syncKey = `${open}:${current ?? ''}`
+  const [prevSync, setPrevSync] = useState(syncKey)
+  if (syncKey !== prevSync) {
+    setPrevSync(syncKey)
+    setChoice(current ?? null)
+  }
 
   const save = async () => {
     setBusy(true)

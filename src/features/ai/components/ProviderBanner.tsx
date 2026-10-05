@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Cpu, Chrome, KeyRound, Zap, Download } from 'lucide-react'
+import { Cpu, Globe, KeyRound, Zap, Download } from 'lucide-react'
 import { Button, ProgressBar } from '@/ui'
 import { useAiStatus } from '../useAiStatus'
 
@@ -8,7 +8,7 @@ import { useAiStatus } from '../useAiStatus'
 export function ProviderBanner() {
   const { t } = useTranslation('ai')
   const s = useAiStatus()
-  const Icon = s.provider === 'byok' ? KeyRound : s.provider === 'webllm' ? Cpu : s.provider === 'chrome-nano' ? Chrome : Zap
+  const Icon = s.provider === 'byok' ? KeyRound : s.provider === 'webllm' ? Cpu : s.provider === 'chrome-nano' ? Globe : Zap
   const loading = s.webllm.state === 'loading'
   return (
     <div className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
