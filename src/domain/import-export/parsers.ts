@@ -101,6 +101,12 @@ export function detectSeparators(text: string): Pick<PasteOptions, 'termSep' | '
   const tabs = count(/\t/)
   const n = lines.length
   if (tabs >= n * 0.6) return { termSep: 'tab', cardSep: 'newline' }
+  if (n === 1) {
+    // "a, b; c, d" on one line → comma between sides, semicolon between cards
+    const commaCount = (src.match(/,/g) ?? []).length
+    const semiCount = (src.match(/;/g) ?? []).length
+    if (semiCount >= 1 && commaCount >= semiCount) return { termSep: 'comma', cardSep: 'semicolon' }
+  }
   const candidates: Array<{ sep: string; score: number }> = [
     { sep: ' - ', score: count(/ - /) },
     { sep: ' – ', score: count(/ – /) },
@@ -115,11 +121,7 @@ export function detectSeparators(text: string): Pick<PasteOptions, 'termSep' | '
   if (best.score >= n * 0.6 && best.score >= commas) {
     return { termSep: 'custom', customTermSep: best.sep, cardSep: 'newline' }
   }
-  if (commas >= n * 0.6) {
-    // "a, b; c, d" on one line → semicolon between cards
-    if (n === 1 && (src.match(/;/g)?.length ?? 0) >= 1) return { termSep: 'comma', cardSep: 'semicolon' }
-    return { termSep: 'comma', cardSep: 'newline' }
-  }
+  if (commas >= n * 0.6) return { termSep: 'comma', cardSep: 'newline' }
   if (best.score >= n * 0.6) return { termSep: 'custom', customTermSep: best.sep, cardSep: 'newline' }
   return { termSep: 'tab', cardSep: 'newline' }
 }

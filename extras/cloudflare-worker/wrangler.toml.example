@@ -1,0 +1,36 @@
+# Copy to wrangler.toml and adjust. Deploy with: npx wrangler deploy
+name = "myquizz-ai-proxy"
+main = "worker.ts"
+compatibility_date = "2026-01-01"
+
+[vars]
+# OpenAI-compatible chat completions endpoint of the upstream you pay for.
+UPSTREAM_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+# Model to use when the client does not send one (or always, see FORCE_MODEL).
+DEFAULT_MODEL = "gemini-2.5-flash"
+FORCE_MODEL = "true"
+# Comma-separated list of allowed browser origins (your GitHub Pages origin).
+ALLOWED_ORIGINS = "https://<your-github-user>.github.io"
+# Daily request cap for the whole worker (all users). 0 = unlimited.
+DAILY_CAP = "2000"
+# Max request body in bytes.
+MAX_BODY_BYTES = "65536"
+# Hard cap applied to max_tokens.
+MAX_TOKENS_CAP = "2048"
+
+# Secret: set with `npx wrangler secret put UPSTREAM_KEY`
+# Optional secret: `npx wrangler secret put CLIENT_TOKEN` — when set, clients must send
+# `Authorization: Bearer <CLIENT_TOKEN>` (enter it as "API key" in MyQuizz).
+
+# Per-IP rate limit: 30 requests per 10 minutes (period must be 10 or 60 seconds in the binding,
+# so we use 60 s with limit 3 ≈ 30 / 10 min; tune to taste).
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }
+
+# KV namespace for the daily cap counter: `npx wrangler kv namespace create DAILY`
+[[kv_namespaces]]
+binding = "DAILY"
+id = "<kv-namespace-id>"

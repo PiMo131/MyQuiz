@@ -10,6 +10,8 @@ export interface ExtractedCard {
   term: string
   definition: string
   hint?: string
+  /** Anki-style cloze text ({{c1::answer}}) when the 'cloze' style is applied. */
+  cloze?: string
   /** Which heuristic produced the card (for debugging/tests). */
   source?: 'separator' | 'qa' | 'bold' | 'heading' | 'sentence' | 'bulletPair' | 'csv'
 }
@@ -25,7 +27,7 @@ export type CardStyle = 'termDefinition' | 'qa' | 'cloze'
 const MAX_TERM = 90
 const MAX_DEF = 400
 
-const SEP_RE = /^(.{1,90}?)\s*(?:\t|\s[—–]\s|\s-\s|\s=\s|\s→\s|\s->\s|(?<!https?|\d):\s)\s*(.+)$/u
+const SEP_RE = /^(.{1,90}?)\s*(?:\t|\s[—–]\s|\s-\s|\s=\s|\s→\s|\s->\s|(?<!https?):\s)\s*(.+)$/u
 const BOLD_RE = /^\*\*([^*]{1,90})\*\*\s*[:—–-]?\s*(.+)$/
 const Q_RE = /^(?:q|question|vraag|v)\s*[:.)]\s*(.+)$/i
 const A_RE = /^(?:a|answer|antwoord)\s*[:.)]\s*(.+)$/i
@@ -203,13 +205,11 @@ export function applyCardStyle(cards: ExtractedCard[], style: CardStyle, lang: s
       return { ...c, term: q }
     })
   }
-  // cloze: blank the term inside the definition when possible
+  // cloze: blank the term inside the definition when possible, otherwise "definition → {{c1::term}}"
   return cards.map((c) => {
     const re = new RegExp(escapeRe(c.term), 'i')
-    if (re.test(c.definition)) {
-      return { ...c, definition: c.definition.replace(re, `{{c1::${c.term}}}`), term: c.definition.replace(re, '…') }
-    }
-    return { ...c, definition: `${c.definition} → {{c1::${c.term}}}` }
+    const cloze = re.test(c.definition) ? c.definition.replace(re, `{{c1::${c.term}}}`) : `${c.definition} → {{c1::${c.term}}}`
+    return { ...c, cloze }
   })
 }
 

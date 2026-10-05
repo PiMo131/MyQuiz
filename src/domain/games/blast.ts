@@ -1,5 +1,5 @@
 /** Blast engine: pure parts (rounds, scoring, levels, asteroid motion). The canvas loop lives in the UI. */
-import { buildChoices, promptOf, type PromptSide, type QuizCard } from './questions'
+import { answerOf, buildChoices, promptOf, type PromptSide, type QuizCard } from './questions'
 
 export const BLAST_ROUND_MS = 90_000
 export const BLAST_PROMPT_MS = 8_000
@@ -16,8 +16,7 @@ export interface BlastRound<T extends QuizCard = QuizCard> {
 export function makeBlastRound<T extends QuizCard>(cards: readonly T[], card: T, rng: () => number, side: PromptSide, level = 1): BlastRound<T> {
   const n = Math.min(5, Math.max(3, 2 + level), cards.length)
   const options = buildChoices(cards, card, side, rng, Math.max(2, n))
-  const correctRaw = side === 'term' ? card.definition : card.term
-  const correct = options.find((o) => o === correctRaw) ?? options[0]
+  const correct = answerOf(card, side)
   return { card, prompt: promptOf(card, side), options, correct }
 }
 

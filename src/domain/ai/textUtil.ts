@@ -6,9 +6,9 @@ export function splitSentences(text: string): string[] {
   const cleaned = text.replace(/\s+/g, ' ').trim()
   if (!cleaned) return []
   const parts = cleaned
-    .replace(/(\b(?:e\.g|i\.e|bv|bijv|etc|dr|mr|mrs|ca|nr|vs|o\.a|d\.w\.z)\.)\s/gi, '$1\u0000')
+    .replace(/(\b(?:e\.g|i\.e|bv|bijv|etc|dr|mr|mrs|ca|nr|vs|o\.a|d\.w\.z)\.)\s/gi, '$1\uE000')
     .split(/(?<=[.!?])\s+(?=[A-ZÀ-ÝÄÖÜ0-9"“(])/)
-    .map((s) => s.replace(/\u0000/g, ' ').trim())
+    .map((s) => s.replace(/\uE000/g, ' ').trim())
     .filter((s) => s.length > 1)
   return parts
 }

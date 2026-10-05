@@ -1,6 +1,6 @@
 /** Speed Review engine: timed multiple choice, faster = more points. */
 import { shuffle } from '@/domain/text'
-import { buildChoices, promptOf, type PromptSide, type QuizCard } from './questions'
+import { answerOf, buildChoices, promptOf, type PromptSide, type QuizCard } from './questions'
 
 export const SR_TIME_MS = 5000
 export const SR_QUESTIONS = 20
@@ -21,13 +21,8 @@ export function buildSpeedQuestions<T extends QuizCard>(cards: readonly T[], rng
   const chosen = shuffle(cards, rng).slice(0, n)
   return chosen.map((card) => {
     const options = buildChoices(cards, card, side, rng, 4)
-    const correct = side === 'term' ? card.definition : card.term
-    return { card, prompt: promptOf(card, side), options, correct: options.find((o) => o === correct) ?? options.find((o) => normalizeKey(o) === normalizeKey(correct)) ?? correct }
+    return { card, prompt: promptOf(card, side), options, correct: answerOf(card, side) }
   })
-}
-
-function normalizeKey(s: string): string {
-  return s.replace(/<[^>]+>/g, '').replace(/[*_`~]/g, '').trim().toLowerCase()
 }
 
 /** Points for a correct answer: linear from base (instant) to min (at the limit) + streak bonus. */

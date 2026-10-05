@@ -1,5 +1,5 @@
 /** Shared helpers for turning cards into game questions (prompt/answer sides, multiple choice). */
-import type { Card, Side } from '@/domain/types'
+import type { Side } from '@/domain/types'
 import { normalize, plainText, shuffle } from '@/domain/text'
 
 /** Minimal card shape the game engines need (real `Card` satisfies it). */
@@ -79,4 +79,3 @@ export function cardCycler<T extends QuizCard>(cards: readonly T[], rng: () => n
   }
 }
 
-export type { Card }

@@ -224,14 +224,11 @@ export function generateCode(rng: () => number = Math.random): string {
   return s
 }
 
-/** Uppercases, maps ambiguous glyphs and strips separators. Returns '' when nothing usable. */
+/** Uppercases and strips separators/whitespace. Validity is checked with isValidCode. */
 export function normalizeCode(input: string): string {
   return input
     .toUpperCase()
-    .replace(/0/g, 'O')
     .replace(/[^A-Z0-9]/g, '')
-    .replace(/O/g, 'Q')
-    .replace(/I/g, 'L')
     .slice(0, CODE_LENGTH)
 }
 
