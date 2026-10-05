@@ -15,7 +15,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/*.png', 'icons/*.svg', 'og.png'],
+      // ai/*.md: the chatbot import prompts, precached so "Copy prompt" also works offline.
+      includeAssets: ['favicon.svg', 'icons/*.png', 'icons/*.svg', 'og.png', 'ai/*.md'],
       manifest: {
         name: 'MyQuizz',
         short_name: 'MyQuizz',

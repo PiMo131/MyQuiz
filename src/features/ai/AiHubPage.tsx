@@ -7,6 +7,7 @@ import {
   FileQuestion,
   Headphones,
   MessageCircleQuestion,
+  MessageSquareText,
   Sparkles,
   WandSparkles,
   type LucideIcon,
@@ -17,7 +18,7 @@ import { ProviderBanner } from './components/ProviderBanner'
 import { AiFooter } from './components/ProviderChip'
 
 interface Tool {
-  key: 'generate' | 'studyGuide' | 'practiceTest' | 'listen' | 'ask'
+  key: 'generate' | 'chatbotImport' | 'studyGuide' | 'practiceTest' | 'listen' | 'ask'
   icon: LucideIcon
   gradient: string
   to?: string
@@ -26,6 +27,7 @@ interface Tool {
 
 const TOOLS: Tool[] = [
   { key: 'generate', icon: WandSparkles, gradient: 'bg-gradient-indigo', to: '/ai/generate' },
+  { key: 'chatbotImport', icon: MessageSquareText, gradient: 'bg-gradient-teal', to: '/import/ai' },
   { key: 'studyGuide', icon: BookOpenText, gradient: 'bg-gradient-teal', to: '/ai/study-guide' },
   { key: 'practiceTest', icon: FileQuestion, gradient: 'bg-gradient-orange', to: '/ai/practice-test' },
   { key: 'listen', icon: Headphones, gradient: 'bg-gradient-green', needsSet: true },

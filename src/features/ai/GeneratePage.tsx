@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Plus, Trash2, WandSparkles } from 'lucide-react'
+import { MessageSquareText, Plus, Trash2, WandSparkles } from 'lucide-react'
 import { db } from '@/db/db'
 import { addCards, createSet } from '@/db/repo'
 import type { CardStyle } from '@/domain/ai/cards'
@@ -111,6 +111,19 @@ export default function GeneratePage() {
         </div>
         <ProviderChip />
       </header>
+
+      <Link to="/import/ai" className="card flex items-center gap-3 p-4 text-sm transition hover:-translate-y-0.5 hover:shadow-pop">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-teal text-white">
+          <MessageSquareText size={16} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="font-semibold">{t('generate.chatbotTipTitle')}</span>
+          <span className="ml-1 text-muted">{t('generate.chatbotTipBody')}</span>
+        </span>
+        <span aria-hidden className="shrink-0 text-muted">
+          →
+        </span>
+      </Link>
 
       <section className="card space-y-4 p-5">
         <SourceInput value={text} onChange={setText} />

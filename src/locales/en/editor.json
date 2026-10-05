@@ -239,7 +239,8 @@
       "quizlet": "Quizlet",
       "markdown": "Markdown",
       "myquizz": "MyQuizz",
-      "apkg": "Anki package"
+      "apkg": "Anki package",
+      "link": "Share link"
     },
     "warn": {
       "mediaReferences": "References to media files were skipped",

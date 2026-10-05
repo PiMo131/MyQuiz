@@ -239,7 +239,8 @@
       "quizlet": "Quizlet",
       "markdown": "Markdown",
       "myquizz": "MyQuizz",
-      "apkg": "Anki-pakket"
+      "apkg": "Anki-pakket",
+      "link": "Deellink"
     },
     "warn": {
       "mediaReferences": "Verwijzingen naar media-bestanden zijn overgeslagen",

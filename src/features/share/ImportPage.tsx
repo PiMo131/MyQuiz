@@ -1,22 +1,27 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Download, FileUp, Import, Link2, Settings } from 'lucide-react'
+import { ArrowRight, Download, FileUp, Import, Link2, MessageSquareText, Settings } from 'lucide-react'
 import { db } from '@/db/db'
 import { addCards, createSet, putMedia, replaceCards, updateSet, type NewCard } from '@/db/repo'
 import type { StudySet } from '@/domain/types'
 import { dataUrlToBlob } from '@/domain/import-export/exporters'
+import { parseChatbotOutput, type ParseResult } from '@/domain/import-export/parsers'
 import { parseImportFile } from '@/domain/import-export/parse-file'
-import { decodeCode, extractCode, type Decoded } from './share-utils'
+import { decodeCode, extractCode, fromParseResult, parseErrorKey, type Decoded } from './share-utils'
 import { Badge, Button, Card, EmptyState, Input, Label, Markdown, Select, cn, toast } from '@/ui'
 
 export default function ImportPage() {
   const { t } = useTranslation('share')
   const navigate = useNavigate()
+  const location = useLocation()
   const [params] = useSearchParams()
   const paramCode = params.get('d')
+  // Handed over by /import/ai (router state) so the preview/folder/import flow lives here only.
+  const stateParsed = (location.state as { parsed?: ParseResult } | null)?.parsed
   const initial = useMemo<Decoded | 'error' | null>(() => {
+    if (stateParsed && Array.isArray(stateParsed.cards)) return fromParseResult(stateParsed)
     const code = paramCode ? extractCode(paramCode) : undefined
     if (!code) return null
     try {
@@ -24,7 +29,7 @@ export default function ImportPage() {
     } catch {
       return 'error'
     }
-  }, [paramCode])
+  }, [paramCode, stateParsed])
   const [input, setInput] = useState('')
   const [decoded, setDecoded] = useState<Decoded | null>(() => (initial && initial !== 'error' ? initial : null))
   const [error, setError] = useState<string | null>(() => (initial === 'error' ? t('import.errDecode') : null))
@@ -46,17 +51,16 @@ export default function ImportPage() {
     setIsBackupFile(false)
   }, [])
 
-  const tryCode = useCallback(
-    (raw: string) => {
-      const code = extractCode(raw)
-      if (!code) {
-        if (raw.trim()) setError(t('import.errNoCode'))
-        return
-      }
+  /** Codes, links, MyQuizz JSON (fenced or not) and TSV all go through the same parser. */
+  const tryText = useCallback(
+    (raw: string, silent = false): boolean => {
+      if (!raw.trim()) return false
       try {
-        apply(decodeCode(code))
-      } catch {
-        setError(t('import.errDecode'))
+        apply(fromParseResult(parseChatbotOutput(raw), t('import.untitled')))
+        return true
+      } catch (err) {
+        if (!silent) setError(t(parseErrorKey(err)))
+        return false
       }
     },
     [apply, t],
@@ -78,17 +82,7 @@ export default function ImportPage() {
         return
       }
       setNeedPass(null)
-      const r = out.result
-      apply({
-        title: r.title ?? file.name.replace(/\.[^.]+$/, ''),
-        description: r.description ?? '',
-        lang: r.lang ?? { term: '', definition: '' },
-        tags: r.tags ?? [],
-        cards: r.cards,
-        externalId: r.externalId,
-        shared: r.shared,
-        sourceLabel: r.source,
-      })
+      apply(fromParseResult(out.result, file.name.replace(/\.[^.]+$/, '')))
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       setError(msg === 'wrongPassphrase' ? t('import.errPassphrase') : msg === 'apkgZstd' ? t('import.errApkgZstd') : t('import.errFile'))
@@ -108,12 +102,15 @@ export default function ImportPage() {
         }
       }
       const byId = new Map(decoded.shared?.cards.map((c) => [c.id, c]) ?? [])
-      const toCards = (setId: string): NewCard[] =>
+      // A new set always gets fresh card ids (`buildCard` generates them): incoming ids may already be
+      // in use by another set, and `bulkPut` would silently overwrite those cards. Only an update of the
+      // matching existing set keeps the incoming ids so progress stays attached.
+      const toCards = (setId: string, keepIds: boolean): NewCard[] =>
         decoded.cards.map((c) => {
           const full = c.externalId ? byId.get(c.externalId) : undefined
           return {
             ...(full ?? {}),
-            id: full?.id,
+            id: keepIds ? full?.id : undefined,
             setId,
             term: c.term,
             definition: c.definition,
@@ -127,11 +124,11 @@ export default function ImportPage() {
       if (mode === 'update' && existing) {
         id = existing.id
         await updateSet(id, { ...meta, folderId: folderId || existing.folderId })
-        await replaceCards(id, toCards(id))
+        await replaceCards(id, toCards(id, true))
       } else {
         const s = await createSet({ ...meta, folderId: folderId || null, externalId: decoded.externalId, author: decoded.shared?.set.author })
         id = s.id
-        await addCards(id, toCards(id))
+        await addCards(id, toCards(id, false))
       }
       toast.success(t('import.done', { count: decoded.cards.length }))
       navigate(`/set/${id}`)
@@ -165,11 +162,11 @@ export default function ImportPage() {
                 setError(null)
               }}
               onPaste={(e) => {
+                // Recognised content (code, link, JSON, TSV) opens the preview right away; anything else pastes as usual.
                 const txt = e.clipboardData.getData('text')
-                if (extractCode(txt)) {
+                if (tryText(txt, true)) {
                   e.preventDefault()
                   setInput(txt)
-                  tryCode(txt)
                 }
               }}
               placeholder={t('import.codePlaceholder')}
@@ -177,7 +174,7 @@ export default function ImportPage() {
               rows={4}
               className="w-full rounded-xl border border-border bg-surface p-3 font-mono text-xs placeholder:text-faint focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <Button className="mt-3" onClick={() => tryCode(input)} disabled={!input.trim()}>
+            <Button className="mt-3" onClick={() => tryText(input)} disabled={!input.trim()}>
               {t('import.decode')}
             </Button>
           </Card>
@@ -210,10 +207,27 @@ export default function ImportPage() {
               </div>
             )}
           </Card>
+          <Link
+            to="/import/ai"
+            className="card flex items-center gap-3 p-4 transition hover:-translate-y-0.5 hover:shadow-pop md:col-span-2"
+          >
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-teal text-white">
+              <MessageSquareText size={18} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{t('import.aiLinkTitle')}</span>
+              <span className="block text-xs text-muted">{t('import.aiLinkBody')}</span>
+            </span>
+            <ArrowRight size={18} className="shrink-0 text-muted" />
+          </Link>
         </div>
       )}
 
-      {error && <p className="rounded-xl bg-error-soft px-4 py-3 text-sm text-error">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-xl bg-error-soft px-4 py-3 text-sm text-error">
+          {error}
+        </p>
+      )}
 
       {isBackupFile && (
         <EmptyState

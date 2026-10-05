@@ -1,5 +1,6 @@
 import { deflateSync, inflateSync, strFromU8, strToU8 } from 'fflate'
 import type { Card, SharedSet, StudySet } from './types'
+import { newId } from './id'
 
 function toB64Url(u8: Uint8Array): string {
   let s = ''
@@ -63,9 +64,19 @@ const idPair = (x: unknown): { term?: string; definition?: string } | undefined 
 }
 const MEDIA_MIME = /^(image|audio)\/[a-z0-9.+-]+$/i
 
+/** True when the raw payload carries its own non-empty `set.id` (so it can be used to recognise re-imports). */
+export function hasExplicitSetId(x: unknown): boolean {
+  if (!x || typeof x !== 'object') return false
+  const s = (x as Record<string, unknown>).set
+  if (!s || typeof s !== 'object') return false
+  const id = (s as Record<string, unknown>).id
+  return typeof id === 'string' && id.trim().length > 0
+}
+
 /**
  * Validate and coerce an untrusted SharedSet (from a link, file or peer) into a well-typed one.
  * Unknown fields are dropped, strings are capped, media is limited to image/audio data URLs.
+ * A missing set or card id gets a fresh unique id, so two id-less payloads never collide in the DB.
  */
 export function sanitizeSharedSet(x: unknown): SharedSet {
   if (!x || typeof x !== 'object') throw new Error('Invalid shared set')
@@ -76,7 +87,7 @@ export function sanitizeSharedSet(x: unknown): SharedSet {
   const now = Date.now()
   const num = (v: unknown, d: number) => (typeof v === 'number' && Number.isFinite(v) ? v : d)
   const set: SharedSet['set'] = {
-    id: str(s.id, 64) || 'shared',
+    id: str(s.id, 64).trim() || newId(),
     title: str(s.title, 500),
     description: str(s.description, 5000),
     tags: strList(s.tags) ?? [],
@@ -94,7 +105,7 @@ export function sanitizeSharedSet(x: unknown): SharedSet {
     .map((c, i) => {
       const flag = c.flag
       return {
-        id: str(c.id, 64) || `${set.id}-${i}`,
+        id: str(c.id, 64).trim() || newId(),
         setId: set.id,
         position: i,
         term: str(c.term),
@@ -166,6 +177,16 @@ export function decodeShared(code: string): SharedSet {
 
 export function isShareCode(s: string): boolean {
   return /^[12]\.[A-Za-z0-9_-]+$/.test(s.trim())
+}
+
+/** Find a share code in free text: a bare code, an `#/import?d=` link or an `#/embed/` link. */
+export function extractShareCode(input: string): string | undefined {
+  const s = input.trim()
+  if (!s) return undefined
+  if (isShareCode(s)) return s
+  const m = /[?&]d=([12]\.[A-Za-z0-9_-]+)/.exec(s) || /#\/embed\/([12]\.[A-Za-z0-9_-]+)/.exec(s)
+  if (m) return decodeURIComponent(m[1])
+  return undefined
 }
 
 /** Build a full share URL for the current deployment. */

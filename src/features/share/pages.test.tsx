@@ -10,6 +10,19 @@ import { CalendarMenuItems } from './calendar'
 import EmbedPage from './EmbedPage'
 import PrintPage from './PrintPage'
 import ImportPage from './ImportPage'
+import AiImportPage from './AiImportPage'
+import { parseChatbotOutput } from '@/domain/import-export/parsers'
+
+/** Chatbot-style payload without any ids (the sanitizer must invent them). */
+const AI_JSON = JSON.stringify({
+  format: 'myquizz-set',
+  version: 1,
+  set: { title: 'Cellen', lang: { term: 'nl', definition: 'nl' } },
+  cards: [
+    { term: 'mitochondrium', definition: 'maakt ATP', hint: 'energiecentrale', distractors: ['ribosoom', 'kern', 'golgi'] },
+    { term: 'ribosoom', definition: 'maakt eiwitten' },
+  ],
+})
 
 async function seed() {
   const set = await createSet({ title: 'Dieren', lang: { term: 'nl', definition: 'en' } })
@@ -101,5 +114,56 @@ describe('share pages', () => {
     fireEvent.click(screen.getByRole('button', { name: /bestaande set bijwerken|update existing set/i }))
     await screen.findByText('set page', undefined, { timeout: 4000 })
     expect(await db.sets.count()).toBe(1)
+  })
+
+  it('importing the same id-less JSON twice creates two independent sets', async () => {
+    const importOnce = async () => {
+      const r = render(
+        <MemoryRouter initialEntries={[{ pathname: '/import', state: { parsed: parseChatbotOutput('```json\n' + AI_JSON + '\n```') } }]}>
+          <Routes>
+            <Route path="/import" element={<ImportPage />} />
+            <Route path="/set/:setId" element={<div>set page</div>} />
+          </Routes>
+        </MemoryRouter>,
+      )
+      expect(await screen.findByDisplayValue('Cellen')).toBeInTheDocument()
+      expect(screen.getByText('mitochondrium')).toBeInTheDocument()
+      // no "already have this set" offer: a generated id is not an externalId
+      expect(screen.queryByText(/je hebt deze set al|you already have this set/i)).not.toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: /^importeren$|^import$/i }))
+      await screen.findByText('set page', undefined, { timeout: 4000 })
+      r.unmount()
+    }
+    await importOnce()
+    await importOnce()
+    const sets = await db.sets.toArray()
+    expect(sets).toHaveLength(2)
+    expect(sets.every((s) => s.externalId === undefined)).toBe(true)
+    const [a, b] = await Promise.all(sets.map((s) => getCards(s.id)))
+    expect(a).toHaveLength(2)
+    expect(b).toHaveLength(2)
+    expect(a[0].distractors).toEqual(['ribosoom', 'kern', 'golgi'])
+    expect(new Set([...a, ...b].map((c) => c.id)).size).toBe(4)
+  })
+
+  it('AiImportPage hands the parsed answer to ImportPage', async () => {
+    render(
+      <MemoryRouter initialEntries={['/import/ai']}>
+        <Routes>
+          <Route path="/import/ai" element={<AiImportPage />} />
+          <Route path="/import" element={<ImportPage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('heading', { level: 1, name: /importeren via je eigen ai|import with your own ai/i })).toBeInTheDocument()
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+    const box = screen.getByLabelText(/antwoord van de chatbot|chatbot answer/i)
+    fireEvent.change(box, { target: { value: 'nonsense without separators' } })
+    fireEvent.click(screen.getByRole('button', { name: /import bekijken|preview import/i }))
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    fireEvent.change(box, { target: { value: 'Alsjeblieft:\n```json\n' + AI_JSON + '\n```' } })
+    fireEvent.click(screen.getByRole('button', { name: /import bekijken|preview import/i }))
+    expect(await screen.findByDisplayValue('Cellen')).toBeInTheDocument()
+    expect(screen.getByText('ribosoom')).toBeInTheDocument()
   })
 })

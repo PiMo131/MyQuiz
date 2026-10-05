@@ -34,6 +34,10 @@
         "title": "Generate flashcards",
         "desc": "Paste notes, upload a file or record audio and get an editable set."
       },
+      "chatbotImport": {
+        "title": "Import with your own AI",
+        "desc": "Let ChatGPT, Claude or Gemini write the cards from your PDF or notes, then paste the answer here. No key needed."
+      },
       "studyGuide": {
         "title": "Study guide",
         "desc": "Outline, key terms, summary and practice questions from your material."
@@ -103,7 +107,9 @@
     "createSet": "Create set",
     "addToSet": "Add to set",
     "untitled": "Generated set",
-    "saved": "{{count}} cards saved"
+    "saved": "{{count}} cards saved",
+    "chatbotTipTitle": "No local model or key?",
+    "chatbotTipBody": "Let your own chatbot do it and paste the answer."
   },
   "guide": {
     "title": "Study guide",

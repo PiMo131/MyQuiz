@@ -1,7 +1,7 @@
 /** Pure helpers for the import page: find a share code in pasted text and decode both wire formats. */
 import type { LangPair, SharedSet } from '@/domain/types'
-import { decodeSet, decodeShared, isShareCode } from '@/domain/share-codec'
-import type { ParsedCard } from '@/domain/import-export/parsers'
+import { extractShareCode } from '@/domain/share-codec'
+import { parseShareCode, type ParseResult, type ParsedCard } from '@/domain/import-export/parsers'
 
 export interface Decoded {
   title: string
@@ -15,29 +15,31 @@ export interface Decoded {
 }
 
 export function extractCode(input: string): string | undefined {
-  const s = input.trim()
-  if (!s) return undefined
-  if (isShareCode(s)) return s
-  const m = /[?&]d=([12]\.[A-Za-z0-9_-]+)/.exec(s) || /#\/embed\/([12]\.[A-Za-z0-9_-]+)/.exec(s)
-  if (m) return decodeURIComponent(m[1])
-  return undefined
+  return extractShareCode(input)
+}
+
+/** Shape any parser result for the import preview. `fallbackTitle` is used when the source has no title. */
+export function fromParseResult(r: ParseResult, fallbackTitle = ''): Decoded {
+  return {
+    title: r.title ?? fallbackTitle,
+    description: r.description ?? '',
+    lang: r.lang ?? { term: '', definition: '' },
+    tags: r.tags ?? [],
+    cards: r.cards,
+    externalId: r.externalId,
+    shared: r.shared,
+    sourceLabel: r.source,
+  }
 }
 
 export function decodeCode(code: string): Decoded {
-  if (code.startsWith('2.')) {
-    const shared = decodeShared(code)
-    return {
-      title: shared.set.title,
-      description: shared.set.description,
-      lang: shared.set.lang,
-      tags: shared.set.tags ?? [],
-      cards: shared.cards.map((c) => ({ term: c.term, definition: c.definition, hint: c.hint, cloze: c.cloze ?? undefined, externalId: c.id })),
-      externalId: shared.set.externalId ?? shared.set.id,
-      shared,
-      sourceLabel: 'link',
-    }
-  }
-  const d = decodeSet(code)
-  return { title: d.title, description: d.description, lang: d.lang, tags: [], cards: d.cards, externalId: d.externalId, sourceLabel: 'link' }
+  return fromParseResult(parseShareCode(code))
 }
 
+/** Map an error thrown by `parseChatbotOutput` to its `share` i18n key. */
+export function parseErrorKey(err: unknown): string {
+  const msg = err instanceof Error ? err.message : ''
+  if (msg === 'invalidJson') return 'import.errJson'
+  if (msg === 'badCode') return 'import.errDecode'
+  return 'import.errNoCards'
+}

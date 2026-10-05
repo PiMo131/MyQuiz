@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { deflateSync, strToU8 } from 'fflate'
-import { MAX_DECODED_BYTES, decodeSet, decodeShared, encodeSet, encodeShared, isShareCode, sanitizeSharedSet } from './share-codec'
+import { MAX_DECODED_BYTES, decodeSet, decodeShared, encodeSet, encodeShared, extractShareCode, hasExplicitSetId, isShareCode, sanitizeSharedSet } from './share-codec'
 import type { Card, SharedSet, StudySet } from './types'
 
 const set: StudySet = {
@@ -90,6 +90,32 @@ describe('share-codec hardening', () => {
     expect(shared.cards[1].term).toBe('')
     expect(shared.media?.map((m) => m.id)).toEqual(['m1', 'm4'])
     expect(() => sanitizeSharedSet({ format: 'nope' })).toThrow()
+  })
+
+  it('generates fresh unique ids when set.id / card ids are missing or blank', () => {
+    const payload = { format: 'myquizz-set', version: 1, set: { title: 'AI set' }, cards: [{ term: 'a', definition: 'b' }, { id: '  ', term: 'c', definition: 'd' }, { id: 'keep', term: 'e', definition: 'f' }] }
+    const a = sanitizeSharedSet(payload)
+    const b = sanitizeSharedSet(payload)
+    expect(a.set.id).toBeTruthy()
+    expect(a.set.id).not.toBe('shared')
+    expect(a.set.id).not.toBe(b.set.id)
+    expect(a.set.externalId).toBeUndefined()
+    expect(a.cards.map((c) => c.setId)).toEqual([a.set.id, a.set.id, a.set.id])
+    const ids = [...a.cards, ...b.cards].map((c) => c.id)
+    expect(ids.filter((id) => id === 'keep')).toHaveLength(2)
+    expect(new Set(ids.filter((id) => id !== 'keep')).size).toBe(4)
+    expect(hasExplicitSetId(payload)).toBe(false)
+    expect(hasExplicitSetId({ set: { id: ' ' } })).toBe(false)
+    expect(hasExplicitSetId({ set: { id: 'ai-x-1' } })).toBe(true)
+  })
+
+  it('extractShareCode finds codes in raw text, import links and embed links', () => {
+    const code = encodeSet(set, cards)
+    expect(extractShareCode(code)).toBe(code)
+    expect(extractShareCode(`see https://x.org/MyQuiz/#/import?d=${code} ok`)).toBe(code)
+    expect(extractShareCode(`https://x.org/MyQuiz/#/embed/${code}`)).toBe(code)
+    expect(extractShareCode('{"format":"myquizz-set"}')).toBeUndefined()
+    expect(extractShareCode('')).toBeUndefined()
   })
 
   it('decodeShared round-trips through the sanitizer', () => {

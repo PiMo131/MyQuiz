@@ -7,7 +7,7 @@ import { unzipSync, strFromU8 } from 'fflate'
 import type { LangPair, SharedSet } from '@/domain/types'
 import { isCloze } from '@/domain/cloze'
 import { plainText } from '@/domain/text'
-import { sanitizeSharedSet } from '@/domain/share-codec'
+import { decodeSet, decodeShared, extractShareCode, hasExplicitSetId, sanitizeSharedSet } from '@/domain/share-codec'
 import { htmlToMarkdown, looksLikeHtml } from './markup'
 
 export interface ParsedCard {
@@ -22,7 +22,7 @@ export interface ParsedCard {
   externalId?: string
 }
 
-export type ImportSource = 'paste' | 'csv' | 'anki' | 'quizlet' | 'markdown' | 'myquizz' | 'apkg'
+export type ImportSource = 'paste' | 'csv' | 'anki' | 'quizlet' | 'markdown' | 'myquizz' | 'apkg' | 'link'
 
 export interface ParseResult {
   source: ImportSource
@@ -325,10 +325,11 @@ export function isSharedSet(x: unknown): x is SharedSet {
   return o.format === 'myquizz-set' && Array.isArray(o.cards) && !!o.set && typeof o.set === 'object'
 }
 
-export function parseSharedJson(text: string): ParseResult {
-  const raw: unknown = JSON.parse(text)
-  if (!isSharedSet(raw)) throw new Error('notMyQuizzSet')
-  const data = sanitizeSharedSet(raw)
+/**
+ * ParseResult for a sanitized SharedSet. `set.id` only identifies the set for re-imports when the
+ * payload supplied it; a generated id must never match an existing set.
+ */
+export function sharedToResult(data: SharedSet, source: ImportSource, explicitId: boolean): ParseResult {
   const cards: ParsedCard[] = data.cards.map((c) => ({
     term: c.term,
     definition: c.definition,
@@ -337,16 +338,122 @@ export function parseSharedJson(text: string): ParseResult {
     externalId: c.id,
   }))
   return {
-    source: 'myquizz',
+    source,
     cards,
     title: data.set.title,
     description: data.set.description,
     lang: data.set.lang,
     tags: data.set.tags,
-    externalId: data.set.externalId ?? data.set.id,
+    externalId: data.set.externalId ?? (explicitId ? data.set.id : undefined),
     shared: data,
     warnings: [],
   }
+}
+
+export function parseSharedJson(text: string): ParseResult {
+  const raw: unknown = JSON.parse(text)
+  if (!isSharedSet(raw)) throw new Error('notMyQuizzSet')
+  return sharedToResult(sanitizeSharedSet(raw), 'myquizz', hasExplicitSetId(raw))
+}
+
+// ---------------------------------------------------------------- share codes
+
+/** Decode a `1.`/`2.` share code into a ParseResult (source `link`). */
+export function parseShareCode(code: string): ParseResult {
+  if (code.startsWith('2.')) return sharedToResult(decodeShared(code), 'link', true)
+  const d = decodeSet(code)
+  return { source: 'link', cards: d.cards, title: d.title, description: d.description, lang: d.lang, tags: [], externalId: d.externalId, warnings: [] }
+}
+
+// ---------------------------------------------------------------- chatbot output (fenced JSON, prose, TSV)
+
+/**
+ * Pull the first complete JSON object out of free text: a ```json fence (with or without the tag),
+ * prose before/after, or a bare object. Brace matching respects strings and escapes. Returns null when
+ * there is no balanced object.
+ */
+export function extractJsonObject(text: string): string | null {
+  const src = text.replace(/\r\n?/g, '\n')
+  // Prefer a fenced block that holds an object; otherwise scan the whole text.
+  const fence = /```[a-zA-Z0-9_-]*[ \t]*\n([\s\S]*?)```/g
+  let m: RegExpExecArray | null
+  while ((m = fence.exec(src))) {
+    const inner = m[1]
+    if (inner.indexOf('{') !== -1) {
+      const found = matchObject(inner)
+      if (found) return found
+    }
+  }
+  return matchObject(src)
+}
+
+function matchObject(src: string): string | null {
+  let start = src.indexOf('{')
+  while (start !== -1) {
+    const end = matchingBrace(src, start)
+    if (end !== -1) return src.slice(start, end + 1)
+    start = src.indexOf('{', start + 1)
+  }
+  return null
+}
+
+/** Index of the `}` closing the `{` at `start`, or -1. */
+function matchingBrace(src: string, start: number): number {
+  let depth = 0
+  let inStr = false
+  for (let i = start; i < src.length; i++) {
+    const ch = src[i]
+    if (inStr) {
+      if (ch === '\\') i++
+      else if (ch === '"') inStr = false
+      continue
+    }
+    if (ch === '"') inStr = true
+    else if (ch === '{') depth++
+    else if (ch === '}') {
+      depth--
+      if (depth === 0) return i
+    }
+  }
+  return -1
+}
+
+function hasUsableCards(r: ParseResult): boolean {
+  return r.cards.some((c) => c.term.trim() && (c.definition.trim() || c.cloze))
+}
+
+/**
+ * Parse whatever a chatbot (or a user) pasted: a share code or link, a MyQuizz JSON object (fenced or
+ * surrounded by prose), or the TSV/paste fallback. Throws `invalidJson` when the text is clearly JSON
+ * but not a MyQuizz set, `badCode` for an unreadable share code and `noCards` when nothing usable is found.
+ */
+export function parseChatbotOutput(text: string): ParseResult {
+  const trimmed = text.replace(/^﻿/, '').trim()
+  if (!trimmed) throw new Error('noCards')
+  const code = extractShareCode(trimmed)
+  if (code) {
+    try {
+      return parseShareCode(code)
+    } catch {
+      throw new Error('badCode')
+    }
+  }
+  const json = extractJsonObject(trimmed)
+  if (json) {
+    try {
+      return parseSharedJson(json)
+    } catch {
+      // The whole text is (fenced) JSON but not a MyQuizz set: say so instead of guessing TSV.
+      if (trimmed.startsWith('{') || trimmed.startsWith('```')) throw new Error('invalidJson')
+    }
+  } else if (trimmed.startsWith('{')) {
+    throw new Error('invalidJson')
+  }
+  // TSV / paste fallback; a fenced block without JSON is unwrapped first.
+  const plain = trimmed.replace(/^```[a-zA-Z0-9_-]*[ \t]*\n?/, '').replace(/\n?```\s*$/, '')
+  const res = parseAny(plain)
+  if (!hasUsableCards(res)) throw new Error('noCards')
+  return res
 }
 
 // ---------------------------------------------------------------- autodetect

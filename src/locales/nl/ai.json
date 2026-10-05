@@ -34,6 +34,10 @@
         "title": "Flashcards genereren",
         "desc": "Plak aantekeningen, upload een bestand of neem audio op en krijg een bewerkbare set."
       },
+      "chatbotImport": {
+        "title": "Importeren via je eigen AI",
+        "desc": "Laat ChatGPT, Claude of Gemini de kaarten schrijven uit je pdf of aantekeningen en plak het antwoord hier. Geen key nodig."
+      },
       "studyGuide": {
         "title": "Studiegids",
         "desc": "Overzicht, kernbegrippen, samenvatting en oefenvragen uit je materiaal."
@@ -107,7 +111,9 @@
     "createSet": "Set maken",
     "addToSet": "Toevoegen aan set",
     "untitled": "Gegenereerde set",
-    "saved": "{{count}} kaarten opgeslagen"
+    "saved": "{{count}} kaarten opgeslagen",
+    "chatbotTipTitle": "Geen lokaal model of key?",
+    "chatbotTipBody": "Laat je eigen chatbot het doen en plak het antwoord."
   },
   "guide": {
     "title": "Studiegids",

@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import initSqlJs from 'sql.js'
 import { zipSync, strToU8 } from 'fflate'
+import { encodeSet } from '@/domain/share-codec'
+import type { Card, StudySet } from '@/domain/types'
 import {
   DEFAULT_PASTE_OPTIONS,
   detectSeparators,
+  extractJsonObject,
   parseAnkiHeaders,
   parseAnkiTxt,
   parseAny,
   parseApkg,
+  parseChatbotOutput,
   parseCsv,
   parseMarkdown,
   parsePaste,
@@ -151,12 +155,89 @@ describe('parseSharedJson / parseAny', () => {
   it('rejects other JSON', () => {
     expect(() => parseSharedJson('{"a":1}')).toThrow()
   })
+  it('does not use a generated set id as externalId', () => {
+    const res = parseSharedJson(JSON.stringify({ format: 'myquizz-set', version: 1, set: { title: 'T' }, cards: [{ term: 'a', definition: 'b' }] }))
+    expect(res.externalId).toBeUndefined()
+    expect(res.shared?.set.id).toBeTruthy()
+    expect(res.cards[0].externalId).toBe(res.shared?.cards[0].id)
+  })
   it('parseAny routes by content', () => {
     expect(parseAny(JSON.stringify(shared)).source).toBe('myquizz')
     expect(parseAny('#separator:tab\n#html:false\na\tb').source).toBe('anki')
     expect(parseAny('- a: b\n- c: d').source).toBe('markdown')
     expect(parseAny('a\tb', 'x.csv').source).toBe('csv')
     expect(parseAny('a\tb\nc\td').source).toBe('paste')
+  })
+})
+
+describe('extractJsonObject / parseChatbotOutput', () => {
+  const aiJson = JSON.stringify(
+    {
+      format: 'myquizz-set',
+      version: 1,
+      set: { id: 'ai-cells-20261005-1200', title: 'Cells', description: 'From "notes.pdf"', tags: ['bio'], lang: { term: 'en', definition: 'en' }, cardTypes: ['basic'], author: 'AI (Claude)' },
+      cards: [
+        { id: 'ai-cells-20261005-1200-001', term: 'Mitochondrion', definition: 'Organelle that produces ATP {via} respiration', hint: 'Powerhouse', distractors: ['Ribosome', 'Nucleus', 'Golgi'] },
+        { id: 'ai-cells-20261005-1200-002', term: 'Ribosome', definition: 'Builds proteins: "translation"', cloze: 'A {{c1::ribosome}} builds proteins.' },
+      ],
+    },
+    null,
+    2,
+  )
+
+  it('extracts the object from fences, prose and bare text', () => {
+    expect(extractJsonObject('```json\n' + aiJson + '\n```')).toBe(aiJson)
+    expect(extractJsonObject('```\n' + aiJson + '\n```')).toBe(aiJson)
+    expect(extractJsonObject('Here is your set {with hints}:\n\n```json\n' + aiJson + '\n```\n\nLet me know if you want more cards!')).toBe(aiJson)
+    expect(extractJsonObject('Sure! ' + aiJson + ' Hope this helps.')).toBe(aiJson)
+    expect(extractJsonObject('no braces here')).toBeNull()
+    expect(extractJsonObject('{ "unbalanced": "x" ')).toBeNull()
+    expect(extractJsonObject('{"a":"}"}')).toBe('{"a":"}"}')
+    expect(extractJsonObject('{"a":"\\"}"}')).toBe('{"a":"\\"}"}')
+  })
+
+  it('parses fenced MyQuizz JSON with extras', () => {
+    const res = parseChatbotOutput('Here you go:\n```json\n' + aiJson + '\n```\nEnjoy!')
+    expect(res.source).toBe('myquizz')
+    expect(res.title).toBe('Cells')
+    expect(res.externalId).toBe('ai-cells-20261005-1200')
+    expect(res.cards).toHaveLength(2)
+    expect(res.cards[0]).toMatchObject({ term: 'Mitochondrion', hint: 'Powerhouse' })
+    expect(res.cards[1].cloze).toBe('A {{c1::ribosome}} builds proteins.')
+    expect(res.shared?.cards[0].distractors).toEqual(['Ribosome', 'Nucleus', 'Golgi'])
+  })
+
+  it('parses JSON without any ids and gives it no externalId', () => {
+    const res = parseChatbotOutput('{"format":"myquizz-set","version":1,"set":{"title":"X"},"cards":[{"term":"a","definition":"b"}]}')
+    expect(res.cards).toHaveLength(1)
+    expect(res.externalId).toBeUndefined()
+  })
+
+  it('falls back to TSV / paste, also inside a plain fence', () => {
+    const res = parseChatbotOutput('hond\tdog\tblaft\nkat\tcat')
+    expect(res.source).toBe('paste')
+    expect(res.cards.map((c) => c.term)).toEqual(['hond', 'kat'])
+    expect(parseChatbotOutput('```\nhond\tdog\nkat\tcat\n```').cards).toHaveLength(2)
+    expect(parseChatbotOutput('hond - dog\nkat - cat').cards[1]).toEqual({ term: 'kat', definition: 'cat' })
+  })
+
+  it('accepts share codes and links', () => {
+    const set: StudySet = { id: 'abc', title: 'Dieren', description: '', tags: [], lang: { term: 'nl', definition: 'en' }, cardTypes: ['basic'], visibility: 'private', createdAt: 1, updatedAt: 1 }
+    const cards: Card[] = [{ id: '1', setId: 'abc', position: 0, term: 'hond', definition: 'dog', starred: false, suspended: false, createdAt: 1, updatedAt: 1 }]
+    const code = encodeSet(set, cards)
+    const res = parseChatbotOutput(`https://x.org/MyQuiz/#/import?d=${code}`)
+    expect(res.source).toBe('link')
+    expect(res.title).toBe('Dieren')
+    expect(res.externalId).toBe('abc')
+    expect(() => parseChatbotOutput('1.notacode')).toThrow('badCode')
+  })
+
+  it('throws clear error keys', () => {
+    expect(() => parseChatbotOutput('{"foo": 1}')).toThrow('invalidJson')
+    expect(() => parseChatbotOutput('```json\n{"format":"other"}\n```')).toThrow('invalidJson')
+    expect(() => parseChatbotOutput('{"broken": ')).toThrow('invalidJson')
+    expect(() => parseChatbotOutput('')).toThrow('noCards')
+    expect(() => parseChatbotOutput('just a sentence with no separators')).toThrow('noCards')
   })
 })
 

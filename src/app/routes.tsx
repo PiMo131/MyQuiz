@@ -26,6 +26,7 @@ export const routes: AppRoute[] = [
   { path: '/create', component: page(() => import('@/features/editor/EditorPage')) },
   { path: '/set/:setId/edit', component: page(() => import('@/features/editor/EditorPage')) },
   { path: '/import', component: page(() => import('@/features/share/ImportPage')) },
+  { path: '/import/ai', component: page(() => import('@/features/share/AiImportPage')) },
   { path: '/embed/:code', component: page(() => import('@/features/share/EmbedPage')), shell: false },
   // Set page (feature B owns it, it links to everything)
   { path: '/set/:setId', component: page(() => import('@/features/study/SetPage')) },

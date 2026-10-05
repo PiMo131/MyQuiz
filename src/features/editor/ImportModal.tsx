@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeftRight, FileUp, Upload } from 'lucide-react'
 import { Badge, Button, Input, Modal, Tabs, cn, toast } from '@/ui'
 import type { LangPair } from '@/domain/types'
-import { DEFAULT_PASTE_OPTIONS, detectSeparators, parsePaste, type ParseResult, type ParsedCard, type PasteOptions } from '@/domain/import-export/parsers'
+import { DEFAULT_PASTE_OPTIONS, detectSeparators, parseChatbotOutput, parsePaste, type ParseResult, type ParsedCard, type PasteOptions } from '@/domain/import-export/parsers'
 import { parseImportFile } from '@/domain/import-export/parse-file'
 
 export interface ImportedCard {
@@ -64,7 +64,19 @@ function ImportModalBody({ onClose, onImport }: ImportModalProps) {
     setOpts((o) => ({ ...o, ...patch }))
   }
 
-  const parsed = useMemo(() => (tab === 'paste' ? parsePaste(text, opts) : (fileResult?.cards ?? [])), [tab, text, opts, fileResult])
+  const parsed = useMemo(() => {
+    if (tab !== 'paste') return fileResult?.cards ?? []
+    const head = text.trimStart()
+    // MyQuizz JSON pasted straight from a chatbot (with or without ``` fences) is parsed as a set, not as rows.
+    if (head.startsWith('{') || head.startsWith('```')) {
+      try {
+        return parseChatbotOutput(text).cards
+      } catch {
+        return []
+      }
+    }
+    return parsePaste(text, opts)
+  }, [tab, text, opts, fileResult])
   const preview = edited ?? parsed
 
   const updateRow = (i: number, patch: Partial<ParsedCard>) => {

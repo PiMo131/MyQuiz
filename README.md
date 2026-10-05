@@ -43,6 +43,17 @@
 - Eigen API-key (Gemini, Groq, OpenRouter, OpenAI, Anthropic) als upgrade; blijft in je browser
 - Kaarten genereren uit tekst of PDF, studiegids, oefentoets, AI-tutor ("probeer me te verrassen"), luistermodus (set als "podcast" voorgelezen)
 
+**Kaarten maken met je eigen AI (zonder key)**
+
+Heb je al een abonnement op ChatGPT, Claude, Gemini of Copilot? Laat die chatbot dan de kaarten schrijven; MyQuizz importeert het antwoord. Open in de app **AI → Importeren via je eigen AI** (`#/import/ai`):
+
+1. Kies je AI en verzamel je bronnen (pdf, screenshots, link, aantekeningen).
+2. Klik **Prompt kopiëren** (of download de `.md`). De prompt beschrijft precies het MyQuizz-formaat, inclusief hints, ezelsbruggetjes, alternatieve antwoorden, meerkeuze-afleiders en cloze.
+3. Upload je bronnen in de chatbot, plak de prompt eronder en verstuur.
+4. Plak het antwoord (het hele ```json-blok mag, tab-gescheiden regels ook) terug in MyQuizz, bekijk het voorbeeld en importeer.
+
+De promptbestanden staan in [`public/ai/myquizz-import-skill.md`](public/ai/myquizz-import-skill.md) (Engels) en [`public/ai/myquizz-import-skill.nl.md`](public/ai/myquizz-import-skill.nl.md) (Nederlands); [`skills/myquizz-import/SKILL.md`](skills/myquizz-import/SKILL.md) is dezelfde instructie als installeerbare skill voor agents.
+
 **Overig**
 - Bibliotheek met mappen, zoeken, prestaties met badges en streak-kalender, statistieken met heatmap, meldingen
 - Nederlands en Engels, licht en donker thema, toetsenbordbediening, installeerbaar, offline
@@ -75,6 +86,8 @@ React 19 · TypeScript · Vite 8 · Tailwind CSS v4 · Dexie (IndexedDB) · ts-f
 **MyQuizz is a free quiz and flashcard app that runs entirely in your browser.** No account, no server, no cost. Everything is stored locally, you can export, import and share sets with colleagues, and the app installs as a PWA and works offline.
 
 Highlights: full set editor with images, cloze and image occlusion; import from paste, CSV/TSV, Anki (`.txt`/`.apkg`), Quizlet and JSON; export to six formats and encrypted ZIP backups; sharing via link, QR, file, embed and calendar; Flashcards, FSRS spaced repetition, Learn, Write, Spell and Test modes; seven games (Match, Blocks, Blast, Charms, Hangman, Word Search, Speed Review); serverless peer-to-peer live games with room codes; layered free AI (heuristics always, local WebLLM model after consent, Chrome built-in AI, or your own API key) for card generation, explanations, tutor, study guides, practice tests and a listen mode; achievements, streaks and statistics; Dutch and English; light and dark.
+
+**Make cards with your own AI (no key):** open **AI → Import with your own AI** (`#/import/ai`), copy the prompt, upload your sources (PDF, screenshots, link, notes) to ChatGPT, Claude, Gemini or Copilot together with the prompt, and paste the answer back (the whole ```json block or TSV lines). Prompt files: [`public/ai/myquizz-import-skill.md`](public/ai/myquizz-import-skill.md), [`public/ai/myquizz-import-skill.nl.md`](public/ai/myquizz-import-skill.nl.md) and the agent skill [`skills/myquizz-import/SKILL.md`](skills/myquizz-import/SKILL.md).
 
 Deploy: push to `main`; once, set **Settings → Pages → Source: GitHub Actions** in the repository.
 
