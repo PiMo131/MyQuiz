@@ -16,6 +16,7 @@ import { AnswerDiff } from '../shared/AnswerDiff'
 import { usePref } from '../shared/usePref'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import { StatBars } from '../write/StatBars'
 import { answerWrite, createWrite, nextWrite, remaining, type WriteState } from '../write/engine'
 
@@ -120,7 +121,8 @@ export default function SpellPage() {
       dbSession.current = null
       void finishSession(s, { answers: answers.current, total: state.total, score: answers.current.length ? answers.current.filter((a) => a.correct).length / answers.current.length : undefined })
     }
-  }, [done, state, settings.sounds])
+    void endStudy(setId)
+  }, [done, state, settings.sounds, setId])
 
   const retypeOk = q ? gradeAnswer(retyped, q.accepted, { strictness: 'strict' }).correct : false
 

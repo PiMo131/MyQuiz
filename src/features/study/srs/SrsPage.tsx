@@ -17,6 +17,7 @@ import { useKeys } from '../shared/useKeys'
 import { usePref } from '../shared/usePref'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import { relativeTime } from '../shared/format'
 import { afterRating, buildPlan, createSession, faces, stateLabel, type SrsSession } from './session'
 
@@ -89,7 +90,8 @@ export default function SrsPage() {
       dbSession.current = null
       void finishSession(s, { total: session.total, score: session.total ? (session.counts[3] + session.counts[4]) / session.total : undefined })
     }
-  }, [done, session, settings.sounds])
+    void endStudy(setId)
+  }, [done, session, settings.sounds, setId])
 
   useEffect(() => {
     if (!tts || !face || planOpen) return

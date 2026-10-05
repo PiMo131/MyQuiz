@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   ArrowRight, Bookmark, ChevronLeft, ChevronRight, ChevronUp, Code2, Copy, Eye, EyeOff, Headphones, Lightbulb, Maximize2, MoreHorizontal, Pause, Pencil, Play, Printer, Radio, RotateCcw, Settings, Share2, Shuffle, Sparkles, Star, Trash2, Upload, Users,
@@ -15,6 +15,7 @@ import { Badge, Button, Card as UiCard, Dropdown, EmptyState, Modal, Select, Tog
 import { ShareModal, ExportSetDialog, AddToCalendarButton } from '@/features/share'
 import { SaveToFolderModal } from '@/features/library'
 import { AskAiPanel } from '@/features/ai'
+import { LiveLobbyButton } from '@/features/live'
 import { speak } from '@/features/tts'
 import { useSetData } from './shared/useSetData'
 import { FlipCard } from './shared/FlipCard'
@@ -45,7 +46,12 @@ export default function SetPage() {
   const settings = useSettings((s) => s.settings)
   const { set, cards, progress, loading, missing } = useSetData(setId)
 
-  const [share, setShare] = useState(false)
+  const [params, setParams] = useSearchParams()
+  const [share, setShareState] = useState(params.get('share') === '1')
+  const setShare = (v: boolean) => {
+    setShareState(v)
+    if (!v && params.has('share')) setParams((p) => { p.delete('share'); return p }, { replace: true })
+  }
   const [exportOpen, setExportOpen] = useState(false)
   const [folderOpen, setFolderOpen] = useState(false)
   const [confirm, setConfirm] = useState<'delete' | 'reset' | null>(null)
@@ -153,9 +159,12 @@ export default function SetPage() {
         <Link to={`/live/host/${setId}?mode=study`} className="card flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-surface-2">
           <Users size={18} className="text-primary" /> {t('set.studyWithFriends')} <Badge tone="secondary">{t('common:common.new')}</Badge>
         </Link>
-        <Link to={`/live/host/${setId}`} className="card flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-surface-2">
-          <Radio size={18} className="text-primary" /> {t('set.playLive')}
-        </Link>
+        <div className="card flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold">
+          <Link to={`/live/host/${setId}`} className="flex items-center gap-2 rounded-full px-3 py-1 hover:bg-surface-2">
+            <Radio size={18} className="text-primary" /> {t('set.playLive')}
+          </Link>
+          <LiveLobbyButton setId={setId} />
+        </div>
       </div>
 
       {/* Mode tiles */}

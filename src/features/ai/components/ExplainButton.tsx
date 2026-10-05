@@ -29,7 +29,7 @@ export function ExplainButton({
   const { t, i18n } = useTranslation('ai')
   const [open, setOpen] = useState(!!autoOpen)
   const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(!!autoOpen)
   const [provider, setProvider] = useState<ActiveProviderKind>('heuristics')
   const [vote, setVote] = useState<'up' | 'down' | null>(null)
   const abort = useRef<AbortController | null>(null)
@@ -38,7 +38,6 @@ export function ExplainButton({
     if (!open) return
     const ctl = new AbortController()
     abort.current = ctl
-    setLoading(true)
     void (async () => {
       const it = explainAnswerStream({
         card,
@@ -71,7 +70,12 @@ export function ExplainButton({
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setText('')
+          setVote(null)
+          setLoading(true)
+          setOpen(true)
+        }}
         className={cn(
           'inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft',
           className,

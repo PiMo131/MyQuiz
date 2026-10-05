@@ -20,6 +20,7 @@ import { useAnyKey, useKeys } from '../shared/useKeys'
 import { usePref } from '../shared/usePref'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import {
   DEFAULT_LEARN_CONFIG, answerCurrent, createLearn, learnProgress, masteredCount, nextQuestion, reconfigure, roundFinished,
   type LearnConfig, type LearnGoal, type LearnQuestionType, type LearnState,
@@ -131,7 +132,8 @@ export default function LearnPage() {
       const total = answers.current.length
       void finishSession(s, { answers: answers.current, total, score: total ? answers.current.filter((a) => a.correct).length / total : undefined })
     }
-  }, [phase, state, config.sounds])
+    void endStudy(setId)
+  }, [phase, state, config.sounds, setId])
 
   // TTS prompt
   useEffect(() => {

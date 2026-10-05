@@ -18,6 +18,7 @@ import { usePref } from '../shared/usePref'
 import { letterHint } from '../shared/format'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import { continueLearning, createSort, finished, mark, undo, type SortState } from './engine'
 
 type Sorting = 'browse' | 'sort' | 'srs'
@@ -151,7 +152,8 @@ export default function FlashcardsPage() {
       sessionRef.current = null
       void finishSession(s, { score: sort.known.length / Math.max(1, sort.order.length), total: sort.order.length })
     }
-  }, [isDone, settings.sounds, sort.known.length, sort.learning.length, sort.order.length])
+    void endStudy(setId)
+  }, [setId, isDone, settings.sounds, sort.known.length, sort.learning.length, sort.order.length])
 
   useKeys(
     {

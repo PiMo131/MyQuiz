@@ -28,6 +28,7 @@ import { AnswerDiff } from '../shared/AnswerDiff'
 import { usePref } from '../shared/usePref'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import { DEFAULT_TEST_SETUP, answeredCount, cardOutcomes, createTest, redemption, respond, score, submit, totalQuestions, wrongCardIds, type TestSetup, type TestState } from './engine'
 
 const SECTION_TYPES: QuestionType[] = ['trueFalse', 'multipleChoice', 'matching', 'written']
@@ -83,6 +84,7 @@ export default function TestPage() {
       dbSession.current = null
       void finishSession(s, { answers, total: sc.total, score: sc.total ? sc.correct / sc.total : undefined })
     }
+    void endStudy(setId)
   }
 
   const jump = (id: string) => {

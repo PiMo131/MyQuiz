@@ -17,6 +17,7 @@ import { useAnyKey } from '../shared/useKeys'
 import { usePref } from '../shared/usePref'
 import { sfx } from '../shared/sounds'
 import { celebrate } from '../shared/confetti'
+import { endStudy } from '../shared/session-end'
 import { StatBars } from './StatBars'
 import { answerWrite, createWrite, nextWrite, overrideCorrect, remaining, type WriteState } from './engine'
 
@@ -111,7 +112,8 @@ export default function WritePage() {
       dbSession.current = null
       void finishSession(s, { answers: answers.current, total: state.total, score: answers.current.length ? answers.current.filter((a) => a.correct).length / answers.current.length : undefined })
     }
-  }, [done, state, settings.sounds])
+    void endStudy(setId)
+  }, [done, state, settings.sounds, setId])
 
   const needsRetype = !!feedback && !feedback.correct && opts.retype
   const retypeOk = needsRetype && q ? gradeAnswer(retyped, q.accepted, { strictness: 'moderate' }).correct : true
