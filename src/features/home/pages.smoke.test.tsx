@@ -1,4 +1,11 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+
+vi.hoisted(() => {
+  const mm = (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, onchange: null, dispatchEvent: () => false })
+  Object.defineProperty(globalThis, 'matchMedia', { value: mm, writable: true })
+  class IO { observe() {} unobserve() {} disconnect() {} }
+  Object.defineProperty(globalThis, 'IntersectionObserver', { value: IO, writable: true })
+})
 import { Suspense, type ComponentType } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
@@ -7,9 +14,6 @@ import { db } from '@/db/db'
 import { addCards, createFolder, createSet, recordOutcome } from '@/db/repo'
 import { useSettings } from '@/app/settings-store'
 
-vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, onchange: null, dispatchEvent: () => false }))
-class IO { observe() {} unobserve() {} disconnect() {} }
-vi.stubGlobal('IntersectionObserver', IO)
 
 async function mount(path: string, Page: ComponentType, route = path) {
   render(
