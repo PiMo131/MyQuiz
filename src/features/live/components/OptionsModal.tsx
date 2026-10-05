@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Users } from 'lucide-react'
 import type { LiveConfig, MascotTheme } from '@/domain/live/protocol'
@@ -8,13 +8,24 @@ import { Button, Label, Modal, Select, Toggle, cn } from '@/ui'
 const MASCOTS: MascotTheme[] = ['animals', 'food', 'space']
 const SIDES: Side[] = ['term', 'definition']
 
-export function OptionsModal({ open, onClose, config, onSave, soundOn, onToggleSound }: { open: boolean; onClose: () => void; config: LiveConfig; onSave: (c: Partial<LiveConfig>) => void; soundOn: boolean; onToggleSound: () => void }) {
+export interface OptionsModalProps {
+  open: boolean
+  onClose: () => void
+  config: LiveConfig
+  onSave: (c: Partial<LiveConfig>) => void
+  soundOn: boolean
+  onToggleSound: () => void
+}
+
+/** The form mounts fresh every time the modal opens, so the draft always starts from the live config. */
+export function OptionsModal(props: OptionsModalProps) {
+  return props.open ? <OptionsForm {...props} /> : null
+}
+
+function OptionsForm({ open, onClose, config, onSave, soundOn, onToggleSound }: OptionsModalProps) {
   const { t } = useTranslation('live')
   const { t: tc } = useTranslation()
   const [draft, setDraft] = useState<LiveConfig>(config)
-  useEffect(() => {
-    if (open) setDraft(config)
-  }, [open, config])
   const set = <K extends keyof LiveConfig>(k: K, v: LiveConfig[K]) => setDraft((d) => ({ ...d, [k]: v }))
 
   const row = (label: string, hint: string | undefined, control: React.ReactNode) => (

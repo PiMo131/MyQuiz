@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSettings } from '@/app/settings-store'
 import { playCue, type Cue } from '../sounds'
 import { loadSoundPref, saveSoundPref } from '../storage'
@@ -7,9 +7,6 @@ import { loadSoundPref, saveSoundPref } from '../storage'
 export function useSound() {
   const global = useSettings((s) => s.settings.sounds)
   const [on, setOn] = useState<boolean>(() => loadSoundPref() ?? global)
-  useEffect(() => {
-    if (loadSoundPref() === null) setOn(global)
-  }, [global])
   const toggle = useCallback(() => {
     setOn((v) => {
       saveSoundPref(!v)

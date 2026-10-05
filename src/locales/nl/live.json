@@ -21,10 +21,22 @@
     "modesTitle": "Speltypes"
   },
   "modes": {
-    "classic": { "name": "Classic Live", "desc": "Race: beantwoord als eerste {{count}} vragen achter elkaar goed. Een fout antwoord zet je terug naar het begin." },
-    "match": { "name": "Multiplayer Match", "desc": "Iedereen krijgt hetzelfde bord met tegels. Koppel termen en definities zo snel mogelijk." },
-    "blast": { "name": "Blast live", "desc": "Beantwoord zoveel mogelijk vragen in {{seconds}} seconden. Snelheid levert extra punten op." },
-    "study": { "name": "Studeren met vrienden", "desc": "Iedereen beantwoordt samen dezelfde vragen. Daarna zie je welke termen de groep het vaakst miste." }
+    "classic": {
+      "name": "Classic Live",
+      "desc": "Race: beantwoord als eerste {{count}} vragen achter elkaar goed. Een fout antwoord zet je terug naar het begin."
+    },
+    "match": {
+      "name": "Multiplayer Match",
+      "desc": "Iedereen krijgt hetzelfde bord met tegels. Koppel termen en definities zo snel mogelijk."
+    },
+    "blast": {
+      "name": "Blast live",
+      "desc": "Beantwoord zoveel mogelijk vragen in {{seconds}} seconden. Snelheid levert extra punten op."
+    },
+    "study": {
+      "name": "Studeren met vrienden",
+      "desc": "Iedereen beantwoordt samen dezelfde vragen. Daarna zie je welke termen de groep het vaakst miste."
+    }
   },
   "host": {
     "chooseType": "Kies je speltype",
@@ -33,7 +45,6 @@
     "notFound": "Deze set is niet gevonden.",
     "tooFewCards": "Deze set heeft minstens {{count}} kaarten nodig om live te spelen.",
     "lobbyTitle": "Doe mee via",
-    "joinAt": "Doe mee via {{url}}",
     "code": "Roomcode",
     "showCode": "Code tonen",
     "hideCode": "Code verbergen",
@@ -50,9 +61,7 @@
     "playAlong": "Host speelt mee",
     "playAlongHint": "Beantwoord de vragen ook op dit scherm.",
     "connecting": "Verbinden met signalling-relays…",
-    "relayOk": "Relays verbonden",
     "relayDown": "Geen relay bereikbaar. Spelers vinden deze room mogelijk niet.",
-    "switchRelays": "Andere relays proberen",
     "end": "Spel beëindigen",
     "endConfirm": "Het spel nu beëindigen?",
     "next": "Volgende vraag",
@@ -67,7 +76,6 @@
     "finished": "Klaar",
     "pairs": "{{matched}}/{{total}} paren",
     "waitingAnswers": "Wachten op antwoorden…",
-    "noPlayersLeft": "Alle spelers zijn vertrokken.",
     "countdown": "Klaar voor de start!",
     "yourTurn": "Jouw antwoord"
   },
@@ -78,7 +86,11 @@
     "teamCount": "Aantal teams",
     "mascot": "Mascottethema",
     "mascotHint": "Hoe teams heten en eruitzien",
-    "mascots": { "animals": "Dieren", "food": "Eten", "space": "Ruimte" },
+    "mascots": {
+      "animals": "Dieren",
+      "food": "Eten",
+      "space": "Ruimte"
+    },
     "fast": "Snelle modus",
     "fastHint": "Je behoudt je voortgang, ook na een fout antwoord",
     "promptWith": "Vraag met",
@@ -115,8 +127,7 @@
     "yourMissed": "Termen die je miste",
     "saveSet": "Deze set opslaan in mijn bibliotheek",
     "home": "Terug naar home",
-    "points": "ptn",
-    "team": "Team"
+    "points": "ptn"
   },
   "join": {
     "title": "Meedoen met een spel",
@@ -134,17 +145,13 @@
     "timeoutTitle": "Kan de host niet bereiken",
     "timeoutBody": "De room bestaat misschien niet, of dit netwerk blokkeert directe verbindingen. Controleer de code, probeer andere relays, of vraag de host om de set te delen.",
     "retry": "Opnieuw proberen",
-    "otherRelays": "Andere relays proberen",
     "shareInstead": "Vraag de host om de set te delen: op de setpagina kan die een link kopiëren die je op je eigen apparaat opent.",
     "endedHostLeft": "De host heeft het spel beëindigd.",
     "endedKicked": "Je bent uit het spel verwijderd.",
     "endedFull": "Deze room zit vol.",
     "endedVersion": "De host gebruikt een andere versie van MyQuizz.",
     "leave": "Verlaten",
-    "noWebRtc": "Deze browser ondersteunt geen WebRTC. Probeer een recente Chrome, Edge, Firefox of Safari.",
-    "connected": "Verbonden",
-    "reconnecting": "Opnieuw verbinden…",
-    "yourTeam": "Jouw team"
+    "noWebRtc": "Deze browser ondersteunt geen WebRTC. Probeer een recente Chrome, Edge, Firefox of Safari."
   },
   "play": {
     "correct": "Goed!",
@@ -158,8 +165,6 @@
     "waitOthers": "Wachten op de anderen…",
     "timeUp": "Tijd is om",
     "progress": "{{current}}/{{target}} op rij",
-    "score": "Score",
-    "rank": "Plaats",
     "powerDouble": "Dubbele punten",
     "powerDoubleHint": "Verdubbelt je volgende goede antwoord",
     "powerSaver": "Reeksredder",
@@ -171,11 +176,23 @@
     "matchTime": "Jouw tijd: {{time}}",
     "matchHint": "Tik op een term en de bijbehorende definitie",
     "finishedWaiting": "Je bent klaar! Wachten op de anderen…",
-    "keyboardHint": "Toetsen 1–4 antwoorden",
-    "yourAnswer": "Jouw antwoord",
-    "startsIn": "Start over {{count}}"
+    "keyboardHint": "Toetsen 1–4 antwoorden"
   },
-  "status": { "connected": "Verbonden", "connecting": "Verbinden", "offline": "Niet verbonden", "peers_one": "{{count}} apparaat", "peers_other": "{{count}} apparaten" },
-  "relays": { "nostr": "Standaardrelays", "nostr-alt": "Alternatieve relays", "custom": "Eigen relays", "customPlaceholder": "wss://relay.voorbeeld.nl, één per regel", "label": "Signalling" },
-  "button": { "live": "Live", "hostThisSet": "Een live spel hosten" }
+  "status": {
+    "connected": "Verbonden",
+    "connecting": "Verbinden",
+    "offline": "Niet verbonden",
+    "peers_one": "{{count}} apparaat",
+    "peers_other": "{{count}} apparaten"
+  },
+  "relays": {
+    "nostr": "Standaardrelays",
+    "nostr-alt": "Alternatieve relays",
+    "custom": "Eigen relays",
+    "customPlaceholder": "wss://relay.voorbeeld.nl, één per regel",
+    "label": "Signalling"
+  },
+  "button": {
+    "hostThisSet": "Een live spel hosten"
+  }
 }

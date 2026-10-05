@@ -30,26 +30,33 @@ export interface UseLiveRoom {
   webRtcSupported: boolean
 }
 
+interface RoomInfo {
+  key: string
+  status: Exclude<RoomStatus, 'idle' | 'opening'>
+  error: string | null
+  selfId: string | null
+  peers: string[]
+  relayOpen: boolean
+}
+
 export function useLiveRoom({ code, onMessage, onPeerJoin, onPeerLeave }: UseLiveRoomOptions): UseLiveRoom {
-  const [status, setStatus] = useState<RoomStatus>('idle')
-  const [error, setError] = useState<string | null>(null)
-  const [peers, setPeers] = useState<string[]>([])
-  const [selfId, setSelfId] = useState<string | null>(null)
-  const [relayOpen, setRelayOpen] = useState(false)
   const [strategy, setStrategyState] = useState<LiveStrategy>(() => loadStrategy())
   const [attempt, setAttempt] = useState(0)
+  const [info, setInfo] = useState<RoomInfo | null>(null)
   const roomRef = useRef<LiveRoom | null>(null)
   const handlers = useRef({ onMessage, onPeerJoin, onPeerLeave })
-  handlers.current = { onMessage, onPeerJoin, onPeerLeave }
+  useEffect(() => {
+    handlers.current = { onMessage, onPeerJoin, onPeerLeave }
+  })
+
+  const key = code ? `${code}|${strategy}|${attempt}` : null
 
   useEffect(() => {
-    if (!code) return
+    if (!key || !code) return
     let cancelled = false
     let room: LiveRoom | null = null
     let poll: ReturnType<typeof setInterval> | undefined
-    setStatus('opening')
-    setError(null)
-    setPeers([])
+    const patch = (p: Partial<RoomInfo>) => setInfo((prev) => ({ key, status: 'open', error: null, selfId: null, peers: [], relayOpen: false, ...(prev?.key === key ? prev : {}), ...p }))
     void openRoom(code, { strategy, customRelays: loadCustomRelays() })
       .then((r) => {
         if (cancelled) {
@@ -58,34 +65,29 @@ export function useLiveRoom({ code, onMessage, onPeerJoin, onPeerLeave }: UseLiv
         }
         room = r
         roomRef.current = r
-        setSelfId(r.selfId)
-        setStatus('open')
-        const refresh = () => setPeers(r.peers())
+        patch({ status: 'open', selfId: r.selfId, peers: r.peers() })
         r.onMessage((m, p) => handlers.current.onMessage?.(m, p))
         r.onPeerJoin((p) => {
-          refresh()
+          patch({ peers: r.peers() })
           handlers.current.onPeerJoin?.(p)
         })
         r.onPeerLeave((p) => {
-          refresh()
+          patch({ peers: r.peers() })
           handlers.current.onPeerLeave?.(p)
         })
-        poll = setInterval(() => setRelayOpen(r.relayState() === 'open'), 1000)
+        poll = setInterval(() => patch({ relayOpen: r.relayState() === 'open' }), 1000)
       })
       .catch((e: unknown) => {
         if (cancelled) return
-        setStatus('error')
-        setError(e instanceof Error ? e.message : String(e))
+        patch({ status: 'error', error: e instanceof Error ? e.message : String(e) })
       })
     return () => {
       cancelled = true
       if (poll) clearInterval(poll)
       roomRef.current = null
       if (room) void room.leave()
-      setStatus('closed')
-      setRelayOpen(false)
     }
-  }, [code, strategy, attempt])
+  }, [key, code, strategy])
 
   const send = useCallback(async (msg: unknown, target?: string | string[]) => {
     const r = roomRef.current
@@ -104,5 +106,19 @@ export function useLiveRoom({ code, onMessage, onPeerJoin, onPeerLeave }: UseLiv
 
   const reconnect = useCallback(() => setAttempt((a) => a + 1), [])
 
-  return { status, error, peers, selfId, relayOpen, strategy, setStrategy, send, reconnect, webRtcSupported: supportsWebRtc() }
+  const current = info && info.key === key ? info : null
+  const status: RoomStatus = !key ? 'idle' : current ? current.status : 'opening'
+
+  return {
+    status,
+    error: current?.error ?? null,
+    peers: current?.peers ?? [],
+    selfId: current?.selfId ?? null,
+    relayOpen: current?.relayOpen ?? false,
+    strategy,
+    setStrategy,
+    send,
+    reconnect,
+    webRtcSupported: supportsWebRtc(),
+  }
 }

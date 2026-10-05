@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router'
 import { RotateCcw } from 'lucide-react'
 import { finishSession, logReview, saveProgress, startSession, updateCard } from '@/db/repo'
 import type { Progress, Rating, Session } from '@/domain/types'
-import { RATING_LABEL_KEYS, RATINGS, applyRating, confidenceToRating, formatInterval, makeScheduler, previewRatings } from '@/domain/srs'
+import { RATING_LABEL_KEYS, RATINGS, applyRating, confidenceToRating, makeScheduler, previewRatings } from '@/domain/srs'
 import { useSettings } from '@/app/settings-store'
 import { Badge, Button, Kbd, Modal, ProgressBar, Toggle, cn, toast } from '@/ui'
 import { speak } from '@/features/tts'
@@ -40,16 +40,12 @@ export default function SrsPage() {
   const [tts, setTts] = usePref('srs.tts', false)
   const [session, setSession] = useState<SrsSession | null>(null)
   const [flipped, setFlipped] = useState(false)
-  const shownAt = useRef(Date.now())
+  const shownAt = useRef(0)
   const dbSession = useRef<Session | null>(null)
   const scheduler = useMemo(() => makeScheduler(settings.srs), [settings.srs])
 
-  // Plan is computed once from the data at page load (progress rows change while reviewing).
-  const [plan, setPlan] = useState<ReturnType<typeof buildPlan> | null>(null)
-  useEffect(() => {
-    if (plan || !set || loading) return
-    setPlan(buildPlan(cards, set, progress, settings.srs))
-  }, [plan, set, cards, progress, settings.srs, loading])
+  // The plan is only read before the session starts; the session keeps its own queue afterwards.
+  const plan = useMemo(() => (set ? buildPlan(cards, set, progress, settings.srs) : null), [set, cards, progress, settings.srs])
 
   const item = session?.queue[0]
   const face = item ? faces(item.card, item.progress.variant) : null
@@ -221,9 +217,8 @@ export default function SrsPage() {
             {t('srs.settingsHint', { retention: Math.round(settings.srs.requestRetention * 100), newPerDay: settings.srs.newPerDay })}{' '}
             <button className="font-semibold text-primary" onClick={() => navigate('/settings')}>{t('common:nav.settings')}</button>
           </div>
-          <div className="py-3 text-xs text-muted">{t('srs.intervalHint', { example: formatInterval(Date.now() + 4 * 86400000) })}</div>
           <div className="py-3">
-            <button className="flex items-center gap-2 text-sm font-semibold text-error" onClick={() => { setOptions(false); setPlan(null); setSession(null); setPlanOpen(true) }}>
+            <button className="flex items-center gap-2 text-sm font-semibold text-error" onClick={() => { setOptions(false); setSession(null); setPlanOpen(true) }}>
               <RotateCcw size={16} /> {t('common:common.restart')}
             </button>
           </div>

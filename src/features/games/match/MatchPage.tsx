@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { mulberry32 } from '@/domain/text'
@@ -59,28 +59,42 @@ export default function MatchPage() {
     void session.begin({ starredOnly: opts.starredOnly })
   }, [cards, opts.starredOnly, session])
 
-  const onSelect = useCallback(
-    (tileId: string) => {
-      setState((prev) => {
-        if (!prev) return prev
-        const next = selectTile(prev, tileId)
-        if (next.lastEvent === 'select') play('select')
-        if (next.lastEvent === 'correct') play('correct')
-        if (next.lastEvent === 'wrong') {
-          play('wrong')
-          for (const id of next.lastTiles) {
-            const tile = prev.tiles.find((x) => x.id === id)
-            if (tile) wrongCards.current.add(tile.cardId)
-          }
-          setFlash(true)
-          setShaking(next.lastTiles)
-          window.setTimeout(() => setFlash(false), 700)
-          window.setTimeout(() => setShaking([]), 400)
-        }
-        return next
+  const finishGame = useCallback(
+    (final: MatchState, finalTime: number) => {
+      const cardIds = [...new Set(final.tiles.map((x) => x.cardId))]
+      for (const id of cardIds) {
+        const card = cards.find((c) => c.id === id)
+        if (card) session.answer(card, !wrongCards.current.has(id), card.definition, card.definition, 'term')
+      }
+      void session.end(finalTime, final.pairs).then((r) => {
+        setResult({ time: finalTime, ...r })
+        setPhase('end')
       })
     },
-    [play],
+    [cards, session],
+  )
+
+  const onSelect = useCallback(
+    (tileId: string) => {
+      if (!state || phase !== 'play') return
+      const next = selectTile(state, tileId)
+      if (next.lastEvent === 'select') play('select')
+      if (next.lastEvent === 'correct') play('correct')
+      if (next.lastEvent === 'wrong') {
+        play('wrong')
+        for (const id of next.lastTiles) {
+          const tile = state.tiles.find((x) => x.id === id)
+          if (tile) wrongCards.current.add(tile.cardId)
+        }
+        setFlash(true)
+        setShaking(next.lastTiles)
+        window.setTimeout(() => setFlash(false), 700)
+        window.setTimeout(() => setShaking([]), 400)
+      }
+      setState(next)
+      if (isMatchComplete(next)) finishGame(next, Math.round(elapsed + next.penaltyMs))
+    },
+    [state, phase, play, elapsed, finishGame],
   )
 
   useKeydown((e) => {
@@ -91,21 +105,6 @@ export default function MatchPage() {
       onSelect(state.tiles[idx].id)
     }
   }, phase === 'play')
-
-  // finish
-  useEffect(() => {
-    if (phase !== 'play' || !state || !complete) return
-    const finalTime = Math.round(total)
-    const cardIds = [...new Set(state.tiles.map((x) => x.cardId))]
-    for (const id of cardIds) {
-      const card = cards.find((c) => c.id === id)
-      if (card) session.answer(card, !wrongCards.current.has(id), card.definition, card.definition, 'term')
-    }
-    void session.end(finalTime, state.pairs).then((r) => {
-      setResult({ time: finalTime, ...r })
-      setPhase('end')
-    })
-  }, [complete])
 
   const meta = gameMeta('match')
   const enough = cards.length >= meta.minCards

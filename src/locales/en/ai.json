@@ -1,0 +1,220 @@
+{
+  "provider": {
+    "heuristics": "Basic",
+    "chrome-nano": "Chrome AI",
+    "webllm": "Local model",
+    "byok": "Your key",
+    "chipTitle": "Which AI answers right now. Click to change.",
+    "betterResults": "Better results: enable the local AI model or add your own key.",
+    "openSettings": "Open AI settings"
+  },
+  "footer": {
+    "disclaimer": "AI can be wrong. Nothing leaves your device unless you add your own key.",
+    "enhanced": "Enhanced with AI"
+  },
+  "banner": {
+    "active": "Active: {{provider}}",
+    "manage": "Manage",
+    "upgrade": "Get better AI",
+    "desc": {
+      "heuristics": "Fast built-in rules: pattern-based cards, distractors and explanations. Works offline, no download.",
+      "chrome-nano": "Chrome's built-in model (Gemini Nano) runs on this device. Nothing is sent anywhere.",
+      "webllm": "A small language model runs in your browser via WebGPU. Downloaded once, then offline.",
+      "byok": "Your own API key or proxy is used. Requests go to the vendor you configured."
+    }
+  },
+  "hub": {
+    "title": "AI tools",
+    "subtitle": "Turn notes into cards, study guides, practice tests and audio. Private by default.",
+    "pickSet": "Choose a set",
+    "noSets": "You don't have any sets yet. Create one first.",
+    "askHint": "Ask AI lives on the set page: open a set and tap the “Ask AI ✦” button.",
+    "tools": {
+      "generate": { "title": "Generate flashcards", "desc": "Paste notes, upload a file or record audio and get an editable set." },
+      "studyGuide": { "title": "Study guide", "desc": "Outline, key terms, summary and practice questions from your material." },
+      "practiceTest": { "title": "Practice test", "desc": "Multiple choice, true/false and written questions from your sets." },
+      "listen": { "title": "Listen mode", "desc": "A spoken podcast of your set with recall pauses. Learn hands-free." },
+      "ask": { "title": "Ask AI", "desc": "A tutor that knows your set: quiz me, mnemonics, key concepts." }
+    }
+  },
+  "langs": { "auto": "Detect automatically", "nl": "Dutch", "en": "English", "de": "German", "fr": "French", "es": "Spanish" },
+  "source": {
+    "tabs": { "paste": "Paste text", "upload": "Upload file", "url": "From URL", "record": "Record audio" },
+    "pastePlaceholder": "Put your notes here. We'll do the rest.",
+    "dropHere": "Drop files here or choose a file",
+    "fileTypes": ".txt, .md, .csv, .tsv, .pdf — Word files: copy the text and paste it.",
+    "chooseFile": "Choose file",
+    "fileLoaded": "{{count}} file(s) loaded. Check the text in the Paste tab.",
+    "fileError": {
+      "unsupported": "unsupported file type",
+      "docx": "Word/PowerPoint is not supported offline — open the file, select all, copy and paste the text",
+      "empty": "no text found (scanned PDF?)",
+      "error": "could not read file"
+    },
+    "fetch": "Fetch",
+    "urlHint": "Fetching websites only works online and when the site allows it (CORS). Otherwise copy the text and paste it.",
+    "urlOffline": "You are offline. Paste the text instead.",
+    "urlBlocked": "This site cannot be read from the browser. Copy the text from the page and paste it in the Paste tab.",
+    "urlLoaded": "Page text added. Check it in the Paste tab.",
+    "startRecording": "Start recording",
+    "stopRecording": "Stop recording",
+    "recordHint": "Speech recognition by your browser. The transcript is added to the text; check it afterwards.",
+    "recordUnsupported": "Speech recognition isn't available in this browser. Use Chrome or Edge, or paste your text."
+  },
+  "generate": {
+    "title": "Generate flashcards",
+    "subtitle": "From notes, a file, a web page or a recording to a set in seconds.",
+    "language": "Language",
+    "count": "Number of cards: {{count}}",
+    "style": "Card style",
+    "styles": { "termDefinition": "Term → definition", "qa": "Question → answer", "cloze": "Fill in the blank" },
+    "generate": "Generate",
+    "none": "No cards found. Try notes with “term: definition” lines or definition sentences.",
+    "preview": "Preview ({{count}})",
+    "addRow": "Add card",
+    "target": "Save to",
+    "newSet": "New set",
+    "existingSet": "Existing set",
+    "setTitle": "Set title",
+    "chooseSet": "Choose set",
+    "createSet": "Create set",
+    "addToSet": "Add to set",
+    "untitled": "Generated set",
+    "saved": "{{count}} cards saved"
+  },
+  "guide": {
+    "title": "Study guide",
+    "subtitle": "Paste or upload material and get an outline, key terms, a summary and practice questions.",
+    "alsoGet": "You'll also get:",
+    "alsoGetDesc": "flashcards from the key terms, ready to study.",
+    "newGuide": "New guide",
+    "makeCards": "Make flashcards",
+    "noCards": "No key terms with definitions found to turn into cards.",
+    "summary": "Summary",
+    "outline": "Outline",
+    "keyTerms": "Key terms",
+    "questions": "Practice questions",
+    "saved": "Saved study guides"
+  },
+  "test": {
+    "title": "Practice test",
+    "subtitle": "Choose sets or paste material to generate practice questions tailored to you.",
+    "fromSets": "Flashcard sets",
+    "count": "Questions: {{count}}",
+    "types": "Question types",
+    "type": { "multipleChoice": "Multiple choice", "written": "Written", "trueFalse": "True / false" },
+    "true": "True",
+    "false": "False",
+    "typeAnswer": "Type your answer",
+    "check": "Check answers",
+    "correctAnswer": "Correct answer",
+    "score": "{{correct}} of {{total}} correct",
+    "perfect": "Perfect score. Nicely done!",
+    "keepGoing": "Review the missed ones and try again.",
+    "again": "New test",
+    "none": "Not enough material for questions. Add more cards or text."
+  },
+  "listen": {
+    "mode": "Listen",
+    "autoAdvance": "Auto-advance",
+    "speed": "Speed",
+    "generateScript": "Conversational script",
+    "useTemplate": "Back to standard script",
+    "scriptReady": "Conversational script ready",
+    "scriptFailed": "The model did not return a usable script.",
+    "kind": { "intro": "Intro", "term": "Term — what is it?", "definition": "Definition", "pause": "Pause", "recap": "Recap", "outro": "Done", "line": "" },
+    "thinkPause": "Think of the answer…",
+    "play": "Play",
+    "pause": "Pause",
+    "prev": "Previous card",
+    "next": "Next card",
+    "keys": "Space: play/pause · ← →: previous/next card · Esc: close",
+    "templateNote": "Standard script."
+  },
+  "ask": {
+    "pill": "Ask AI ✦",
+    "open": "Open Ask AI",
+    "title": "Ask AI",
+    "history": "Chat history",
+    "newChat": "New chat",
+    "minimize": "Minimize",
+    "noHistory": "No chats yet",
+    "prompt": "What study help do you need?",
+    "contextHint": "I use the set “{{title}}” as context.",
+    "placeholder": "Ask your study question here",
+    "send": "Send",
+    "stop": "Stop"
+  },
+  "explain": {
+    "button": "Explain",
+    "title": "Explanation",
+    "error": "Could not generate an explanation.",
+    "helpful": "Helpful",
+    "notHelpful": "Not helpful",
+    "thanks": "Thanks for your feedback"
+  },
+  "settings": {
+    "intro": "AI features always work with built-in rules. For richer results pick a model that runs on your device, or bring your own API key.",
+    "activeNow": "Active now:",
+    "provider": "Provider",
+    "providers": { "auto": "Automatic (recommended)", "heuristics": "Basic only (no model)", "chrome-nano": "Chrome built-in AI", "webllm": "Local model (WebLLM)", "byok": "Own API key / proxy" },
+    "providerHint": {
+      "auto": "Uses your key if set, otherwise Chrome AI, otherwise the local model once downloaded, otherwise Basic.",
+      "heuristics": "No model is ever used. Fastest and fully private.",
+      "chrome-nano": "Requires Chrome with the built-in model available.",
+      "webllm": "Requires WebGPU and a one-time download.",
+      "byok": "Requires an API key or a proxy URL below."
+    },
+    "nano": {
+      "title": "Chrome built-in AI",
+      "desc": "Gemini Nano inside Chrome. Free, on-device, no setup besides the one-time download by Chrome.",
+      "unavailable": "Not available in this browser. Chrome 138+ on desktop with 22 GB free disk space is required.",
+      "download": "Download model",
+      "state": { "unknown": "Checking…", "available": "Ready", "downloadable": "Available for download", "downloading": "Downloading…", "unavailable": "Unavailable on this device" }
+    },
+    "webllm": {
+      "title": "Local model (WebLLM)",
+      "desc": "A small open model runs in your browser via WebGPU. Downloaded once from Hugging Face and cached; afterwards it works offline.",
+      "noWebgpu": "WebGPU is not available in this browser, so the local model cannot run here.",
+      "consent": "Allow one-time model download",
+      "consentHint": "About {{size}} MB over your connection. Nothing is uploaded.",
+      "model": "Model",
+      "download": "Download & load",
+      "load": "Load",
+      "unload": "Unload",
+      "remove": "Remove download",
+      "cached": "downloaded",
+      "state": { "idle": "Not loaded", "loading": "Loading…", "ready": "Loaded", "error": "Error" }
+    },
+    "byok": {
+      "title": "Your own API key",
+      "desc": "Use a key from a vendor you trust. The key is stored only in this browser and sent only to that vendor.",
+      "vendor": "Vendor",
+      "model": "Model (optional)",
+      "key": "API key",
+      "baseUrl": "Base URL",
+      "getKey": "Get a key at {{vendor}}",
+      "test": "Test connection",
+      "testOk": "Connected ({{sample}})",
+      "testFail": "Failed: {{error}}",
+      "clear": "Remove key"
+    },
+    "proxy": {
+      "title": "Proxy URL (optional)",
+      "hint": "URL of your own Cloudflare Worker that adds the key server-side (see extras/cloudflare-worker). Leave empty to call the vendor directly."
+    },
+    "privacy": "Privacy: with Basic, Chrome AI or the local model nothing leaves your device. With your own key, your texts are sent to that vendor under their terms.",
+    "heuristicsNote": "Basic mode is always available as a fallback, even when a model fails or is offline."
+  },
+  "tts": {
+    "readAloud": "Read aloud",
+    "unsupported": "Text-to-speech is not available in this browser.",
+    "enable": "Read aloud",
+    "enableHint": "Speaker buttons on cards and Listen mode use your browser's voices.",
+    "rate": "Speed: {{value}}×",
+    "voiceFor": { "nl": "Voice for Dutch", "en": "Voice for English", "de": "Voice for German", "fr": "Voice for French", "es": "Voice for Spanish" },
+    "autoVoice": "Automatic ({{name}})",
+    "noVoices": "No voice installed for this language. Add one in your system settings.",
+    "test": "Test"
+  }
+}

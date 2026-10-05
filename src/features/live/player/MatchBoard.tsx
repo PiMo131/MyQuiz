@@ -1,19 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { MatchTile } from '@/domain/live/protocol'
 import { cn } from '@/ui'
 
-/** Local match board; reports matched pairs to the host as the player progresses. */
+/** Local match board; reports matched pairs to the host as the player progresses. Re-key it to reset. */
 export function MatchBoard({ tiles, onProgress, onSound }: { tiles: MatchTile[]; onProgress: (matched: number, done: boolean) => void; onSound?: (cue: 'correct' | 'wrong') => void }) {
   const { t } = useTranslation('live')
   const [picked, setPicked] = useState<number | null>(null)
   const [gone, setGone] = useState<Set<number>>(new Set())
   const [shake, setShake] = useState<number[]>([])
   const total = tiles.length / 2
-  useEffect(() => {
-    setPicked(null)
-    setGone(new Set())
-  }, [tiles])
 
   const tap = (id: number) => {
     if (gone.has(id) || shake.length) return

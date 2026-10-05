@@ -1,0 +1,220 @@
+{
+  "provider": {
+    "heuristics": "Basis",
+    "chrome-nano": "Chrome AI",
+    "webllm": "Lokaal model",
+    "byok": "Eigen sleutel",
+    "chipTitle": "Welke AI nu antwoordt. Klik om te wijzigen.",
+    "betterResults": "Betere resultaten: zet het lokale AI-model aan of voeg je eigen sleutel toe.",
+    "openSettings": "AI-instellingen openen"
+  },
+  "footer": {
+    "disclaimer": "AI kan fouten maken. Niets verlaat je apparaat tenzij je een eigen sleutel toevoegt.",
+    "enhanced": "Verbeterd met AI"
+  },
+  "banner": {
+    "active": "Actief: {{provider}}",
+    "manage": "Beheren",
+    "upgrade": "Betere AI instellen",
+    "desc": {
+      "heuristics": "Snelle ingebouwde regels: kaarten, afleiders en uitleg op basis van patronen. Werkt offline, geen download.",
+      "chrome-nano": "Het ingebouwde model van Chrome (Gemini Nano) draait op dit apparaat. Er wordt niets verstuurd.",
+      "webllm": "Een klein taalmodel draait in je browser via WebGPU. Eén keer downloaden, daarna offline.",
+      "byok": "Je eigen API-sleutel of proxy wordt gebruikt. Verzoeken gaan naar de door jou gekozen aanbieder."
+    }
+  },
+  "hub": {
+    "title": "AI-tools",
+    "subtitle": "Van aantekeningen naar kaarten, studiegidsen, oefentoetsen en audio. Standaard privé.",
+    "pickSet": "Kies een set",
+    "noSets": "Je hebt nog geen sets. Maak er eerst een.",
+    "askHint": "Vraag AI vind je op de setpagina: open een set en tik op de knop “Vraag AI ✦”.",
+    "tools": {
+      "generate": { "title": "Flashcards genereren", "desc": "Plak aantekeningen, upload een bestand of neem audio op en krijg een bewerkbare set." },
+      "studyGuide": { "title": "Studiegids", "desc": "Overzicht, kernbegrippen, samenvatting en oefenvragen uit je materiaal." },
+      "practiceTest": { "title": "Oefentoets", "desc": "Meerkeuze-, waar/niet waar- en schrijfvragen uit je sets." },
+      "listen": { "title": "Luistermodus", "desc": "Een gesproken podcast van je set met denkpauzes. Handsfree leren." },
+      "ask": { "title": "Vraag AI", "desc": "Een tutor die je set kent: overhoren, ezelsbruggetjes, kernbegrippen." }
+    }
+  },
+  "langs": { "auto": "Automatisch herkennen", "nl": "Nederlands", "en": "Engels", "de": "Duits", "fr": "Frans", "es": "Spaans" },
+  "source": {
+    "tabs": { "paste": "Tekst plakken", "upload": "Bestand uploaden", "url": "Van URL", "record": "Audio opnemen" },
+    "pastePlaceholder": "Zet hier je aantekeningen neer. Wij doen de rest.",
+    "dropHere": "Sleep bestanden hierheen of kies een bestand",
+    "fileTypes": ".txt, .md, .csv, .tsv, .pdf — Word-bestanden: kopieer de tekst en plak die.",
+    "chooseFile": "Bestand kiezen",
+    "fileLoaded": "{{count}} bestand(en) geladen. Controleer de tekst in het tabblad Plakken.",
+    "fileError": {
+      "unsupported": "bestandstype niet ondersteund",
+      "docx": "Word/PowerPoint wordt offline niet ondersteund — open het bestand, selecteer alles, kopieer en plak de tekst",
+      "empty": "geen tekst gevonden (gescande pdf?)",
+      "error": "bestand kon niet worden gelezen"
+    },
+    "fetch": "Ophalen",
+    "urlHint": "Websites ophalen werkt alleen online en als de site het toestaat (CORS). Anders: kopieer de tekst en plak die.",
+    "urlOffline": "Je bent offline. Plak de tekst in plaats daarvan.",
+    "urlBlocked": "Deze site kan niet vanuit de browser gelezen worden. Kopieer de tekst van de pagina en plak die in het tabblad Plakken.",
+    "urlLoaded": "Paginatekst toegevoegd. Controleer die in het tabblad Plakken.",
+    "startRecording": "Opname starten",
+    "stopRecording": "Opname stoppen",
+    "recordHint": "Spraakherkenning door je browser. De tekst wordt toegevoegd; controleer hem daarna.",
+    "recordUnsupported": "Spraakherkenning is in deze browser niet beschikbaar. Gebruik Chrome of Edge, of plak je tekst."
+  },
+  "generate": {
+    "title": "Flashcards genereren",
+    "subtitle": "Van aantekeningen, een bestand, een webpagina of een opname naar een set in seconden.",
+    "language": "Taal",
+    "count": "Aantal kaarten: {{count}}",
+    "style": "Kaartstijl",
+    "styles": { "termDefinition": "Term → definitie", "qa": "Vraag → antwoord", "cloze": "Invullen" },
+    "generate": "Genereren",
+    "none": "Geen kaarten gevonden. Probeer aantekeningen met regels als “term: definitie” of definitiezinnen.",
+    "preview": "Voorbeeld ({{count}})",
+    "addRow": "Kaart toevoegen",
+    "target": "Opslaan in",
+    "newSet": "Nieuwe set",
+    "existingSet": "Bestaande set",
+    "setTitle": "Titel van de set",
+    "chooseSet": "Kies set",
+    "createSet": "Set maken",
+    "addToSet": "Toevoegen aan set",
+    "untitled": "Gegenereerde set",
+    "saved": "{{count}} kaarten opgeslagen"
+  },
+  "guide": {
+    "title": "Studiegids",
+    "subtitle": "Plak of upload materiaal en krijg een overzicht, kernbegrippen, een samenvatting en oefenvragen.",
+    "alsoGet": "Je krijgt ook:",
+    "alsoGetDesc": "flashcards van de kernbegrippen, klaar om te leren.",
+    "newGuide": "Nieuwe gids",
+    "makeCards": "Flashcards maken",
+    "noCards": "Geen kernbegrippen met definities gevonden om kaarten van te maken.",
+    "summary": "Samenvatting",
+    "outline": "Overzicht",
+    "keyTerms": "Kernbegrippen",
+    "questions": "Oefenvragen",
+    "saved": "Opgeslagen studiegidsen"
+  },
+  "test": {
+    "title": "Oefentoets",
+    "subtitle": "Kies sets of plak materiaal om oefenvragen op maat te genereren.",
+    "fromSets": "Flashcardsets",
+    "count": "Vragen: {{count}}",
+    "types": "Vraagtypen",
+    "type": { "multipleChoice": "Meerkeuze", "written": "Schrijven", "trueFalse": "Waar / niet waar" },
+    "true": "Waar",
+    "false": "Niet waar",
+    "typeAnswer": "Typ je antwoord",
+    "check": "Antwoorden nakijken",
+    "correctAnswer": "Juiste antwoord",
+    "score": "{{correct}} van {{total}} goed",
+    "perfect": "Alles goed. Knap gedaan!",
+    "keepGoing": "Bekijk de gemiste vragen en probeer het nog eens.",
+    "again": "Nieuwe toets",
+    "none": "Niet genoeg materiaal voor vragen. Voeg meer kaarten of tekst toe."
+  },
+  "listen": {
+    "mode": "Luisteren",
+    "autoAdvance": "Automatisch doorgaan",
+    "speed": "Snelheid",
+    "generateScript": "Gesprekkig script",
+    "useTemplate": "Terug naar standaardscript",
+    "scriptReady": "Gesprekkig script klaar",
+    "scriptFailed": "Het model gaf geen bruikbaar script terug.",
+    "kind": { "intro": "Intro", "term": "Term — wat is het?", "definition": "Definitie", "pause": "Pauze", "recap": "Herhaling", "outro": "Klaar", "line": "" },
+    "thinkPause": "Bedenk het antwoord…",
+    "play": "Afspelen",
+    "pause": "Pauzeren",
+    "prev": "Vorige kaart",
+    "next": "Volgende kaart",
+    "keys": "Spatie: afspelen/pauzeren · ← →: vorige/volgende kaart · Esc: sluiten",
+    "templateNote": "Standaardscript."
+  },
+  "ask": {
+    "pill": "Vraag AI ✦",
+    "open": "Vraag AI openen",
+    "title": "Vraag AI",
+    "history": "Chatgeschiedenis",
+    "newChat": "Nieuwe chat",
+    "minimize": "Minimaliseren",
+    "noHistory": "Nog geen chats",
+    "prompt": "Waar kan ik je bij helpen?",
+    "contextHint": "Ik gebruik de set “{{title}}” als context.",
+    "placeholder": "Stel hier je studievraag",
+    "send": "Versturen",
+    "stop": "Stoppen"
+  },
+  "explain": {
+    "button": "Uitleg",
+    "title": "Uitleg",
+    "error": "Er kon geen uitleg worden gemaakt.",
+    "helpful": "Nuttig",
+    "notHelpful": "Niet nuttig",
+    "thanks": "Bedankt voor je feedback"
+  },
+  "settings": {
+    "intro": "AI-functies werken altijd met ingebouwde regels. Voor rijkere resultaten kies je een model dat op je apparaat draait, of gebruik je je eigen API-sleutel.",
+    "activeNow": "Nu actief:",
+    "provider": "Aanbieder",
+    "providers": { "auto": "Automatisch (aanbevolen)", "heuristics": "Alleen basis (geen model)", "chrome-nano": "Ingebouwde AI van Chrome", "webllm": "Lokaal model (WebLLM)", "byok": "Eigen API-sleutel / proxy" },
+    "providerHint": {
+      "auto": "Gebruikt je sleutel als die is ingesteld, anders Chrome AI, anders het lokale model zodra gedownload, anders Basis.",
+      "heuristics": "Er wordt nooit een model gebruikt. Snelst en volledig privé.",
+      "chrome-nano": "Vereist Chrome met het ingebouwde model beschikbaar.",
+      "webllm": "Vereist WebGPU en een eenmalige download.",
+      "byok": "Vereist een API-sleutel of een proxy-URL hieronder."
+    },
+    "nano": {
+      "title": "Ingebouwde AI van Chrome",
+      "desc": "Gemini Nano in Chrome. Gratis, op het apparaat, geen instellingen behalve de eenmalige download door Chrome.",
+      "unavailable": "Niet beschikbaar in deze browser. Chrome 138+ op desktop met 22 GB vrije schijfruimte is vereist.",
+      "download": "Model downloaden",
+      "state": { "unknown": "Controleren…", "available": "Klaar", "downloadable": "Beschikbaar om te downloaden", "downloading": "Downloaden…", "unavailable": "Niet beschikbaar op dit apparaat" }
+    },
+    "webllm": {
+      "title": "Lokaal model (WebLLM)",
+      "desc": "Een klein open model draait in je browser via WebGPU. Eén keer gedownload van Hugging Face en opgeslagen; daarna werkt het offline.",
+      "noWebgpu": "WebGPU is niet beschikbaar in deze browser, dus het lokale model kan hier niet draaien.",
+      "consent": "Eenmalige modeldownload toestaan",
+      "consentHint": "Ongeveer {{size}} MB via je verbinding. Er wordt niets geüpload.",
+      "model": "Model",
+      "download": "Downloaden & laden",
+      "load": "Laden",
+      "unload": "Uit geheugen halen",
+      "remove": "Download verwijderen",
+      "cached": "gedownload",
+      "state": { "idle": "Niet geladen", "loading": "Laden…", "ready": "Geladen", "error": "Fout" }
+    },
+    "byok": {
+      "title": "Je eigen API-sleutel",
+      "desc": "Gebruik een sleutel van een aanbieder die je vertrouwt. De sleutel wordt alleen in deze browser bewaard en alleen naar die aanbieder gestuurd.",
+      "vendor": "Aanbieder",
+      "model": "Model (optioneel)",
+      "key": "API-sleutel",
+      "baseUrl": "Basis-URL",
+      "getKey": "Sleutel aanvragen bij {{vendor}}",
+      "test": "Verbinding testen",
+      "testOk": "Verbonden ({{sample}})",
+      "testFail": "Mislukt: {{error}}",
+      "clear": "Sleutel verwijderen"
+    },
+    "proxy": {
+      "title": "Proxy-URL (optioneel)",
+      "hint": "URL van je eigen Cloudflare Worker die de sleutel aan de serverkant toevoegt (zie extras/cloudflare-worker). Leeg laten om de aanbieder direct aan te roepen."
+    },
+    "privacy": "Privacy: met Basis, Chrome AI of het lokale model verlaat niets je apparaat. Met je eigen sleutel worden je teksten naar die aanbieder gestuurd onder hun voorwaarden.",
+    "heuristicsNote": "De basismodus is altijd beschikbaar als terugvaloptie, ook als een model faalt of je offline bent."
+  },
+  "tts": {
+    "readAloud": "Voorlezen",
+    "unsupported": "Voorlezen is in deze browser niet beschikbaar.",
+    "enable": "Voorlezen",
+    "enableHint": "Luidsprekerknoppen op kaarten en de luistermodus gebruiken de stemmen van je browser.",
+    "rate": "Snelheid: {{value}}×",
+    "voiceFor": { "nl": "Stem voor Nederlands", "en": "Stem voor Engels", "de": "Stem voor Duits", "fr": "Stem voor Frans", "es": "Stem voor Spaans" },
+    "autoVoice": "Automatisch ({{name}})",
+    "noVoices": "Geen stem geïnstalleerd voor deze taal. Voeg er een toe in je systeeminstellingen.",
+    "test": "Testen"
+  }
+}

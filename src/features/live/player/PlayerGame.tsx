@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Flame, ShieldCheck, Zap } from 'lucide-react'
 import type { Feedback, PlayerView, PowerUpKind } from '@/domain/live/protocol'
@@ -26,16 +26,6 @@ export function PlayerGame({ view, offset = 0, onAnswer, onPower, onMatch, play,
   const { t } = useTranslation('live')
   const { config, me } = view
   const [answered, setAnswered] = useState<string | null>(null)
-  const lastFb = useRef<Feedback | null>(null)
-
-  // play a cue when new feedback arrives
-  useEffect(() => {
-    const fb = view.feedback
-    if (fb && fb !== lastFb.current && fb.at !== lastFb.current?.at) {
-      lastFb.current = fb
-      play?.(fb.correct ? 'correct' : 'wrong')
-    }
-  }, [view.feedback, play])
 
   useEffect(() => {
     if (view.phase === 'playing' && view.startedAt && Date.now() + offset - view.startedAt < 1500) play?.('go')
@@ -83,7 +73,7 @@ export function PlayerGame({ view, offset = 0, onAnswer, onPower, onMatch, play,
     return (
       <div className="flex flex-1 flex-col gap-4">
         {header}
-        {view.board ? <MatchBoard tiles={view.board} onProgress={onMatch} onSound={play} /> : <div className="text-muted">{t('play.waitOthers')}</div>}
+        {view.board ? <MatchBoard key={view.board.map((b) => b.pairId).join('|')} tiles={view.board} onProgress={onMatch} onSound={play} /> : <div className="text-muted">{t('play.waitOthers')}</div>}
       </div>
     )
   }
@@ -113,7 +103,7 @@ export function PlayerGame({ view, offset = 0, onAnswer, onPower, onMatch, play,
   // ----- classic / blast (personal stream) -----
   const q = view.question
   const fb = view.feedback
-  const showFeedback = fb && (!q || answered === q.id || fb.at > q.askedAt - 1)
+  const fbKey = fb ? `${fb.questionId}:${fb.at}` : 'none'
   const waitingNext = Boolean(q && answered === q.id)
   const finished = me.finishedAt !== null
   return (
@@ -142,7 +132,7 @@ export function PlayerGame({ view, offset = 0, onAnswer, onPower, onMatch, play,
           </div>
         </div>
       ) : q && !waitingNext ? (
-        <>
+        <FeedbackFlash key={fbKey} fb={fb} play={play}>
           <TimerBar deadlineAt={q.deadlineAt} startedAt={q.askedAt} offset={offset} />
           <div className={cn('card grid place-items-center p-4 text-center font-bold', embedded ? 'min-h-20 text-lg' : 'min-h-28 text-xl sm:text-2xl')}>{q.prompt}</div>
           <AnswerButtons
@@ -154,14 +144,37 @@ export function PlayerGame({ view, offset = 0, onAnswer, onPower, onMatch, play,
             keyboard={!embedded}
           />
           {!embedded && <p className="hidden text-center text-xs text-muted sm:block">{t('play.keyboardHint')}</p>}
-        </>
+        </FeedbackFlash>
       ) : (
-        <div className="grid flex-1 place-items-center">{showFeedback && fb ? <FeedbackBanner fb={fb} big /> : <p className="text-muted">{t('play.nextSoon')}</p>}</div>
+        <div className="grid flex-1 place-items-center">
+          <p className="text-muted">{t('play.nextSoon')}</p>
+        </div>
       )}
-      {showFeedback && fb && q && !waitingNext && <FeedbackBanner fb={fb} />}
       <PowerUps me={me} onPower={onPower} />
     </div>
   )
+}
+
+const FEEDBACK_MS = 1600
+
+/** Shows the feedback for the previous answer for a moment, then the children (the next question). Re-keyed per feedback. */
+function FeedbackFlash({ fb, play, children }: { fb: Feedback | null; play?: PlayerGameProps['play']; children: React.ReactNode }) {
+  const [visible, setVisible] = useState(fb !== null)
+  useEffect(() => {
+    if (!fb) return
+    play?.(fb.correct ? 'correct' : 'wrong')
+    const t = setTimeout(() => setVisible(false), FEEDBACK_MS)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  if (visible && fb) {
+    return (
+      <div className="grid flex-1 place-items-center">
+        <FeedbackBanner fb={fb} big />
+      </div>
+    )
+  }
+  return <>{children}</>
 }
 
 function BlastClock({ endsAt, offset }: { endsAt: number | null; offset: number }) {

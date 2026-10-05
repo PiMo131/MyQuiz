@@ -75,6 +75,10 @@ interface Game {
 
 const PALETTE = ['#7c3aed', '#6d28d9', '#8b5cf6']
 
+function killAll(list: Asteroid[]) {
+  for (const a of list) a.alive = false
+}
+
 export default function BlastPage() {
   const { setId = '' } = useParams()
   const { t } = useTranslation(['games', 'common'])
@@ -88,7 +92,7 @@ export default function BlastPage() {
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [hud, setHud] = useState({ score: 0, streak: 0, level: 1, into: 0, goal: 50, timeLeft: BLAST_ROUND_MS, prompt: '', promptPct: 1 })
   const [paused, setPaused] = useState(false)
-  const [result, setResult] = useState<{ best: number; isNewBest: boolean } | null>(null)
+  const [result, setResult] = useState<{ best: number; isNewBest: boolean; score: number; hits: number; misses: number; bestStreak: number } | null>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -97,7 +101,9 @@ export default function BlastPage() {
   const nextCard = useRef<() => Card>(() => cards[0])
   const sizeRef = useRef({ w: 360, h: 600, dpr: 1 })
   const playRef = useRef(play)
-  playRef.current = play
+  useEffect(() => {
+    playRef.current = play
+  }, [play])
   const sfx = (n: SfxName) => playRef.current(n)
 
   const newRound = useCallback(
@@ -136,7 +142,7 @@ export default function BlastPage() {
     g.over = true
     sfx(g.score > 0 ? 'win' : 'lose')
     void session.end(g.score, g.hits + g.misses).then((r) => {
-      setResult(r)
+      setResult({ ...r, score: g.score, hits: g.hits, misses: g.misses, bestStreak: g.bestStreak })
       setPhase('end')
     })
   }, [session])
@@ -149,7 +155,7 @@ export default function BlastPage() {
     sfx('wrong')
     session.answer(g.round.card, false, given, g.round.correct, opts.promptSide, Math.round(performance.now() - g.askedAt))
     g.nextRoundIn = 500
-    for (const a of g.asteroids) a.alive = false
+    killAll(g.asteroids)
   }, [opts.promptSide, session])
 
   const shoot = useCallback(
@@ -183,7 +189,7 @@ export default function BlastPage() {
         a.alive = false
         session.answer(g.round.card, true, a.text, g.round.correct, opts.promptSide, Math.round(performance.now() - g.askedAt))
         g.nextRoundIn = 450
-        for (const o of g.asteroids) o.alive = false
+        killAll(g.asteroids)
       } else {
         a.alive = false
         miss(g, a.text)
@@ -363,12 +369,12 @@ export default function BlastPage() {
           {paused && <PausedOverlay label={t('games:common.paused')} onResume={() => setPaused(false)} />}
         </div>
       )}
-      {phase === 'end' && result && game.current && (
-        <GameEnd setId={setId} title={result.isNewBest ? t('games:common.newBest') : t('games:blast.timeUp')} scoreLabel={t('games:common.score')} score={game.current.score} best={formatBest('blast', result.best)} isNewBest={result.isNewBest} onPlayAgain={start}>
+      {phase === 'end' && result && (
+        <GameEnd setId={setId} title={result.isNewBest ? t('games:common.newBest') : t('games:blast.timeUp')} scoreLabel={t('games:common.score')} score={result.score} best={formatBest('blast', result.best)} isNewBest={result.isNewBest} onPlayAgain={start}>
           <div className="flex flex-wrap justify-center gap-2 text-sm text-muted">
-            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.hits', { count: game.current.hits })}</span>
-            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.misses', { count: game.current.misses })}</span>
-            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.bestStreak', { count: game.current.bestStreak })}</span>
+            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.hits', { count: result.hits })}</span>
+            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.misses', { count: result.misses })}</span>
+            <span className="rounded-full bg-surface-2 px-3 py-1">{t('games:blast.bestStreak', { count: result.bestStreak })}</span>
           </div>
         </GameEnd>
       )}

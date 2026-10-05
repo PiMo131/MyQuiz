@@ -78,6 +78,27 @@ export default function SpeedReviewPage() {
     void session.begin({ starredOnly: opts.starredOnly, promptSide: opts.promptSide, count: opts.count })
   }, [cards, opts.count, opts.promptSide, opts.starredOnly, session])
 
+  const finish = useCallback(() => {
+    void session.end(score, questions.length).then((r) => {
+      setResult(r)
+      setPhase('end')
+    })
+  }, [questions.length, score, session])
+
+  const advance = useCallback(() => {
+    if (index + 1 >= questions.length) {
+      finish()
+      return
+    }
+    setIndex(index + 1)
+    elapsedRef.current = 0
+    setElapsed(0)
+    tickSound.current = false
+    setLocked(false)
+    setTimedOut(false)
+    setGain(null)
+  }, [finish, index, questions.length])
+
   // per-question timer (pauses while hidden or locked)
   useEffect(() => {
     if (phase !== 'play' || locked || !visible || !q) return
@@ -99,40 +120,11 @@ export default function SpeedReviewPage() {
         setStreak(0)
         setMissed((m) => [...m, q.card])
         session.answer(q.card, false, '', q.correct, opts.promptSide, SR_TIME_MS)
-        window.setTimeout(() => advance(), 1100)
+        window.setTimeout(advance, 1100)
       }
     }, 50)
     return () => window.clearInterval(id)
-  }, [phase, locked, visible, index, q])
-
-  const finish = useCallback(
-    (finalScore: number, correct: number) => {
-      void session.end(finalScore, questions.length).then((r) => {
-        setResult(r)
-        setPhase('end')
-        void correct
-      })
-    },
-    [questions.length, session],
-  )
-
-  const advance = () => {
-    setIndex((i) => {
-      if (i + 1 >= questions.length) {
-        finishRef.current()
-        return i
-      }
-      return i + 1
-    })
-    elapsedRef.current = 0
-    setElapsed(0)
-    tickSound.current = false
-    setLocked(false)
-    setTimedOut(false)
-    setGain(null)
-  }
-  const finishRef = useRef(() => undefined as void)
-  finishRef.current = () => finish(score, correctCount)
+  }, [phase, locked, visible, q, play, session, opts.promptSide, advance])
 
   const onChoose = (given: string, ok: boolean) => {
     if (!q || locked) return
@@ -197,7 +189,7 @@ export default function SpeedReviewPage() {
           <div className="card relative p-5 sm:p-6">
             {gain !== null && <div className="animate-pop absolute -top-3 right-4 rounded-full bg-accent px-3 py-1 text-sm font-bold text-white">+{gain}</div>}
             {timedOut && <div className="animate-pop absolute -top-3 right-4 rounded-full bg-error px-3 py-1 text-sm font-bold text-white">{t('games:speedreview.tooSlow')}</div>}
-            <QuestionPanel key={index} prompt={q.prompt} options={q.options} correct={q.correct} onChoose={onChoose} onAnswer={() => advance()} revealed={timedOut} disabled={!visible} feedbackMs={800} />
+            <QuestionPanel key={index} prompt={q.prompt} options={q.options} correct={q.correct} onChoose={onChoose} onAnswer={advance} revealed={timedOut} disabled={!visible} feedbackMs={800} />
           </div>
           <p className="text-center text-xs text-muted">{t('games:common.keyboardHint', { keys: '1 2 3 4' })}</p>
         </div>

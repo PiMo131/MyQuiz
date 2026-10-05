@@ -21,10 +21,22 @@
     "modesTitle": "Game types"
   },
   "modes": {
-    "classic": { "name": "Classic Live", "desc": "Race: be the first to answer {{count}} questions correctly in a row. A wrong answer sends you back to the start." },
-    "match": { "name": "Multiplayer Match", "desc": "Everyone gets the same board of tiles. Match terms and definitions as fast as you can." },
-    "blast": { "name": "Blast live", "desc": "Answer as many questions as you can in {{seconds}} seconds. Speed earns extra points." },
-    "study": { "name": "Study with friends", "desc": "Everyone answers the same questions together. Afterwards you see which terms the group missed most." }
+    "classic": {
+      "name": "Classic Live",
+      "desc": "Race: be the first to answer {{count}} questions correctly in a row. A wrong answer sends you back to the start."
+    },
+    "match": {
+      "name": "Multiplayer Match",
+      "desc": "Everyone gets the same board of tiles. Match terms and definitions as fast as you can."
+    },
+    "blast": {
+      "name": "Blast live",
+      "desc": "Answer as many questions as you can in {{seconds}} seconds. Speed earns extra points."
+    },
+    "study": {
+      "name": "Study with friends",
+      "desc": "Everyone answers the same questions together. Afterwards you see which terms the group missed most."
+    }
   },
   "host": {
     "chooseType": "Choose your game type",
@@ -33,7 +45,6 @@
     "notFound": "This set could not be found.",
     "tooFewCards": "This set needs at least {{count}} cards for live play.",
     "lobbyTitle": "Join at",
-    "joinAt": "Join at {{url}}",
     "code": "Room code",
     "showCode": "Show code",
     "hideCode": "Hide code",
@@ -50,9 +61,7 @@
     "playAlong": "Host plays along",
     "playAlongHint": "Answer on this screen as a player too.",
     "connecting": "Connecting to signalling relays…",
-    "relayOk": "Relays connected",
     "relayDown": "No relay reachable. Players may not be able to find this room.",
-    "switchRelays": "Try other relays",
     "end": "End game",
     "endConfirm": "End the game now?",
     "next": "Next question",
@@ -67,7 +76,6 @@
     "finished": "Finished",
     "pairs": "{{matched}}/{{total}} pairs",
     "waitingAnswers": "Waiting for answers…",
-    "noPlayersLeft": "All players have left.",
     "countdown": "Get ready!",
     "yourTurn": "Your answer"
   },
@@ -78,7 +86,11 @@
     "teamCount": "Number of teams",
     "mascot": "Mascot theme",
     "mascotHint": "How teams are named and shown",
-    "mascots": { "animals": "Animals", "food": "Food", "space": "Space" },
+    "mascots": {
+      "animals": "Animals",
+      "food": "Food",
+      "space": "Space"
+    },
     "fast": "Fast mode",
     "fastHint": "Keep your progress even after a wrong answer",
     "promptWith": "Prompt with",
@@ -115,8 +127,7 @@
     "yourMissed": "Terms you missed",
     "saveSet": "Save this set to my library",
     "home": "Back to home",
-    "points": "pts",
-    "team": "Team"
+    "points": "pts"
   },
   "join": {
     "title": "Join a game",
@@ -134,17 +145,13 @@
     "timeoutTitle": "Could not reach the host",
     "timeoutBody": "The room may not exist, or this network blocks direct connections. Check the code, try other relays, or ask the host for the set link instead.",
     "retry": "Try again",
-    "otherRelays": "Try other relays",
     "shareInstead": "Ask the host to share the set instead: on the set page they can copy a link you open on your device.",
     "endedHostLeft": "The host ended the game.",
     "endedKicked": "You were removed from the game.",
     "endedFull": "This room is full.",
     "endedVersion": "The host uses a different version of MyQuizz.",
     "leave": "Leave",
-    "noWebRtc": "This browser does not support WebRTC. Try a recent Chrome, Edge, Firefox or Safari.",
-    "connected": "Connected",
-    "reconnecting": "Reconnecting…",
-    "yourTeam": "Your team"
+    "noWebRtc": "This browser does not support WebRTC. Try a recent Chrome, Edge, Firefox or Safari."
   },
   "play": {
     "correct": "Correct!",
@@ -158,8 +165,6 @@
     "waitOthers": "Waiting for the others…",
     "timeUp": "Time's up",
     "progress": "{{current}}/{{target}} in a row",
-    "score": "Score",
-    "rank": "Rank",
     "powerDouble": "Double points",
     "powerDoubleHint": "Doubles your next correct answer",
     "powerSaver": "Streak saver",
@@ -171,11 +176,23 @@
     "matchTime": "Your time: {{time}}",
     "matchHint": "Tap a term and its definition",
     "finishedWaiting": "You finished! Waiting for the others…",
-    "keyboardHint": "Keys 1–4 answer",
-    "yourAnswer": "Your answer",
-    "startsIn": "Starts in {{count}}"
+    "keyboardHint": "Keys 1–4 answer"
   },
-  "status": { "connected": "Connected", "connecting": "Connecting", "offline": "Disconnected", "peers_one": "{{count}} device", "peers_other": "{{count}} devices" },
-  "relays": { "nostr": "Default relays", "nostr-alt": "Alternative relays", "custom": "Custom relays", "customPlaceholder": "wss://relay.example.org, one per line", "label": "Signalling" },
-  "button": { "live": "Live", "hostThisSet": "Host a live game" }
+  "status": {
+    "connected": "Connected",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "peers_one": "{{count}} device",
+    "peers_other": "{{count}} devices"
+  },
+  "relays": {
+    "nostr": "Default relays",
+    "nostr-alt": "Alternative relays",
+    "custom": "Custom relays",
+    "customPlaceholder": "wss://relay.example.org, one per line",
+    "label": "Signalling"
+  },
+  "button": {
+    "hostThisSet": "Host a live game"
+  }
 }

@@ -5,7 +5,7 @@ import { ArrowRight, Check, ChevronDown, ChevronRight, Flag, Image as ImageIcon,
 import { finishSession, recordOutcome, startSession } from '@/db/repo'
 import type { Card, GradingStrictness, Session, SessionAnswer } from '@/domain/types'
 import { gradeAnswer } from '@/domain/grading'
-import type { MultipleChoiceQuestion, Question, WrittenQuestion } from '@/domain/question-generator'
+import type { MultipleChoiceQuestion, WrittenQuestion } from '@/domain/question-generator'
 import { useSettings } from '@/app/settings-store'
 import { Button, Input, Kbd, Modal, ProgressBar, Toggle, cn } from '@/ui'
 import { ExplainButton } from '@/features/ai'
@@ -49,11 +49,12 @@ export default function LearnPage() {
   const [typed, setTyped] = useState('')
   const [retyped, setRetyped] = useState('')
   const [flipped, setFlipped] = useState(false)
+  const [tally, setTally] = useState({ correct: 0, wrong: 0 })
   const [quick, setQuick] = useState(false)
   const [options, setOptions] = useState(false)
   const dbSession = useRef<Session | null>(null)
   const answers = useRef<SessionAnswer[]>([])
-  const shownAt = useRef(Date.now())
+  const shownAt = useRef(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const byId = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards])
 
@@ -90,6 +91,7 @@ export default function LearnPage() {
     const s = createLearn(cards, cfg)
     advance(s)
     answers.current = []
+    setTally({ correct: 0, wrong: 0 })
     dbSession.current = await startSession(setId, 'learn', { goal: cfg.goal, answerWith: cfg.answerWith })
   }
 
@@ -98,6 +100,7 @@ export default function LearnPage() {
       if (!state || !q || !card || phase !== 'question') return
       setFeedback({ correct, given, chosen })
       setPhase('feedback')
+      setTally((x) => ({ correct: x.correct + (correct ? 1 : 0), wrong: x.wrong + (correct ? 0 : 1) }))
       if (config.sounds) (correct ? sfx.correct : sfx.wrong)()
       void recordOutcome(card, correct, 'learn', 'variant' in q ? q.variant : 'forward', Date.now() - shownAt.current)
       answers.current.push({ cardId: card.id, questionType: q.type, prompt: 'prompt' in q ? q.prompt : '', given, expected: 'answer' in q ? q.answer : '', correct, durationMs: Date.now() - shownAt.current })
@@ -212,8 +215,8 @@ export default function LearnPage() {
             body={t('learn.doneBody', { count: masteredCount(state) })}
             stats={[
               [t('learn.rounds'), state.roundNumber],
-              [t('common:common.correct'), answers.current.filter((a) => a.correct).length],
-              [t('common:common.incorrect'), answers.current.filter((a) => !a.correct).length],
+              [t('common:common.correct'), tally.correct],
+              [t('common:common.incorrect'), tally.wrong],
             ]}
             actions={
               <>
@@ -333,6 +336,7 @@ export default function LearnPage() {
       </Modal>
 
       <LearnOptions
+        key={String(options)}
         open={options}
         config={config}
         setId={setId}
@@ -518,10 +522,6 @@ export function LearnOptions({ open, config, setId, onClose, onSave, onRestart }
   const { t } = useTranslation('study')
   const navigate = useNavigate()
   const [draft, setDraft] = useState(config)
-  useEffect(() => {
-    if (open) setDraft(config)
-    // eslint-disable-next-line
-  }, [open])
   const dirty = JSON.stringify(draft) !== JSON.stringify(config)
   const answerTerm = draft.answerWith === 'term' || draft.answerWith === 'both'
   const answerDef = draft.answerWith === 'definition' || draft.answerWith === 'both'

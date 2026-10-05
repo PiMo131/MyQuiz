@@ -45,7 +45,7 @@ export default function WritePage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const dbSession = useRef<Session | null>(null)
   const answers = useRef<SessionAnswer[]>([])
-  const shownAt = useRef(Date.now())
+  const shownAt = useRef(0)
   const byId = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards])
 
   const begin = useCallback(

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Delete } from 'lucide-react'
@@ -89,22 +89,25 @@ export default function HangmanPage() {
   const over = state ? isHangmanOver(state) : false
   const won = state ? isWon(state) : false
 
-  // record outcome when a word finishes
-  useEffect(() => {
-    if (!state || !card || !over) return
-    const dur = Math.round(performance.now() - startedAt.current)
-    session.answer(card, won, state.guessed.join(''), state.word, opts.promptSide, dur)
-    if (won) {
-      const pts = wordScore(state) + streak * 5
-      setScore((s) => s + pts)
-      setStreak((s) => s + 1)
-      setSolved((s) => s + 1)
-      play('win')
-    } else {
-      setStreak(0)
-      play('lose')
-    }
-  }, [over])
+  /** Record the outcome once a word is finished (called from the guess / give-up handlers). */
+  const settle = useCallback(
+    (next: HangmanState) => {
+      if (!card || !isHangmanOver(next)) return
+      const w = isWon(next)
+      const dur = Math.round(performance.now() - startedAt.current)
+      session.answer(card, w, next.guessed.join(''), next.word, opts.promptSide, dur)
+      if (w) {
+        setScore((s) => s + wordScore(next) + streak * 5)
+        setStreak((s) => s + 1)
+        setSolved((s) => s + 1)
+        play('win')
+      } else {
+        setStreak(0)
+        play('lose')
+      }
+    },
+    [card, opts.promptSide, play, session, streak],
+  )
 
   const finish = useCallback(() => {
     void session.end(score, total).then((r) => {
@@ -128,6 +131,14 @@ export default function HangmanPage() {
     if (res.result === 'hit') play('correct')
     else if (res.result === 'miss') play('wrong')
     setState(res.state)
+    settle(res.state)
+  }
+
+  const surrender = () => {
+    if (!state || over) return
+    const next = giveUp(state)
+    setState(next)
+    settle(next)
   }
 
   useKeydown((e) => {
@@ -141,15 +152,15 @@ export default function HangmanPage() {
 
   const meta = gameMeta('hangman')
   const enough = cards.length >= meta.minCards
-  const masked = state ? maskedWord(state) : []
   const words = useMemo(() => {
-    const out: typeof masked[] = [[]]
+    const masked = state ? maskedWord(state) : []
+    const out: (typeof masked)[] = [[]]
     for (const ch of masked) {
       if (ch.space) out.push([])
       else out[out.length - 1].push(ch)
     }
     return out.filter((w) => w.length)
-  }, [masked])
+  }, [state])
 
   return (
     <GameLayout header={<GameHeader setId={setId} game="hangman" center={phase === 'play' ? `${wordIndex + 1} / ${total}` : set?.title} onOptions={phase === 'intro' ? () => setOptionsOpen(true) : undefined} />}>
@@ -224,7 +235,7 @@ export default function HangmanPage() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="outline" size="sm" leftIcon={<Delete size={14} />} onClick={() => setState(giveUp(state))}>
+                  <Button variant="outline" size="sm" leftIcon={<Delete size={14} />} onClick={surrender}>
                     {t('games:common.giveUp')}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={finish}>

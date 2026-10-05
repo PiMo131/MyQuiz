@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Eye, EyeOff } from 'lucide-react'
@@ -17,7 +17,6 @@ import {
   PausedOverlay,
   formatBest,
   gameMeta,
-  useBestScore,
   useDocumentVisible,
   useGameCards,
   useGameOptions,
@@ -35,7 +34,6 @@ export default function WordSearchPage() {
   const { t } = useTranslation(['games', 'common'])
   const [opts, setOpts] = useGameOptions<BaseGameOptions>('wordsearch', { ...DEFAULT_GAME_OPTIONS, promptSide: 'definition' })
   const { set, cards, loading } = useGameCards(setId, opts.starredOnly)
-  const best = useBestScore(setId, 'wordsearch')
   const session = useGameSession(setId, 'wordsearch')
   const play = useSfx()
   const visible = useDocumentVisible()
@@ -69,15 +67,6 @@ export default function WordSearchPage() {
     setPhase('play')
     void session.begin({ starredOnly: opts.starredOnly, promptSide: opts.promptSide, size })
   }, [cards, opts.promptSide, opts.starredOnly, session])
-
-  useEffect(() => {
-    if (phase !== 'play' || !done || !ws) return
-    const time = Math.round(elapsed)
-    void session.end(time, ws.placements.length).then((r) => {
-      setResult({ time, ...r })
-      setPhase('end')
-    })
-  }, [done])
 
   const cellAt = (e: { clientX: number; clientY: number }): [number, number] | null => {
     const el = boardRef.current
@@ -114,10 +103,18 @@ export default function WordSearchPage() {
     if (!sel || !ws) return
     const p = matchSelection(ws, sel.a, sel.b)
     if (p && !found.includes(p.id)) {
-      setFound((f) => [...f, p.id])
+      const nextFound = [...found, p.id]
+      setFound(nextFound)
       play('correct')
       const card = cards.find((c) => c.id === p.id)
       if (card) session.answer(card, true, p.word, p.word, opts.promptSide, Math.round(elapsed))
+      if (nextFound.length >= ws.placements.length) {
+        const time = Math.round(elapsed)
+        void session.end(time, ws.placements.length).then((r) => {
+          setResult({ time, ...r })
+          setPhase('end')
+        })
+      }
     } else if (sel.a[0] !== sel.b[0] || sel.a[1] !== sel.b[1]) {
       play('wrong')
       setWrongFlash(true)

@@ -1,0 +1,217 @@
+{
+  "titleCreate": "Nieuwe flashcardset maken",
+  "titleEdit": "Set bewerken",
+  "notFound": "Deze set bestaat niet (meer).",
+  "saveFailed": "Opslaan is mislukt. Probeer het opnieuw.",
+  "savedToast": "Wijzigingen opgeslagen",
+  "created": "Set aangemaakt",
+  "addCard": "Kaart toevoegen",
+  "specialChars": "Speciale tekens",
+  "actions": {
+    "create": "Maken",
+    "createAndPractice": "Maken en oefenen",
+    "save": "Opslaan",
+    "saveAndPractice": "Opslaan en oefenen"
+  },
+  "saved": {
+    "pending": "Opslaan…",
+    "justNow": "Zojuist opgeslagen",
+    "underMinute": "Opgeslagen, minder dan 1 min geleden",
+    "minutes_one": "Opgeslagen, {{count}} min geleden",
+    "minutes_other": "Opgeslagen, {{count}} min geleden",
+    "hours_one": "Opgeslagen, {{count}} uur geleden",
+    "hours_other": "Opgeslagen, {{count}} uur geleden"
+  },
+  "visibility": {
+    "private": "Privé",
+    "password": "Met wachtwoord",
+    "passwordHelp": "Exports en deelbestanden van deze set worden versleuteld met een wachtwoord dat je bij het exporteren kiest."
+  },
+  "fields": {
+    "title": "Titel",
+    "description": "Voeg een beschrijving toe…",
+    "folder": "Map",
+    "noFolder": "Geen map",
+    "tags": "Tags",
+    "tagsPlaceholder": "Tag toevoegen en op Enter drukken"
+  },
+  "validation": {
+    "title": "Geef je set eerst een titel.",
+    "cards": "Je hebt minimaal 2 kaarten nodig."
+  },
+  "toolbar": {
+    "import": "Importeren",
+    "suggestions": "Suggesties",
+    "search": "Zoeken in kaarten",
+    "swap": "Term en definitie omwisselen",
+    "shortcuts": "Sneltoetsen",
+    "deleteAll": "Alle kaarten verwijderen"
+  },
+  "deleteAll": {
+    "title": "Alle kaarten verwijderen?",
+    "body_one": "Dit verwijdert {{count}} kaart uit deze set. Dit kan niet ongedaan worden gemaakt.",
+    "body_other": "Dit verwijdert alle {{count}} kaarten uit deze set. Dit kan niet ongedaan worden gemaakt.",
+    "confirm": "Alles verwijderen"
+  },
+  "card": {
+    "aria": "Kaart {{n}}",
+    "term": "Term",
+    "definition": "Definitie",
+    "termPlaceholder": "Voer een term in",
+    "definitionPlaceholder": "Voer een definitie in",
+    "star": "Ster",
+    "drag": "Versleep om te verplaatsen",
+    "delete": "Kaart verwijderen",
+    "moreOptions": "Meer opties",
+    "lessOptions": "Minder opties"
+  },
+  "format": {
+    "toolbar": "Opmaak",
+    "bold": "Vet",
+    "italic": "Cursief",
+    "underline": "Onderstrepen",
+    "hlYellow": "Geel markeren",
+    "hlBlue": "Blauw markeren",
+    "hlPink": "Roze markeren",
+    "dictate": "Dicteren",
+    "stopDictation": "Stop met dicteren"
+  },
+  "language": {
+    "choose": "Kies taal",
+    "detected": "herkend",
+    "search": "Zoek talen",
+    "yours": "Jouw talen",
+    "popular": "Populair",
+    "all": "Alle talen",
+    "noResults": "Geen talen gevonden",
+    "autoDetect": "Automatisch herkennen"
+  },
+  "languages": {
+    "nl": "Nederlands", "en": "Engels", "de": "Duits", "fr": "Frans", "es": "Spaans", "it": "Italiaans", "pt": "Portugees", "la": "Latijn",
+    "el": "Grieks", "pl": "Pools", "tr": "Turks", "sv": "Zweeds", "da": "Deens", "no": "Noors", "fi": "Fins", "cs": "Tsjechisch", "hu": "Hongaars",
+    "ro": "Roemeens", "is": "IJslands", "ru": "Russisch", "uk": "Oekraïens", "ar": "Arabisch", "he": "Hebreeuws", "hi": "Hindi", "zh": "Chinees",
+    "ja": "Japans", "ko": "Koreaans", "vi": "Vietnamees", "id": "Indonesisch", "sw": "Swahili", "fy": "Fries", "af": "Afrikaans",
+    "chem": "Scheikunde", "math": "Wiskunde"
+  },
+  "suggestions": { "label": "Suggesties" },
+  "image": {
+    "slot": "Afbeelding",
+    "addTerm": "Afbeelding bij de term",
+    "addDefinition": "Afbeelding bij de definitie",
+    "replace": "Afbeelding vervangen",
+    "remove": "Afbeelding verwijderen",
+    "urlPlaceholder": "Plak een afbeeldings-URL",
+    "addUrl": "Toevoegen",
+    "or": "of",
+    "upload": "Eigen afbeelding uploaden",
+    "dropHint": "Sleep een afbeelding hierheen of plak er een vanaf het klembord (Ctrl+V). Afbeeldingen worden verkleind tot max. 1024 px.",
+    "notAnImage": "Dat bestand is geen afbeelding.",
+    "failed": "Afbeelding kon niet worden opgeslagen.",
+    "urlFailed": "Afbeelding kon niet worden geladen vanaf die URL."
+  },
+  "extras": {
+    "hint": "Hint",
+    "hintPlaceholder": "Een korte aanwijzing tijdens het oefenen",
+    "mnemonic": "Ezelsbruggetje",
+    "mnemonicPlaceholder": "Hoe onthoud je dit?",
+    "example": "Voorbeeld",
+    "examplePlaceholder": "Een voorbeeldzin of context",
+    "altAnswers": "Alternatieve antwoorden",
+    "altAnswersPlaceholder": "Antwoord toevoegen en op Enter drukken",
+    "altAnswersHelp": "Deze antwoorden worden ook goed gerekend bij Schrijven, Leren en Toets.",
+    "multipleChoice": "Meerkeuzeopties",
+    "addOptions": "Meerkeuzeopties toevoegen",
+    "removeOptions": "Opties verwijderen",
+    "optionPlaceholder": "Meerkeuzeoptie {{n}}",
+    "multipleChoiceHelp": "Deze opties verschijnen in willekeurige volgorde als afleiders bij Leren en Toets.",
+    "clozeMode": "Invulkaart (cloze)",
+    "clozeHelp": "Maak gaten in een zin met {{c1::antwoord}}. De term wordt dan de zin met gaten.",
+    "addOcclusion": "Delen van de afbeelding afdekken",
+    "editOcclusion_one": "Afdekking bewerken ({{count}} vlak)",
+    "editOcclusion_other": "Afdekking bewerken ({{count}} vlakken)"
+  },
+  "cloze": {
+    "label": "Invultekst",
+    "back": "Extra (achterkant)",
+    "makeBlank": "Gat maken",
+    "placeholder": "De hoofdstad van {{c1::Frankrijk}} is {{c2::Parijs}}.",
+    "preview": "Voorbeeld"
+  },
+  "occlusion": {
+    "title": "Afbeelding afdekken",
+    "help": "Sleep op de afbeelding om vlakken te tekenen die tijdens het oefenen verborgen worden. Elk vlak wordt een aparte vraag.",
+    "rect": "Vlak {{n}}",
+    "label": "Label voor vlak {{n}}",
+    "labelPlaceholder": "Label (optioneel)",
+    "save_one": "{{count}} vlak opslaan",
+    "save_other": "{{count}} vlakken opslaan"
+  },
+  "search": {
+    "placeholder": "Zoeken in kaarten",
+    "wholeWords": "Hele woorden",
+    "matchCase": "Hoofdlettergevoelig",
+    "options": "Zoekopties",
+    "noMatches": "Geen resultaten"
+  },
+  "shortcuts": {
+    "addCard": "Kaart toevoegen",
+    "addCardHint": "onder de huidige kaart",
+    "nextField": "Volgende veld of kaart",
+    "moveCard": "Kaart omhoog/omlaag",
+    "imageGallery": "Afbeelding kiezen",
+    "imageGalleryHint": "opent het afbeeldingspaneel",
+    "uploadImage": "Afbeelding uploaden",
+    "toggleSuggestions": "Suggesties aan/uit",
+    "voice": "Dicteren starten",
+    "bold": "Vet",
+    "italic": "Cursief",
+    "underline": "Onderstrepen",
+    "search": "Zoekbalk openen",
+    "searchHint": "zoekt alleen in kaarten"
+  },
+  "import": {
+    "title": "Gegevens importeren",
+    "tabPaste": "Tekst plakken",
+    "tabFile": "Bestand",
+    "pasteHelp": "Kopieer en plak je gegevens hier (uit Word, Excel, Google Documenten, Quizlet, enz.).",
+    "pastePlaceholder": "Term 1\tDefinitie 1\nTerm 2\tDefinitie 2",
+    "betweenSides": "Tussen term en definitie",
+    "betweenCards": "Tussen kaarten",
+    "tab": "Tab",
+    "comma": "Komma",
+    "newline": "Nieuwe regel",
+    "semicolon": "Puntkomma",
+    "custom": "Aangepast",
+    "customHelp": "Gebruik \\t voor een tab en \\n voor een nieuwe regel in een aangepast scheidingsteken.",
+    "dropTitle": "Sleep een bestand hierheen",
+    "dropFormats": "CSV, TSV, Anki (.txt of .apkg), Quizlet-export, Markdown of MyQuizz-JSON",
+    "chooseFile": "Bestand kiezen",
+    "passphrase": "Wachtwoord",
+    "unlock": "Ontgrendelen",
+    "preview": "Voorbeeld",
+    "swap": "Omwisselen",
+    "empty": "Plak tekst of kies een bestand om een voorbeeld te zien.",
+    "more_one": "… en nog {{count}} kaart",
+    "more_other": "… en nog {{count}} kaarten",
+    "cancel": "Import annuleren",
+    "import": "Importeren",
+    "done_one": "{{count}} kaart geïmporteerd",
+    "done_other": "{{count}} kaarten geïmporteerd",
+    "errFile": "Dit bestand kon niet worden gelezen.",
+    "errApkgZstd": "Dit .apkg-bestand gebruikt het nieuwste Anki-formaat. Exporteer in Anki met 'Ondersteun oudere Anki-versies' aan, of exporteer als tekst.",
+    "errPassphrase": "Onjuist wachtwoord.",
+    "source": {
+      "paste": "Tekst",
+      "csv": "CSV / TSV",
+      "anki": "Anki-tekst",
+      "quizlet": "Quizlet",
+      "markdown": "Markdown",
+      "myquizz": "MyQuizz",
+      "apkg": "Anki-pakket"
+    },
+    "warn": {
+      "mediaReferences": "Verwijzingen naar media-bestanden zijn overgeslagen",
+      "mediaUnsupported": "Media uit dit pakket wordt niet ondersteund"
+    }
+  }
+}

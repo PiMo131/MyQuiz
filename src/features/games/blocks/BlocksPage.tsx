@@ -48,6 +48,8 @@ interface Drag {
   offR: number
   offC: number
   touch: boolean
+  /** board cell size in px at drag start */
+  cs: number
   target: { row: number; col: number; ok: boolean } | null
 }
 
@@ -81,7 +83,7 @@ export default function BlocksPage() {
   const [typed, setTyped] = useState('')
   const [feedback, setFeedback] = useState<{ ok: boolean; answer: string } | null>(null)
   const [result, setResult] = useState<{ best: number; isNewBest: boolean } | null>(null)
-  const rewardRef = useRef(3)
+  const [reward, setReward] = useState(3)
   const uidRef = useRef(1)
   const rngRef = useRef(mulberry32(1))
   const nextCard = useRef<() => Card>(() => cards[0])
@@ -94,7 +96,7 @@ export default function BlocksPage() {
     const seed = Date.now() & 0xfffff
     rngRef.current = mulberry32(seed)
     nextCard.current = cardCycler(cards, rngRef.current)
-    rewardRef.current = 3
+    setReward(3)
     setGrid(emptyGrid())
     setTray(newTray(3))
     setScore(0)
@@ -125,30 +127,23 @@ export default function BlocksPage() {
     [session],
   )
 
-  // tray empty -> question; no fit -> game over
+  // game over when no tray piece fits anywhere (question creation happens in the drop handler)
   useEffect(() => {
-    if (phase !== 'play' || drag) return
+    if (phase !== 'play' || drag || question || feedback) return
     const alive = tray.filter((p): p is NonNullable<TrayPiece> => p !== null)
-    if (alive.length === 0) {
-      if (!question && !feedback) {
-        setQuestion(makeQuestion())
-        setTyped('')
-      }
-      return
-    }
-    if (!anyFits(grid, alive.map((p) => p.shape))) {
+    if (alive.length > 0 && !anyFits(grid, alive.map((p) => p.shape))) {
       play('lose')
       finish(score)
     }
-  }, [tray, grid, phase, drag, question, feedback, makeQuestion, finish, score, play])
+  }, [tray, grid, phase, drag, question, feedback, finish, score, play])
 
   const resolveAnswer = useCallback(
     (given: string, ok: boolean) => {
       if (!question) return
       const dur = Math.round(performance.now() - askedAt.current)
       session.answer(question.card, ok, given, question.answers[0], opts.promptSide, dur)
-      const count = ok ? 3 : Math.max(1, rewardRef.current - 1)
-      rewardRef.current = count
+      const count = ok ? 3 : Math.max(1, reward - 1)
+      setReward(count)
       setFeedback({ ok, answer: question.answers[0] })
       play(ok ? 'correct' : 'wrong')
       window.setTimeout(
@@ -160,7 +155,7 @@ export default function BlocksPage() {
         ok ? 700 : 1600,
       )
     },
-    [newTray, opts.promptSide, play, question, session],
+    [newTray, opts.promptSide, play, question, reward, session],
   )
 
   const submitTyped = () => {
@@ -170,11 +165,6 @@ export default function BlocksPage() {
   }
 
   // ----- drag & drop -----
-  const cellSize = () => {
-    const el = boardRef.current
-    return el ? el.getBoundingClientRect().width / BLOCKS_GRID : 40
-  }
-
   const computeTarget = useCallback((d: Drag, x: number, y: number) => {
     const el = boardRef.current
     if (!el) return null
@@ -199,7 +189,8 @@ export default function BlocksPage() {
     const { rows, cols } = shapeBounds(piece.shape)
     const offC = ((e.clientX - rect.left) / rect.width) * cols
     const offR = ((e.clientY - rect.top) / rect.height) * rows
-    const d: Drag = { uid: piece.uid, shape: piece.shape, x: e.clientX, y: e.clientY, offR, offC, touch: e.pointerType === 'touch', target: null }
+    const cs = boardRef.current ? boardRef.current.getBoundingClientRect().width / BLOCKS_GRID : 40
+    const d: Drag = { uid: piece.uid, shape: piece.shape, x: e.clientX, y: e.clientY, offR, offC, touch: e.pointerType === 'touch', cs, target: null }
     d.target = computeTarget(d, e.clientX, e.clientY)
     setDrag(d)
     play('select')
@@ -219,7 +210,12 @@ export default function BlocksPage() {
       setGrid(res.grid)
       setScore((s) => s + res.points)
       setCombo(lines > 0 ? combo + 1 : 0)
-      setTray((tr) => tr.map((p) => (p && p.uid === drag.uid ? null : p)))
+      const nextTray = tray.map((p) => (p && p.uid === drag.uid ? null : p))
+      setTray(nextTray)
+      if (nextTray.every((p) => p === null)) {
+        setQuestion(makeQuestion())
+        setTyped('')
+      }
       if (lines > 0) {
         play('clear')
         setFlashCells(res.clearedCells)
@@ -237,7 +233,7 @@ export default function BlocksPage() {
 
   const meta = gameMeta('blocks')
   const enough = cards.length >= meta.minCards
-  const cs = drag ? cellSize() : 0
+  const cs = drag?.cs ?? 0
 
   return (
     <GameLayout header={<GameHeader setId={setId} game="blocks" center={set?.title} onOptions={phase === 'intro' ? () => setOptionsOpen(true) : undefined} />}>
@@ -327,7 +323,7 @@ export default function BlocksPage() {
                     <div className={cn('rounded-xl px-3 py-2 text-sm font-medium', feedback.ok ? 'bg-accent-soft text-accent' : 'bg-error-soft text-error')} aria-live="polite">
                       {feedback.ok ? t('games:blocks.pieceReward', { count: 3 }) : (
                         <>
-                          {t('games:blocks.pieceLoss', { count: rewardRef.current })}
+                          {t('games:blocks.pieceLoss', { count: reward })}
                           <div className="mt-1 text-text">{t('games:common.correctAnswer')}: <strong>{feedback.answer}</strong></div>
                         </>
                       )}

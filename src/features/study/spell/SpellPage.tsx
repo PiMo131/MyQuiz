@@ -42,7 +42,7 @@ export default function SpellPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const dbSession = useRef<Session | null>(null)
   const answers = useRef<SessionAnswer[]>([])
-  const shownAt = useRef(Date.now())
+  const shownAt = useRef(0)
   const byId = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards])
   const q = state?.current ?? null
   const card = q ? byId.get(q.cardId) : undefined

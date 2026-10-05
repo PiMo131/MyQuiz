@@ -21,17 +21,25 @@ export interface UseLivePlayer {
   retry: () => void
 }
 
+interface Link {
+  hostPeer: string | null
+  view: PlayerView | null
+  setCode: string | null
+  setTitle: string
+  clockOffset: number
+}
+const NO_LINK: Link = { hostPeer: null, view: null, setCode: null, setTitle: '', clockOffset: 0 }
+
 export function useLivePlayer(code: string | null, identity: PlayerIdentity | null): UseLivePlayer {
-  const [status, setStatus] = useState<PlayerStatus>('idle')
+  const [link, setLink] = useState<Link>(NO_LINK)
   const [endReason, setEndReason] = useState<UseLivePlayer['endReason']>(null)
-  const [view, setView] = useState<PlayerView | null>(null)
-  const [setCode, setSetCode] = useState<string | null>(null)
-  const [setTitle, setSetTitle] = useState('')
-  const [clockOffset, setClockOffset] = useState(0)
-  const hostPeer = useRef<string | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
   const identityRef = useRef(identity)
-  identityRef.current = identity
+  const hostPeerRef = useRef<string | null>(null)
   const roomRef = useRef<UseLiveRoom | null>(null)
+  useEffect(() => {
+    identityRef.current = identity
+  })
 
   const hello = useCallback((target?: string) => {
     const id = identityRef.current
@@ -42,26 +50,19 @@ export function useLivePlayer(code: string | null, identity: PlayerIdentity | nu
 
   const onMessage = useCallback((raw: unknown, peerId: string) => {
     if (!isHostMessage(raw)) return
+    if (raw.t !== 'welcome' && hostPeerRef.current && peerId !== hostPeerRef.current) return
     switch (raw.t) {
       case 'welcome':
-        hostPeer.current = peerId
-        setSetCode(raw.set || null)
-        setSetTitle(raw.title)
-        setView(raw.view)
-        setClockOffset(raw.view.now - Date.now())
-        setStatus('connected')
+        hostPeerRef.current = peerId
+        setLink({ hostPeer: peerId, view: raw.view, setCode: raw.set || null, setTitle: raw.title, clockOffset: raw.view.now - Date.now() })
+        setEndReason(null)
         break
       case 'view':
-        if (hostPeer.current && peerId !== hostPeer.current) return
-        hostPeer.current = peerId
-        setView(raw.view)
-        setClockOffset(raw.view.now - Date.now())
-        setStatus('connected')
+        hostPeerRef.current = peerId
+        setLink((l) => ({ ...l, hostPeer: peerId, view: raw.view, clockOffset: raw.view.now - Date.now() }))
         break
       case 'end':
-        if (hostPeer.current && peerId !== hostPeer.current) return
         setEndReason(raw.reason)
-        setStatus('ended')
         break
     }
   }, [])
@@ -69,61 +70,76 @@ export function useLivePlayer(code: string | null, identity: PlayerIdentity | nu
   // Every new peer might be the host; non-hosts ignore hello messages.
   const onPeerJoin = useCallback((peerId: string) => hello(peerId), [hello])
   const onPeerLeave = useCallback((peerId: string) => {
-    if (peerId !== hostPeer.current) return
-    hostPeer.current = null
-    setStatus((s) => (s === 'connected' ? 'ended' : s))
+    if (peerId !== hostPeerRef.current) return
+    hostPeerRef.current = null
+    setLink((l) => ({ ...l, hostPeer: null }))
     setEndReason((r) => r ?? 'hostLeft')
+  }, [])
+
+  // Say goodbye when leaving the page (declared before useLiveRoom so it runs before the room closes).
+  useEffect(() => {
+    return () => {
+      const r = roomRef.current
+      const h = hostPeerRef.current
+      if (r && h) void r.send({ v: 1, t: 'bye' } satisfies ClientMessage, h)
+    }
   }, [])
 
   const active = Boolean(code && identity)
   const room = useLiveRoom({ code: active ? code : null, onMessage, onPeerJoin, onPeerLeave })
-  roomRef.current = room
+  useEffect(() => {
+    roomRef.current = room
+  })
 
-  // (Re)announce ourselves once the room is open, and after a reconnect.
+  // (Re)announce ourselves once the room is open, and keep knocking until the host answers.
   useEffect(() => {
     if (!active || room.status !== 'open') return
-    setStatus((s) => (s === 'connected' ? s : 'connecting'))
-    hostPeer.current = null
     hello()
     const retry = setInterval(() => {
-      if (!hostPeer.current) hello()
+      if (!hostPeerRef.current) hello()
     }, 3000)
     return () => clearInterval(retry)
   }, [active, room.status, hello])
 
+  const connected = active && room.status === 'open' && link.hostPeer !== null
+  const connecting = active && !connected && endReason === null
+
   // Join timeout → let the UI offer fallbacks.
   useEffect(() => {
-    if (status !== 'connecting') return
-    const t = setTimeout(() => setStatus((s) => (s === 'connecting' ? 'timeout' : s)), JOIN_TIMEOUT_MS)
+    if (!connecting) return
+    const t = setTimeout(() => setTimedOut(true), JOIN_TIMEOUT_MS)
     return () => clearTimeout(t)
-  }, [status])
-
-  // Say goodbye when leaving the page.
-  useEffect(() => {
-    return () => {
-      const r = roomRef.current
-      if (r && hostPeer.current) void r.send({ v: 1, t: 'bye' } satisfies ClientMessage, hostPeer.current)
-    }
-  }, [])
+  }, [connecting, room.status])
 
   const sendHost = useCallback((msg: ClientMessage) => {
-    if (hostPeer.current) void roomRef.current?.send(msg, hostPeer.current)
+    const h = hostPeerRef.current
+    if (h) void roomRef.current?.send(msg, h)
   }, [])
 
+  let status: PlayerStatus = 'idle'
+  if (active) {
+    if (endReason !== null) status = 'ended'
+    else if (connected) status = 'connected'
+    else if (timedOut) status = 'timeout'
+    else status = 'connecting'
+  }
+
   return {
-    status: active ? status : 'idle',
+    status,
     endReason,
     room,
-    view,
-    setCode,
-    setTitle,
-    clockOffset,
+    view: link.view,
+    setCode: link.setCode,
+    setTitle: link.setTitle,
+    clockOffset: link.clockOffset,
     answer: (questionId, choice) => sendHost({ v: 1, t: 'answer', questionId, choice }),
     power: (kind) => sendHost({ v: 1, t: 'power', kind }),
     match: (matched, done) => sendHost({ v: 1, t: 'match', matched, done }),
     retry: () => {
-      setStatus('connecting')
+      hostPeerRef.current = null
+      setLink((l) => ({ ...NO_LINK, view: l.view }))
       setEndReason(null)
+      setTimedOut(false)
       room.reconnect()
     },
   }

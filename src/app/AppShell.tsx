@@ -10,6 +10,8 @@ import { useTheme } from './theme'
 import { useSettings } from './settings-store'
 import { Dropdown, cn } from '@/ui'
 import { Logo } from './Logo'
+import { useStudyTracker } from '@/features/achievements'
+import { OfflineIndicator } from '@/features/pwa'
 
 const navItems = [
   { to: '/', key: 'home', icon: Home, end: true },
@@ -30,7 +32,8 @@ export function AppShell() {
   const settings = useSettings((s) => s.settings)
   const recent = useLiveQuery(() => db.sets.orderBy('updatedAt').reverse().limit(5).toArray(), [])
   const folders = useLiveQuery(() => db.folders.orderBy('name').toArray(), [])
-  const unread = useLiveQuery(() => db.notifications.where('read').equals(0).count().catch(() => 0), []) ?? 0
+  const unread = useLiveQuery(() => db.notifications.filter((n) => !n.read).count(), []) ?? 0
+  useStudyTracker()
   useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(false))
     return () => cancelAnimationFrame(id)
@@ -174,6 +177,7 @@ export function AppShell() {
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
+        <OfflineIndicator />
       </div>
     </div>
   )

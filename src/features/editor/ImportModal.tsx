@@ -3,19 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeftRight, FileUp, Upload } from 'lucide-react'
 import { Badge, Button, Input, Modal, Tabs, cn, toast } from '@/ui'
 import type { LangPair } from '@/domain/types'
-import { putMedia } from '@/db/repo'
-import {
-  DEFAULT_PASTE_OPTIONS,
-  detectSeparators,
-  parseAny,
-  parseApkg,
-  parsePaste,
-  type ParseResult,
-  type ParsedCard,
-  type PasteOptions,
-} from '@/domain/import-export/parsers'
-import { mimeForExt, readFileBytes, readFileText } from '@/domain/import-export/files'
-import { isEncrypted, decryptText } from '@/domain/import-export/crypto'
+import { DEFAULT_PASTE_OPTIONS, detectSeparators, parsePaste, type ParseResult, type ParsedCard, type PasteOptions } from '@/domain/import-export/parsers'
+import { parseImportFile } from '@/domain/import-export/parse-file'
 
 export interface ImportedCard {
   term: string
@@ -42,11 +31,6 @@ export interface ImportModalProps {
 
 type Tab = 'paste' | 'file'
 
-async function loadSql() {
-  const [{ default: initSqlJs }, { default: wasmUrl }] = await Promise.all([import('sql.js'), import('sql.js/dist/sql-wasm.wasm?url')])
-  return initSqlJs({ locateFile: () => wasmUrl })
-}
-
 const ACCEPT = '.txt,.csv,.tsv,.md,.json,.apkg,.mqz,text/plain,text/csv,application/json'
 
 export function ImportModal(props: ImportModalProps) {
@@ -65,7 +49,7 @@ function ImportModalBody({ onClose, onImport }: ImportModalProps) {
   const [fileName, setFileName] = useState('')
   const [busy, setBusy] = useState(false)
   const [passphrase, setPassphrase] = useState('')
-  const [needPass, setNeedPass] = useState<Uint8Array | null>(null)
+  const [needPass, setNeedPass] = useState(false)
   const [over, setOver] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -97,55 +81,18 @@ function ImportModalBody({ onClose, onImport }: ImportModalProps) {
       setBusy(true)
       setEdited(null)
       try {
-        const ext = file.name.toLowerCase().split('.').pop() ?? ''
-        let bytes: Uint8Array | null = null
-        if (ext === 'apkg' || ext === 'mqz' || ext === 'bin') bytes = await readFileBytes(file)
-        else {
-          bytes = await readFileBytes(file)
-          if (!isEncrypted(bytes)) bytes = null
-        }
-        if (bytes && isEncrypted(bytes)) {
-          if (!pass) {
-            setNeedPass(bytes)
-            setFileName(file.name)
-            return
-          }
-          const json = await decryptText(bytes, pass)
-          setFileResult(parseAny(json, 'x.json'))
-          setNeedPass(null)
+        const out = await parseImportFile(file, pass)
+        if (out.kind === 'needPassphrase') {
+          setNeedPass(true)
           setFileName(file.name)
           return
         }
-        if (ext === 'apkg') {
-          const sql = await loadSql()
-          const res = parseApkg(bytes!, sql)
-          // Store referenced media so cards get image ids.
-          if (res.media?.size) {
-            const idByName = new Map<string, string>()
-            for (const c of res.cards) {
-              for (const side of ['term', 'definition'] as const) {
-                const name = c.images?.[side]
-                if (!name) continue
-                let id = idByName.get(name)
-                const data = res.media.get(name)
-                if (!id && data) {
-                  const mime = mimeForExt(name.split('.').pop() ?? '')
-                  if (mime.startsWith('image/')) {
-                    const m = await putMedia(new Blob([data as BlobPart], { type: mime }))
-                    id = m.id
-                    idByName.set(name, id)
-                  }
-                }
-                if (id) c.images = { ...c.images, [side]: id }
-                else if (c.images) delete c.images[side]
-              }
-            }
-          }
-          setFileResult(res)
-        } else {
-          const txt = await readFileText(file)
-          setFileResult(parseAny(txt, file.name))
+        if (out.kind === 'backup') {
+          toast.info(t('import.errBackup'))
+          return
         }
+        setFileResult(out.result)
+        setNeedPass(false)
         setFileName(file.name)
       } catch (err) {
         const msg = err instanceof Error ? err.message : ''

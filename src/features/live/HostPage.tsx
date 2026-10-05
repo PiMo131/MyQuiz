@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ChevronLeft } from 'lucide-react'
-import type { LiveMode } from '@/domain/live/protocol'
+import { formatCode, type LiveMode } from '@/domain/live/protocol'
 import { Button, EmptyState, cn } from '@/ui'
 import { useLiveHost } from './useLiveHost'
 import { useSound } from './components/useSound'
@@ -42,7 +42,7 @@ export default function HostPage() {
 
   const close = () => navigate(`/set/${setId}`)
 
-  if (host.set === null || (host.set === undefined && host.cards !== undefined)) {
+  if (host.set === null) {
     return (
       <div className="mx-auto max-w-xl p-8">
         <EmptyState title={t('host.notFound')} action={<Link to="/live"><Button variant="secondary">{t('results.newSet')}</Button></Link>} />
@@ -56,7 +56,7 @@ export default function HostPage() {
       </div>
     )
   }
-  if (state.cards.length < MIN_CARDS && host.cards !== undefined) {
+  if (host.liveCards.length < MIN_CARDS) {
     return (
       <div className="mx-auto max-w-xl p-8">
         <EmptyState title={t('host.tooFewCards', { count: MIN_CARDS })} action={<Button variant="secondary" onClick={close}>{t('results.backToSet')}</Button>} />
@@ -86,7 +86,7 @@ export default function HostPage() {
           )
         }
         title={host.set.title}
-        subtitle={inGame ? `${t('host.code')} ${host.code.slice(0, 3)}-${host.code.slice(3)}` : undefined}
+        subtitle={inGame ? `${t('host.code')} ${formatCode(host.code)}` : undefined}
         soundOn={sound.on}
         onToggleSound={sound.toggle}
         onOptions={inLobby ? () => setOptions(true) : undefined}

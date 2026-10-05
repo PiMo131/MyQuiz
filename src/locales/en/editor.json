@@ -1,0 +1,217 @@
+{
+  "titleCreate": "Create a new flashcard set",
+  "titleEdit": "Edit set",
+  "notFound": "This set no longer exists.",
+  "saveFailed": "Saving failed. Please try again.",
+  "savedToast": "Changes saved",
+  "created": "Set created",
+  "addCard": "Add a card",
+  "specialChars": "Special characters",
+  "actions": {
+    "create": "Create",
+    "createAndPractice": "Create and practice",
+    "save": "Save",
+    "saveAndPractice": "Save and practice"
+  },
+  "saved": {
+    "pending": "Saving…",
+    "justNow": "Saved just now",
+    "underMinute": "Saved under 1 min ago",
+    "minutes_one": "Saved {{count}} min ago",
+    "minutes_other": "Saved {{count}} min ago",
+    "hours_one": "Saved {{count}} hour ago",
+    "hours_other": "Saved {{count}} hours ago"
+  },
+  "visibility": {
+    "private": "Private",
+    "password": "Password protected",
+    "passwordHelp": "Exports and share files of this set are encrypted with a passphrase you choose when exporting."
+  },
+  "fields": {
+    "title": "Title",
+    "description": "Add a description…",
+    "folder": "Folder",
+    "noFolder": "No folder",
+    "tags": "Tags",
+    "tagsPlaceholder": "Add a tag and press Enter"
+  },
+  "validation": {
+    "title": "Give your set a title first.",
+    "cards": "You need at least 2 cards."
+  },
+  "toolbar": {
+    "import": "Import",
+    "suggestions": "Suggestions",
+    "search": "Search in cards",
+    "swap": "Swap term and definition",
+    "shortcuts": "Keyboard shortcuts",
+    "deleteAll": "Delete all cards"
+  },
+  "deleteAll": {
+    "title": "Delete all cards?",
+    "body_one": "This removes {{count}} card from this set. This cannot be undone.",
+    "body_other": "This removes all {{count}} cards from this set. This cannot be undone.",
+    "confirm": "Delete all"
+  },
+  "card": {
+    "aria": "Card {{n}}",
+    "term": "Term",
+    "definition": "Definition",
+    "termPlaceholder": "Enter term",
+    "definitionPlaceholder": "Enter definition",
+    "star": "Star",
+    "drag": "Drag to reorder",
+    "delete": "Delete card",
+    "moreOptions": "More options",
+    "lessOptions": "Fewer options"
+  },
+  "format": {
+    "toolbar": "Formatting",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "hlYellow": "Highlight yellow",
+    "hlBlue": "Highlight blue",
+    "hlPink": "Highlight pink",
+    "dictate": "Dictate",
+    "stopDictation": "Stop dictation"
+  },
+  "language": {
+    "choose": "Choose language",
+    "detected": "detected",
+    "search": "Search languages",
+    "yours": "Your languages",
+    "popular": "Popular",
+    "all": "All languages",
+    "noResults": "No languages found",
+    "autoDetect": "Detect automatically"
+  },
+  "languages": {
+    "nl": "Dutch", "en": "English", "de": "German", "fr": "French", "es": "Spanish", "it": "Italian", "pt": "Portuguese", "la": "Latin",
+    "el": "Greek", "pl": "Polish", "tr": "Turkish", "sv": "Swedish", "da": "Danish", "no": "Norwegian", "fi": "Finnish", "cs": "Czech", "hu": "Hungarian",
+    "ro": "Romanian", "is": "Icelandic", "ru": "Russian", "uk": "Ukrainian", "ar": "Arabic", "he": "Hebrew", "hi": "Hindi", "zh": "Chinese",
+    "ja": "Japanese", "ko": "Korean", "vi": "Vietnamese", "id": "Indonesian", "sw": "Swahili", "fy": "Frisian", "af": "Afrikaans",
+    "chem": "Chemistry", "math": "Math"
+  },
+  "suggestions": { "label": "Suggestions" },
+  "image": {
+    "slot": "Image",
+    "addTerm": "Add a term image",
+    "addDefinition": "Add a definition image",
+    "replace": "Replace image",
+    "remove": "Remove image",
+    "urlPlaceholder": "Paste an image URL",
+    "addUrl": "Add",
+    "or": "or",
+    "upload": "Upload your own",
+    "dropHint": "Drop an image here or paste one from the clipboard (Ctrl+V). Images are downscaled to max. 1024 px.",
+    "notAnImage": "That file is not an image.",
+    "failed": "The image could not be saved.",
+    "urlFailed": "The image could not be loaded from that URL."
+  },
+  "extras": {
+    "hint": "Hint",
+    "hintPlaceholder": "A short clue shown while studying",
+    "mnemonic": "Mnemonic",
+    "mnemonicPlaceholder": "How do you remember this?",
+    "example": "Example",
+    "examplePlaceholder": "An example sentence or context",
+    "altAnswers": "Alternative answers",
+    "altAnswersPlaceholder": "Add an answer and press Enter",
+    "altAnswersHelp": "These answers are also accepted in Write, Learn and Test.",
+    "multipleChoice": "Multiple choice options",
+    "addOptions": "Add multiple choice options",
+    "removeOptions": "Remove options",
+    "optionPlaceholder": "Multiple choice option {{n}}",
+    "multipleChoiceHelp": "These options appear as randomly ordered distractors in Learn and Test.",
+    "clozeMode": "Fill-in-the-blank card (cloze)",
+    "clozeHelp": "Create blanks in a sentence with {{c1::answer}}. The term becomes the sentence with blanks.",
+    "addOcclusion": "Hide parts of the image",
+    "editOcclusion_one": "Edit occlusion ({{count}} area)",
+    "editOcclusion_other": "Edit occlusion ({{count}} areas)"
+  },
+  "cloze": {
+    "label": "Cloze text",
+    "back": "Extra (back)",
+    "makeBlank": "Make blank",
+    "placeholder": "The capital of {{c1::France}} is {{c2::Paris}}.",
+    "preview": "Preview"
+  },
+  "occlusion": {
+    "title": "Image occlusion",
+    "help": "Drag on the image to draw areas that are hidden while studying. Each area becomes its own question.",
+    "rect": "Area {{n}}",
+    "label": "Label for area {{n}}",
+    "labelPlaceholder": "Label (optional)",
+    "save_one": "Save {{count}} area",
+    "save_other": "Save {{count}} areas"
+  },
+  "search": {
+    "placeholder": "Search in cards",
+    "wholeWords": "Whole words",
+    "matchCase": "Match case",
+    "options": "Search options",
+    "noMatches": "No matches"
+  },
+  "shortcuts": {
+    "addCard": "Add card",
+    "addCardHint": "inserts below the current card",
+    "nextField": "Next side or card",
+    "moveCard": "Move card up/down",
+    "imageGallery": "Choose image",
+    "imageGalleryHint": "opens the image panel",
+    "uploadImage": "Upload image",
+    "toggleSuggestions": "Toggle suggestions",
+    "voice": "Start dictation",
+    "bold": "Bold text",
+    "italic": "Italicize text",
+    "underline": "Underline text",
+    "search": "Open search bar",
+    "searchHint": "searches card content only"
+  },
+  "import": {
+    "title": "Import your data",
+    "tabPaste": "Paste text",
+    "tabFile": "File",
+    "pasteHelp": "Copy and paste your data here (from Word, Excel, Google Docs, Quizlet, etc.).",
+    "pastePlaceholder": "Term 1\tDefinition 1\nTerm 2\tDefinition 2",
+    "betweenSides": "Between term and definition",
+    "betweenCards": "Between cards",
+    "tab": "Tab",
+    "comma": "Comma",
+    "newline": "New line",
+    "semicolon": "Semicolon",
+    "custom": "Custom",
+    "customHelp": "Use \\t for a tab and \\n for a new line in a custom separator.",
+    "dropTitle": "Drop a file here",
+    "dropFormats": "CSV, TSV, Anki (.txt or .apkg), Quizlet export, Markdown or MyQuizz JSON",
+    "chooseFile": "Choose file",
+    "passphrase": "Passphrase",
+    "unlock": "Unlock",
+    "preview": "Preview",
+    "swap": "Swap",
+    "empty": "Paste text or choose a file to see a preview.",
+    "more_one": "… and {{count}} more card",
+    "more_other": "… and {{count}} more cards",
+    "cancel": "Cancel import",
+    "import": "Import",
+    "done_one": "{{count}} card imported",
+    "done_other": "{{count}} cards imported",
+    "errFile": "This file could not be read.",
+    "errApkgZstd": "This .apkg uses the newest Anki format. In Anki, export with 'Support older Anki versions' enabled, or export as text.",
+    "errPassphrase": "Wrong passphrase.",
+    "source": {
+      "paste": "Text",
+      "csv": "CSV / TSV",
+      "anki": "Anki text",
+      "quizlet": "Quizlet",
+      "markdown": "Markdown",
+      "myquizz": "MyQuizz",
+      "apkg": "Anki package"
+    },
+    "warn": {
+      "mediaReferences": "References to media files were skipped",
+      "mediaUnsupported": "Media in this package is not supported"
+    }
+  }
+}

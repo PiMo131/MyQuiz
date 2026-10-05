@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ArrowDown, ArrowUp, Check, ChevronDown, List, Printer, RotateCcw, X } from 'lucide-react'
@@ -98,10 +98,6 @@ export default function TestPage() {
       setTimeout(() => document.querySelector<HTMLInputElement>(`#q-${nxt.id} input`)?.focus(), 350)
     } else document.getElementById('submit-test')?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  useEffect(() => {
-    if (!setupOpen && !state && !loading && cards.length) setSetupOpen(true)
-  }, [setupOpen, state, loading, cards.length])
 
   if (loading || !set) return null
   const total = state ? totalQuestions(state.questions) : 0

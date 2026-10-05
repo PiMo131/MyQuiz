@@ -26,8 +26,10 @@ import { useLiveRoom, type UseLiveRoom } from './useLiveRoom'
 import { loadHostCode, saveHostCode } from './storage'
 
 export interface UseLiveHost {
+  /** undefined while loading, null when the set does not exist */
   set: StudySet | null | undefined
   cards: Card[] | undefined
+  liveCards: LiveCard[]
   code: string
   room: UseLiveRoom
   state: LiveState
@@ -58,8 +60,9 @@ function toLiveCards(cards: Card[]): LiveCard[] {
 
 export function useLiveHost(setId: string): UseLiveHost {
   const settings = useSettings((s) => s.settings)
-  const set = useLiveQuery(() => db.sets.get(setId), [setId])
-  const cards = useLiveQuery(() => getCards(setId), [setId])
+  const data = useLiveQuery(async () => ({ set: (await db.sets.get(setId)) ?? null, cards: await getCards(setId) }), [setId])
+  const set = data?.set
+  const cards = data?.cards
   const [code, setCode] = useState(() => loadHostCode(setId) ?? generateCode())
   const [state, setState] = useState<LiveState>(() => createState([], {}, Date.now() & 0xffff))
   const stateRef = useRef(state)
@@ -83,6 +86,7 @@ export function useLiveHost(setId: string): UseLiveHost {
   }, [liveCards])
 
   const roomRef = useRef<UseLiveRoom | null>(null)
+  const [clock, setClock] = useState(0)
 
   const sendTo = useCallback((peerId: string, msg: HostMessage) => {
     void roomRef.current?.send(msg, peerId)
@@ -111,6 +115,7 @@ export function useLiveHost(setId: string): UseLiveHost {
       if (next === prev) return
       stateRef.current = next
       setState(next)
+      setClock(Date.now())
       broadcast(next)
       // host bookkeeping on phase changes
       if (prev.phase !== 'playing' && next.phase === 'playing') {
@@ -154,7 +159,6 @@ export function useLiveHost(setId: string): UseLiveHost {
   const onMessage = useCallback(
     (raw: unknown, peerId: string) => {
       if (!isClientMessage(raw)) return
-      const s = stateRef.current
       switch (raw.t) {
         case 'hello': {
           const p: PlayerIdentity = {
@@ -204,7 +208,6 @@ export function useLiveHost(setId: string): UseLiveHost {
           break
         }
       }
-      void s
     },
     [dispatch, sendTo, setCode_, set?.title],
   )
@@ -219,15 +222,28 @@ export function useLiveHost(setId: string): UseLiveHost {
     [dispatch],
   )
 
+  // Tell players when the host leaves (declared before useLiveRoom so this cleanup runs before the room closes).
+  useEffect(() => {
+    const peers = peerToPlayer.current
+    return () => {
+      const r = roomRef.current
+      if (r && peers.size) void r.send({ v: 1, t: 'end', reason: 'hostLeft' } satisfies HostMessage)
+    }
+  }, [])
+
   const room = useLiveRoom({ code, onMessage, onPeerLeave })
-  roomRef.current = room
+  useEffect(() => {
+    roomRef.current = room
+  })
 
   // Timers: engine ticks while counting down / playing.
   useEffect(() => {
     if (state.phase !== 'countdown' && state.phase !== 'playing') return
     const id = setInterval(() => {
-      dispatch({ type: 'tick', at: Date.now() })
-      setElapsed(Date.now() - (stateRef.current.startedAt ?? Date.now()))
+      const now = Date.now()
+      dispatch({ type: 'tick', at: now })
+      setClock(now)
+      setElapsed(now - (stateRef.current.startedAt ?? now))
     }, 250)
     return () => clearInterval(id)
   }, [state.phase, dispatch])
@@ -243,17 +259,8 @@ export function useLiveHost(setId: string): UseLiveHost {
     }
   }, [state.config.hostPlays, state.phase, myId, dispatch, settings.displayName, settings.avatar])
 
-  // Tell players when the host leaves.
-  useEffect(() => {
-    return () => {
-      const r = roomRef.current
-      if (r && peerToPlayer.current.size) void r.send({ v: 1, t: 'end', reason: 'hostLeft' } satisfies HostMessage)
-    }
-  }, [])
-
-  const now = Date.now()
-  const view = useMemo(() => publicState(state, now), [state, now])
-  const myView = state.config.hostPlays && state.players[myId] ? playerView(state, myId, now) : null
+  const view = useMemo(() => publicState(state, clock), [state, clock])
+  const myView = useMemo(() => (state.config.hostPlays && state.players[myId] ? playerView(state, myId, clock) : null), [state, myId, clock])
 
   const exportResults = useCallback(() => {
     const data = resultsExport(stateRef.current, { setTitle: set?.title ?? '', code })
@@ -268,6 +275,7 @@ export function useLiveHost(setId: string): UseLiveHost {
   return {
     set,
     cards,
+    liveCards,
     code,
     room,
     state,

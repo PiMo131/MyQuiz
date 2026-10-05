@@ -8,6 +8,7 @@ import { Toaster } from '@/ui'
 import { seedDemoIfEmpty } from './seed'
 import { PwaUpdater } from './PwaUpdater'
 import { NotFound } from './NotFound'
+import { runDailyChecks } from '@/features/notifications'
 
 function Spinner() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
     void (async () => {
       await seedDemoIfEmpty(i18n.language.startsWith('nl') ? 'nl' : 'en')
       await load()
+      void runDailyChecks().catch(() => undefined)
     })()
   }, [load, i18n.language])
   if (!loaded) return <Spinner />

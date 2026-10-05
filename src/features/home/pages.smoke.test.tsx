@@ -46,7 +46,7 @@ describe('feature D pages render', () => {
     const { default: HomePage } = await import('./HomePage')
     await mount('/', HomePage)
     await waitFor(() => expect(screen.getByText(/Pim/)).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText('Frans hoofdstuk 2')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getAllByText('Frans hoofdstuk 2').length).toBeGreaterThan(0))
   })
   it('LibraryPage', async () => {
     const { default: LibraryPage } = await import('@/features/library/LibraryPage')
